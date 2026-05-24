@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>OrganizeMeHelp</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#F7F4EF;--sand:#EDE8DF;--brown:#8B7355;--dark:#2C2416;
+  --accent:#5C7A5C;--accent-light:#E8F0E8;--accent-mid:#3D5C3D;
+  --warn:#C17B2E;--warn-light:#FDF3E3;
+  --danger:#B84040;--danger-light:#FBE8E8;
+  --white:#fff;--border:#DDD8CF;--muted:#8B8070;
+  --r:12px;--rlg:18px;--nav:68px;--top:52px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--dark);font-size:15px;}
+
+/* ── LOADING ── */
+#loading{position:fixed;inset:0;background:var(--cream);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:999;}
+.spin{width:34px;height:34px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ── LOGIN ── */
+#login{display:none;position:fixed;inset:0;background:var(--cream);overflow-y:auto;align-items:center;justify-content:center;padding:1.5rem;z-index:100;}
+.lcard{background:var(--white);border-radius:var(--rlg);padding:2rem 1.5rem;width:100%;max-width:400px;}
+.llogo{font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);margin-bottom:4px;}
+.ltitle{font-size:28px;font-weight:600;color:var(--dark);margin-bottom:6px;}
+.lsub{font-size:14px;color:var(--muted);margin-bottom:2rem;}
+.llabel{font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;}
+.linput{width:100%;padding:14px;border:1.5px solid var(--border);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:16px;background:var(--cream);color:var(--dark);margin-bottom:1rem;appearance:none;}
+.linput:focus{outline:none;border-color:var(--accent);}
+.lbtn{width:100%;padding:15px;background:var(--dark);color:var(--white);border:none;border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;cursor:pointer;margin-top:4px;}
+.lbtn:active{transform:scale(.98);}
+.lerr{color:var(--danger);font-size:13px;margin-top:10px;display:none;text-align:center;}
+
+/* ── APP ── */
+#app{display:none;position:fixed;inset:0;flex-direction:column;}
+.topbar{height:var(--top);background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 1rem;padding-top:env(safe-area-inset-top);flex-shrink:0;}
+.tbrand{font-size:16px;font-weight:600;color:var(--dark);}
+.tbrand span{color:var(--accent);}
+.tright{display:flex;align-items:center;gap:8px;}
+.syncpill{font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;gap:4px;}
+.syncpill.off{background:var(--warn-light);color:var(--warn);}
+.sdot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+.upill{font-size:12px;font-weight:600;background:var(--sand);border-radius:999px;padding:5px 11px;color:var(--brown);}
+.logoutbtn{font-size:20px;background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;}
+
+/* ── SCROLL ── */
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom) + 8px);}
+
+/* ── BOTTOM NAV ── */
+.bnav{height:var(--nav);background:var(--white);border-top:1px solid var(--border);display:flex;align-items:stretch;padding-bottom:env(safe-area-inset-bottom);flex-shrink:0;z-index:10;}
+.nitem{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--muted);padding:6px 2px;}
+.nitem.on{color:var(--accent);}
+.nitem.locked{opacity:.3;pointer-events:none;}
+.nico{font-size:21px;line-height:1;}
+.nlbl{font-size:10px;font-weight:600;letter-spacing:.02em;}
+
+/* ── SECTIONS ── */
+.sec{display:none;}.sec.on{display:block;}
+
+/* ── STICKY SEARCH BAR ── */
+.sbar{position:sticky;top:0;background:var(--cream);padding:10px 1rem 6px;z-index:5;}
+.sinput{width:100%;padding:11px 16px 11px 42px;border:1.5px solid var(--border);border-radius:999px;font-family:'DM Sans',sans-serif;font-size:15px;background:var(--white);color:var(--dark);appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%238B8070' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:14px center;}
+.sinput:focus{outline:none;border-color:var(--accent);}
+
+/* ── CATEGORY CHIPS ── */
+.chips{display:flex;gap:7px;overflow-x:auto;padding:0 1rem 10px;scrollbar-width:none;}
+.chips::-webkit-scrollbar{display:none;}
+.chip{flex-shrink:0;font-size:13px;font-weight:500;padding:7px 14px;border-radius:999px;border:1.5px solid var(--border);background:var(--white);color:var(--muted);cursor:pointer;white-space:nowrap;}
+.chip.on{background:var(--dark);color:var(--white);border-color:var(--dark);}
+
+/* ── PRODUCT CARDS ── */
+.plist{padding:0 1rem;}
+.pcard{background:var(--white);border-radius:var(--rlg);border:1px solid var(--border);margin-bottom:10px;overflow:hidden;display:flex;flex-direction:column;}
+.pcard-img-wrap{width:100%;height:140px;background:var(--sand);overflow:hidden;position:relative;flex-shrink:0;}
+.pcard-img{width:100%;height:100%;object-fit:cover;}
+.pcard-img-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:40px;color:var(--taupe,#C8BFB0);}
+.pcard-body{padding:.875rem;}
+.pcard-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:4px;}
+.pcard-name{font-size:14px;font-weight:600;color:var(--dark);line-height:1.3;flex:1;}
+.pcard-meta{font-size:12px;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px;}
+.prices{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.pbox{border-radius:8px;padding:7px 10px;background:var(--cream);}
+.pbox.cl{background:var(--accent-light);}
+.pbox.hb{background:var(--warn-light);}
+.pbox-lbl{font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);}
+.pbox.cl .pbox-lbl{color:var(--accent);}
+.pbox.hb .pbox-lbl{color:var(--warn);}
+.pbox-val{font-size:15px;font-weight:600;font-family:'DM Mono',monospace;color:var(--dark);margin-top:1px;}
+.pbox.cl .pbox-val{color:var(--accent);}
+.pbox.hb .pbox-val{color:var(--warn);}
+.pcard-acts{display:flex;gap:8px;margin-top:10px;}
+
+/* ── BADGES ── */
+.bdg{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:999px;}
+.bok{background:var(--accent-light);color:var(--accent);}
+.bwarn{background:var(--warn-light);color:var(--warn);}
+.bdanger{background:var(--danger-light);color:var(--danger);}
+.bgray{background:var(--sand);color:var(--muted);}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:10px 16px;border-radius:var(--r);border:1.5px solid var(--border);background:var(--white);font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--dark);}
+.btn:active{transform:scale(.97);}
+.btn-p{background:var(--dark);color:var(--white);border-color:var(--dark);}
+.btn-a{background:var(--accent);color:var(--white);border-color:var(--accent);}
+.btn-d{color:var(--danger);border-color:#E8BFBF;}
+.btn-sm{padding:7px 12px;font-size:13px;}
+.btn-full{width:100%;padding:15px;font-size:16px;border-radius:var(--r);}
+
+/* ── FAB ── */
+.fab{position:fixed;bottom:calc(var(--nav) + env(safe-area-inset-bottom) + 14px);right:1rem;width:54px;height:54px;border-radius:50%;background:var(--dark);color:var(--white);border:none;font-size:26px;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(44,36,22,.28);z-index:20;}
+.fab.show{display:flex;}
+.fab:active{transform:scale(.94);}
+
+/* ── TEAM TAB ── */
+.team-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:1rem;}
+.tcard{background:var(--white);border-radius:var(--rlg);border:1px solid var(--border);padding:1rem;cursor:pointer;text-align:center;}
+.tcard:active{transform:scale(.97);}
+.tavatar{width:48px;height:48px;border-radius:50%;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;margin:0 auto 8px;}
+.tname{font-size:14px;font-weight:600;color:var(--dark);margin-bottom:4px;}
+.tstat{font-size:12px;color:var(--muted);}
+.tstat strong{color:var(--dark);}
+.tback{display:flex;align-items:center;gap:8px;padding:10px 1rem;font-size:14px;font-weight:600;color:var(--accent);cursor:pointer;background:var(--cream);position:sticky;top:0;z-index:4;}
+
+/* ── INVENTORY ── */
+.inv-sec-lbl{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:12px 1rem 5px;border-top:1px solid var(--border);margin-top:4px;}
+.inv-sec-lbl:first-child{border-top:none;margin-top:0;}
+.irow{background:var(--white);border-bottom:1px solid var(--border);padding:11px 1rem;display:flex;align-items:center;gap:10px;}
+.irow:last-child{border-bottom:none;}
+.iinfo{flex:1;min-width:0;}
+.iname{font-size:14px;font-weight:500;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ivend{font-size:12px;color:var(--muted);}
+.qctrl{display:flex;align-items:center;background:var(--cream);border-radius:999px;border:1.5px solid var(--border);overflow:hidden;flex-shrink:0;}
+.qbtn{width:42px;height:42px;border:none;background:transparent;font-size:22px;font-weight:500;cursor:pointer;color:var(--dark);display:flex;align-items:center;justify-content:center;}
+.qbtn:active{background:var(--sand);}
+.qnum{font-size:15px;font-weight:700;min-width:32px;text-align:center;font-family:'DM Mono',monospace;color:var(--dark);}
+
+/* ── ALERTS ── */
+.alert{border-radius:var(--r);padding:12px 14px;font-size:13px;margin:0 1rem 12px;display:flex;align-items:flex-start;gap:8px;}
+.awarn{background:var(--warn-light);color:var(--warn);border:1px solid #F0D5A8;}
+.ainfo{background:var(--accent-light);color:var(--accent);border:1px solid #BDD4BD;}
+
+/* ── SUMMARY ── */
+.stags{display:flex;flex-wrap:wrap;gap:7px;padding:0 1rem 1rem;}
+.stag{font-size:13px;font-weight:500;padding:8px 14px;border-radius:999px;border:1.5px solid var(--border);cursor:pointer;color:var(--muted);background:var(--white);}
+.stag:active{transform:scale(.97);}
+.stag.on{background:var(--accent);color:var(--white);border-color:var(--accent);}
+.sum-tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.sum-tbl th{text-align:left;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding:7px 10px;border-bottom:1px solid var(--border);}
+.sum-tbl td{padding:10px;border-bottom:1px solid var(--border);color:var(--dark);}
+.sum-tbl .tot td{font-weight:700;background:var(--sand);font-family:'DM Mono',monospace;}
+.hbbox{background:var(--cream);border:1.5px solid var(--border);border-radius:var(--r);padding:12px;font-family:'DM Mono',monospace;font-size:12px;white-space:pre-wrap;color:var(--dark);max-height:150px;overflow-y:auto;margin-bottom:10px;}
+
+/* ── CLIENT TABLE ── */
+.ctbl{width:100%;border-collapse:collapse;font-size:13px;}
+.ctbl th{text-align:left;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding:8px 10px;border-bottom:2px solid var(--border);background:var(--cream);}
+.ctbl td{padding:10px;border-bottom:1px solid var(--border);color:var(--dark);vertical-align:top;}
+.ctbl a{color:var(--accent);text-decoration:none;font-weight:500;}
+
+/* ── FORM ── */
+.ff{margin-bottom:14px;}
+.fl{font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;}
+.fi{width:100%;padding:13px;border:1.5px solid var(--border);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:16px;background:var(--cream);color:var(--dark);appearance:none;}
+.fi:focus{outline:none;border-color:var(--accent);}
+
+/* ── SHEET ── */
+#sbg{display:none;position:fixed;inset:0;background:rgba(44,36,22,.45);z-index:300;}
+#sbg.on{display:block;}
+.sheet{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-radius:20px 20px 0 0;padding:1rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto;z-index:301;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);}
+.sheet.on{transform:translateY(0);}
+.shandle{width:40px;height:4px;background:var(--border);border-radius:999px;margin:0 auto 1.25rem;}
+.stitle{font-size:18px;font-weight:600;color:var(--dark);margin-bottom:1.25rem;}
+.ppgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin:8px 0;}
+.ppcell{background:var(--sand);border-radius:8px;padding:8px;}
+.pplbl{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em;}
+.ppval{font-size:14px;font-weight:700;font-family:'DM Mono',monospace;color:var(--dark);margin-top:2px;}
+
+.sdivider{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:14px 1rem 6px;border-top:1px solid var(--border);margin-top:4px;}
+.sdivider:first-child{border-top:none;}
+.empty{text-align:center;padding:3rem 1rem;color:var(--muted);font-size:14px;}
+.pad{padding:1rem;}
+
+@media(min-width:600px){
+  .sheet{max-width:500px;left:50%;transform:translateX(-50%) translateY(100%);right:auto;}
+  .sheet.on{transform:translateX(-50%) translateY(0);}
+  .team-grid{grid-template-columns:repeat(3,1fr);}
+}
+</style>
+</head>
+<body>
+
+<div id="loading"><div class="spin"></div><span style="font-size:13px;color:var(--muted)">Loading…</span></div>
+
+<div id="login" style="display:none;">
+  <div class="lcard">
+    <div class="llogo">OrganizeMeHelp</div>
+    <div class="ltitle">Team Portal</div>
+    <div class="lsub">Sign in to manage inventory</div>
+    <label class="llabel">Your name</label>
+    <select id="lu" class="linput">
+      <option value="">Select your name…</option>
+      <option>Mollie</option><option>Elizabeth</option><option>Morgan</option><option>Mari</option>
+      <option>Janae</option><option>Reigan</option><option>Siena</option><option>Kimberly</option>
+      <option>Savita</option><option>Anne</option><option>Johanna</option><option>Indira</option>
+      <option>Brittany</option>
+    </select>
+    <label class="llabel">Password</label>
+    <input type="password" id="lp" class="linput" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="lbtn" onclick="doLogin()">Sign in</button>
+    <div class="lerr" id="lerr">Incorrect name or password.</div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="topbar">
+    <div class="tbrand">Organize<span>Me</span>Help</div>
+    <div class="tright">
+      <div class="syncpill" id="spill"><span class="sdot"></span><span id="slbl">Live</span></div>
+      <span class="upill" id="upill"></span>
+      <button class="logoutbtn" onclick="doLogout()">⏻</button>
+    </div>
+  </div>
+
+  <div class="scroll" id="scroll">
+    <!-- PRODUCTS -->
+    <div class="sec on" id="sec-products">
+      <div id="lowbanner"></div>
+      <div class="sbar">
+        <input class="sinput" type="search" id="psearch" placeholder="Search products, vendors…" oninput="renderProducts()">
+      </div>
+      <div class="chips" id="catchips"></div>
+      <div class="plist" id="plist"></div>
+    </div>
+
+    <!-- TEAM -->
+    <div class="sec" id="sec-team">
+      <div id="team-overview"></div>
+      <div id="team-detail" style="display:none;"></div>
+    </div>
+
+    <!-- MY INVENTORY -->
+    <div class="sec" id="sec-inv">
+      <div style="padding:10px 1rem 0;">
+        <p style="font-size:13px;color:var(--muted);padding-bottom:8px;">Tap + / − to update your quantities. Syncs instantly.</p>
+      </div>
+      <div id="myinv"></div>
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="sec" id="sec-summary">
+      <div id="sum-locked" style="display:none;padding:1rem;"></div>
+      <div id="sum-content">
+        <div class="pad">
+          <div class="ff"><label class="fl">Client name</label><input type="text" class="fi" id="sc" placeholder="e.g. Sarah Johnson" oninput="renderSOut()"></div>
+          <div class="ff"><label class="fl">Project / job</label><input type="text" class="fi" id="sp" placeholder="e.g. Kitchen pantry" oninput="renderSOut()"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="ff"><label class="fl">Organizer</label>
+              <select class="fi" id="sorg" onchange="renderSOut()">
+                <option value="">Select…</option>
+                <option>Mollie</option><option>Elizabeth</option><option>Morgan</option><option>Mari</option>
+                <option>Janae</option><option>Reigan</option><option>Siena</option><option>Kimberly</option>
+                <option>Savita</option><option>Anne</option><option>Johanna</option><option>Indira</option>
+                <option>Brittany</option>
+              </select>
+            </div>
+            <div class="ff"><label class="fl">Date</label><input type="date" class="fi" id="sdate" onchange="renderSOut()"></div>
+          </div>
+        </div>
+        <div class="sdivider" style="border-top:none;">Tap products used on this job</div>
+        <div class="stags" id="stags"></div>
+        <div id="sqty"></div>
+        <div id="sout" style="padding:0 1rem 1rem;"></div>
+      </div>
+    </div>
+
+    <!-- CLIENT VIEW -->
+    <div class="sec" id="sec-client">
+      <div class="sbar">
+        <input class="sinput" type="search" id="cvsearch" placeholder="Search products…" oninput="renderCV()">
+      </div>
+      <div style="overflow-x:auto;padding:0 1rem;">
+        <table class="ctbl">
+          <thead><tr><th>Product</th><th>Vendor</th><th>Link</th></tr></thead>
+          <tbody id="cvbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="bnav">
+    <button class="nitem on" id="n-products" onclick="showTab('products')"><span class="nico">📦</span><span class="nlbl">Products</span></button>
+    <button class="nitem" id="n-team" onclick="showTab('team')"><span class="nico">👥</span><span class="nlbl">Team</span></button>
+    <button class="nitem" id="n-inv" onclick="showTab('inv')"><span class="nico">🗂</span><span class="nlbl">My Stock</span></button>
+    <button class="nitem" id="n-summary" onclick="showTab('summary')"><span class="nico">🧾</span><span class="nlbl">Summary</span></button>
+    <button class="nitem" id="n-client" onclick="showTab('client')"><span class="nico">👁</span><span class="nlbl">Client</span></button>
+  </div>
+</div>
+
+<button class="fab" id="fab" onclick="openAdd()">＋</button>
+
+<div id="sbg" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet">
+  <div class="shandle"></div>
+  <div class="stitle" id="stitle">Add Product</div>
+  <div id="sbody"></div>
+</div>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import{getDatabase,ref,set,get,onValue}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const FB={apiKey:"AIzaSyDw8USusWkZel2qPfUsE9Cs5UTy0jEd-FQ",authDomain:"organizeme--inventory-tracker.firebaseapp.com",databaseURL:"https://organizeme--inventory-tracker-default-rtdb.firebaseio.com",projectId:"organizeme--inventory-tracker",storageBucket:"organizeme--inventory-tracker.firebasestorage.app",messagingSenderId:"854910261181",appId:"1:854910261181:web:5eded9c74c4fef1319e4d4"};
+const app=initializeApp(FB);const db=getDatabase(app);
+
+const USERS={'Mollie':{pass:'mollie123',senior:true},'Elizabeth':{pass:'elizabeth123',senior:true},'Morgan':{pass:'morgan123',senior:true},'Mari':{pass:'mari123',senior:true},'Janae':{pass:'janae123',senior:false},'Reigan':{pass:'reigan123',senior:false},'Siena':{pass:'siena123',senior:false},'Kimberly':{pass:'kimberly123',senior:false},'Savita':{pass:'savita123',senior:false},'Anne':{pass:'anne123',senior:false},'Johanna':{pass:'johanna123',senior:false},'Indira':{pass:'indira123',senior:false},'Brittany':{pass:'brittany123',senior:false}};
+const ALL_ORGS=['Mollie','Elizabeth','Morgan','Mari','Janae','Reigan','Siena','Kimberly','Savita','Anne','Johanna','Indira','Brittany'];
+const CATS=['Acrylic Storage','Bins & Baskets','Drawer Organizers','Totes & Boxes','Shelving & Racks','Labels & Tape','Lazy Susans','Bags & Moving','Equipment','Other'];
+const CAT_EMOJI={'Acrylic Storage':'🧊','Bins & Baskets':'🧺','Drawer Organizers':'🗄','Totes & Boxes':'📦','Shelving & Racks':'🗃','Labels & Tape':'🏷','Lazy Susans':'🔄','Bags & Moving':'🎒','Equipment':'🔧','Other':'✨'};
+const LOW=3;
+
+const DP=[
+  {id:'p1',name:'Acrylic 3 Drawer Storage — 3 Drawer (Brightroom)',cat:'Acrylic Storage',vendor:'Target',link:'https://www.target.com/p/-/A-94711380',retail:0,notes:''},
+  {id:'p2',name:'Acrylic 3 Drawer Storage — 2 Drawer (Brightroom)',cat:'Acrylic Storage',vendor:'Target',link:'https://www.target.com',retail:0,notes:''},
+  {id:'p3',name:'Acrylic Bins & Drawers (Sorbus)',cat:'Acrylic Storage',vendor:'Amazon',link:'https://a.co/d/09pIx70S',retail:0,notes:''},
+  {id:'p4',name:'Acrylic Bins & Drawers (vtop)',cat:'Acrylic Storage',vendor:'Amazon',link:'https://a.co/d/0aJDAKgT',retail:0,notes:''},
+  {id:'p5',name:'Acrylic Bins Open Front (mDesign)',cat:'Bins & Baskets',vendor:'Amazon',link:'',retail:0,notes:''},
+  {id:'p6',name:'Acrylic Bins (Bino)',cat:'Bins & Baskets',vendor:'Amazon, TJ Maxx',link:'',retail:0,notes:''},
+  {id:'p7',name:'Acrylic Drawer Organizer (The Home Edit)',cat:'Drawer Organizers',vendor:'Container Store',link:'',retail:0,notes:''},
+  {id:'p8',name:'Acrylic Drawer Organizers (Brightroom / Walmart)',cat:'Drawer Organizers',vendor:'Walmart',link:'https://www.walmart.com/ip/808451650',retail:0,notes:''},
+  {id:'p9',name:'Acrylic Drawer Organizers 9pc (iDesign / Costco)',cat:'Drawer Organizers',vendor:'Costco',link:'https://www.costco.com/idesign-9-piece-drawer-organizer-set.product.4000332003.html',retail:0,notes:''},
+  {id:'p10',name:'Acrylic Drawer Organizers Short Bin (Container Store)',cat:'Drawer Organizers',vendor:'Container Store',link:'https://www.containerstore.com/s/kitchen/pantry-organizers/bins-and-baskets/everything-organizer-short-bin-organizer/123d?productId=11027249',retail:0,notes:''},
+  {id:'p11',name:'Acrylic Drawer Organizers 6pc (The Home Edit / Walmart)',cat:'Drawer Organizers',vendor:'Walmart',link:'https://www.walmart.com/ip/808451650',retail:0,notes:''},
+  {id:'p12',name:'Acrylic Half Depth Drawer (Brightroom)',cat:'Acrylic Storage',vendor:'Target',link:'https://www.target.com/p/-/A-94711380',retail:0,notes:''},
+  {id:'p13',name:'Acrylic Open Front Storage Bin (Brightroom)',cat:'Bins & Baskets',vendor:'Target',link:'',retail:0,notes:''},
+  {id:'p14',name:'Acrylic Shelf Dividers',cat:'Other',vendor:'Amazon',link:'https://a.co/d/0dnaRudL',retail:0,notes:''},
+  {id:'p15',name:'Acrylic Single Drawer Storage (Brightroom)',cat:'Acrylic Storage',vendor:'Target',link:'https://www.target.com/p/-/A-87646823',retail:0,notes:''},
+  {id:'p16',name:'Acrylic Small Depth Drawer (Brightroom)',cat:'Acrylic Storage',vendor:'Target',link:'https://www.target.com/p/-/A-94711377',retail:0,notes:''},
+  {id:'p17',name:'Acrylic Stackable Bin w/ Divider — Large',cat:'Acrylic Storage',vendor:'Target',link:'https://www.target.com/p/-/A-93251227',retail:0,notes:''},
+  {id:'p18',name:'Acrylic Stackable Bin w/ Divider — Small',cat:'Acrylic Storage',vendor:'Target',link:'https://www.target.com/p/-/A-93251231',retail:0,notes:''},
+  {id:'p19',name:'Acrylic Stackable Drawers (Bino)',cat:'Acrylic Storage',vendor:'Amazon',link:'',retail:0,notes:''},
+  {id:'p20',name:'Acrylic Storage Bin — Small (Brightroom)',cat:'Bins & Baskets',vendor:'Target',link:'',retail:0,notes:''},
+  {id:'p21',name:'Acrylic Storage Bin (Brightroom)',cat:'Bins & Baskets',vendor:'Target',link:'https://www.target.com/p/-/A-83279887',retail:0,notes:''},
+  {id:'p22',name:'Acrylic Tall Depth Drawer (Brightroom)',cat:'Acrylic Storage',vendor:'Target',link:'https://www.target.com/p/-/A-94711379',retail:0,notes:''},
+  {id:'p23',name:'Acrylic Wall Mount Organizer — Adhesive',cat:'Other',vendor:'Target',link:'',retail:0,notes:''},
+  {id:'p24',name:'Acrylic Candy Dispenser',cat:'Other',vendor:'Amazon',link:'https://a.co/d/0aibVyS8',retail:0,notes:''},
+  {id:'p25',name:'Acrylic Bathroom Organizer Bin 6.5"×6"×9"',cat:'Bins & Baskets',vendor:'Target',link:'https://www.target.com/p/-/A-81457178',retail:0,notes:''},
+  {id:'p26',name:'Acrylic Bathroom Organizer Bin 6.5"×12"×9"',cat:'Bins & Baskets',vendor:'Target',link:'https://www.target.com/p/-/A-81457178',retail:0,notes:''},
+  {id:'p27',name:'Bamboo Kitchen Drawer Organizer 9pc (Costco)',cat:'Drawer Organizers',vendor:'Costco',link:'https://www.costco.com/seville-classics-9-piece-bamboo-organizer-starter-set.product.4000100458.html',retail:0,notes:''},
+  {id:'p28',name:'Bamboo Open Front Bins 2pc (The Home Edit)',cat:'Bins & Baskets',vendor:'Walmart',link:'https://www.walmart.com/ip/1308763886',retail:0,notes:''},
+  {id:'p29',name:'Bin Clips (Set of 30)',cat:'Other',vendor:'Amazon',link:'https://a.co/d/0hfG4rNn',retail:0,notes:''},
+  {id:'p30',name:'Black Label Tape',cat:'Labels & Tape',vendor:'Amazon',link:'https://a.co/d/00nw9RrJ',retail:0,notes:''},
+  {id:'p31',name:'Clothing Rolling Rack — Single Rod',cat:'Equipment',vendor:'Amazon',link:'https://www.amazon.com/dp/B082V56R78',retail:0,notes:''},
+  {id:'p32',name:'Clothing Rolling Rack — Double Rod',cat:'Equipment',vendor:'Amazon',link:'https://www.amazon.com/dp/B0D7HTH43B',retail:0,notes:''},
+  {id:'p33',name:'Colored Tape',cat:'Labels & Tape',vendor:'Amazon',link:'https://a.co/d/00hlHPaN',retail:0,notes:''},
+  {id:'p34',name:'Drawer Organizers (Bino)',cat:'Drawer Organizers',vendor:'Amazon',link:'',retail:0,notes:''},
+  {id:'p35',name:'Drink Dispenser',cat:'Other',vendor:'Amazon',link:'https://a.co/d/0gwTlVIG',retail:0,notes:''},
+  {id:'p36',name:'Everything Organizer Wide Bin (Container Store)',cat:'Bins & Baskets',vendor:'Container Store',link:'',retail:0,notes:''},
+  {id:'p37',name:'Everything Organizer Wide Bin w/ Divider',cat:'Bins & Baskets',vendor:'Container Store',link:'https://www.containerstore.com/s/kitchen/pantry-organizers/bins-and-baskets/everything-organizer-wide-all-purpose-divided-bin/123d?productId=11026845',retail:0,notes:''},
+  {id:'p38',name:'Flexmounts Overhead Garage Storage',cat:'Shelving & Racks',vendor:'Amazon',link:'https://a.co/d/cthX6xD',retail:0,notes:''},
+  {id:'p39',name:'Garbage Bags',cat:'Other',vendor:'Amazon',link:'https://www.amazon.com/dp/B00A441B2I',retail:0,notes:''},
+  {id:'p40',name:'Heavy Duty Shelving (SafeRacks)',cat:'Shelving & Racks',vendor:'Costco',link:'',retail:0,notes:''},
+  {id:'p41',name:'Heavy Duty Storage Totes 27gal 4pk (Greenmade)',cat:'Totes & Boxes',vendor:'Costco, Walmart, Target',link:'https://www.costco.com/greenmade-27-gallon-storage-bin-4-pack.product.4000205525.html',retail:0,notes:''},
+  {id:'p42',name:'Heavy Duty Storage Totes 27gal 8pk (Greenmade)',cat:'Totes & Boxes',vendor:'Costco, Walmart, Target',link:'https://www.costco.com/greenmade-27-gallon-storage-bin-8-pack.product.4000377855.html',retail:0,notes:''},
+  {id:'p43',name:'Heavy Duty Tote Rack (Proslat)',cat:'Shelving & Racks',vendor:'Costco',link:'',retail:0,notes:''},
+  {id:'p44',name:'Heavy Duty Totes 12gal 4pk (Greenmade)',cat:'Totes & Boxes',vendor:'Costco',link:'https://www.costco.com/p/-/greenmade-12-gallon-storage-bin-4-pack/4000229972',retail:0,notes:''},
+  {id:'p45',name:'IKEA FRAKTA Bag — Large Blue',cat:'Bags & Moving',vendor:'IKEA',link:'https://www.ikea.com/us/en/p/frakta-shopping-bag-large-blue-17228340/',retail:0,notes:''},
+  {id:'p46',name:'Label Maker (P-Touch Cube Plus)',cat:'Labels & Tape',vendor:'Container Store',link:'https://www.containerstore.com/s/office/labels-label-makers/p-touch-cube-plus-label-maker/12d?productId=11016156',retail:0,notes:''},
+  {id:'p47',name:'Label Tape',cat:'Labels & Tape',vendor:'Amazon',link:'https://www.amazon.com/dp/B0FRF8VV2J',retail:0,notes:''},
+  {id:'p48',name:'Ladders (OrganizeME only)',cat:'Equipment',vendor:'Lowes',link:'',retail:0,notes:'Company use only'},
+  {id:'p49',name:'Lazy Susans (Amazon)',cat:'Lazy Susans',vendor:'Amazon',link:'https://a.co/d/02PVP2lo',retail:0,notes:''},
+  {id:'p50',name:'Lazy Susans — Large (Brightroom)',cat:'Lazy Susans',vendor:'Target',link:'https://www.target.com/p/-/A-89811888',retail:0,notes:''},
+  {id:'p51',name:'Lazy Susans XL Black (Brightroom)',cat:'Lazy Susans',vendor:'Target',link:'https://www.target.com/p/-/A-89811888',retail:0,notes:''},
+  {id:'p52',name:'Organizer Tote Bags (Black / Multi)',cat:'Bags & Moving',vendor:'Amazon',link:'https://a.co/d/0ho0Alqt',retail:0,notes:''},
+  {id:'p53',name:'Organizer Tray / Riser (Brightroom)',cat:'Other',vendor:'Target',link:'',retail:0,notes:''},
+  {id:'p54',name:'Packing Boxes — Large',cat:'Bags & Moving',vendor:'Lowes, Home Depot',link:'',retail:0,notes:''},
+  {id:'p55',name:'Packing Boxes — Medium',cat:'Bags & Moving',vendor:'Lowes, Home Depot',link:'',retail:0,notes:''},
+  {id:'p56',name:'Packing Boxes — Small',cat:'Bags & Moving',vendor:'Lowes, Home Depot',link:'',retail:0,notes:''},
+  {id:'p57',name:'Packing Boxes — XL',cat:'Bags & Moving',vendor:'Lowes, Home Depot',link:'',retail:0,notes:''},
+  {id:'p58',name:'Packing Paper',cat:'Bags & Moving',vendor:'Lowes, Home Depot',link:'',retail:0,notes:''},
+  {id:'p59',name:'Packing Tape — Clear Rolls',cat:'Labels & Tape',vendor:'Lowes',link:'',retail:0,notes:''},
+  {id:'p60',name:'Painters Tape',cat:'Labels & Tape',vendor:'Amazon',link:'https://www.amazon.com/dp/B07XNTGRJB',retail:0,notes:''},
+  {id:'p61',name:'Plastic Utility Storage Bin — Large',cat:'Bins & Baskets',vendor:'Target, Walmart',link:'https://www.walmart.com/ip/430879032',retail:0,notes:''},
+  {id:'p62',name:'Plastic Utility Storage Bin — 12qt Narrow',cat:'Bins & Baskets',vendor:'Target, Walmart',link:'https://www.walmart.com/ip/3181212716',retail:0,notes:''},
+  {id:'p63',name:'Can / Drink Dispenser',cat:'Other',vendor:'Amazon',link:'https://a.co/d/0gwTlVIG',retail:0,notes:''},
+  {id:'p64',name:'Pull-Out Cabinet Organizer Drawers',cat:'Drawer Organizers',vendor:'Amazon',link:'https://www.amazon.com/dp/B0DNVR6BSW',retail:0,notes:''},
+  {id:'p65',name:'Rolling Shelving',cat:'Shelving & Racks',vendor:'Amazon',link:'https://a.co/d/aMdUS3Y',retail:0,notes:''},
+  {id:'p66',name:'Stackable Bottle Organizer (Container Store)',cat:'Other',vendor:'Container Store',link:'',retail:0,notes:''},
+  {id:'p67',name:'Step Stool',cat:'Equipment',vendor:'',link:'',retail:0,notes:''},
+  {id:'p68',name:'Sterilite Latching Bin — 7qt Small',cat:'Totes & Boxes',vendor:'Walmart',link:'https://www.walmart.com/ip/46001913',retail:0,notes:''},
+  {id:'p69',name:'Sterilite Latching Bin — 15qt Medium Short',cat:'Totes & Boxes',vendor:'Walmart',link:'https://www.walmart.com/ip/46001916',retail:0,notes:''},
+  {id:'p70',name:'Sterilite Latching Bin — 27qt Medium Tall',cat:'Totes & Boxes',vendor:'Walmart',link:'https://www.walmart.com/ip/46001917',retail:0,notes:''},
+  {id:'p71',name:'Sterilite Latching Totes — 66qt Large',cat:'Totes & Boxes',vendor:'Walmart',link:'https://www.walmart.com/ip/202840819',retail:0,notes:''},
+  {id:'p72',name:'Sterilite Storage Totes — 66qt',cat:'Totes & Boxes',vendor:'Walmart, Target',link:'https://www.walmart.com/ip/202840819',retail:0,notes:''},
+  {id:'p73',name:'Water Hyacinth Baskets (Container Store)',cat:'Bins & Baskets',vendor:'Container Store',link:'',retail:0,notes:''},
+  {id:'p74',name:'Water Bottle Organizer',cat:'Other',vendor:'TJ Maxx/Homegoods',link:'',retail:0,notes:''},
+  {id:'p75',name:'Weathertight Totes (Container Store)',cat:'Totes & Boxes',vendor:'Container Store',link:'',retail:0,notes:''},
+];
+
+// Image search using DuckDuckGo image proxy (no API key needed)
+const IMG_CACHE={};
+function getImgUrl(name,cat){
+  const q=encodeURIComponent(name+' organizer storage product');
+  return`https://source.unsplash.com/200x140/?${encodeURIComponent(cat.toLowerCase().replace(/&/g,'').replace(/\s+/g,','))},organizer,storage`;
+}
+
+let cu=null,senior=false,editId=null,selProd={},products=[],inventory={},activeCat='',viewingOrg=null;
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function uid(){return'p'+Date.now().toString(36)+Math.random().toString(36).slice(2);}
+function fmt(n){return'$'+(+n||0).toFixed(2);}
+function cp(r){const v=parseFloat(r)||0;return{retail:v,src:v*.25,base:v*1.25,hb:v*1.25*1.08};}
+function tqty(pid){return ALL_ORGS.reduce((s,o)=>s+((inventory[o]||{})[pid]||0),0);}
+function initials(n){return n.slice(0,2).toUpperCase();}
+
+function sync(s){
+  const p=document.getElementById('spill'),l=document.getElementById('slbl');
+  if(!p)return;
+  if(s==='live'){p.className='syncpill';l.textContent='Live';}
+  else if(s==='saving'){p.className='syncpill';l.textContent='Saving…';}
+  else{p.className='syncpill off';l.textContent='Offline';}
+}
+
+async function initData(){
+  const s=await get(ref(db,'products'));
+  if(!s.exists()){const o={};DP.forEach(p=>{o[p.id]=p;});await set(ref(db,'products'),o);products=[...DP];}
+  else products=Object.values(s.val());
+  const iv=await get(ref(db,'inventory'));
+  inventory=iv.exists()?iv.val():{};
+}
+function listen(){
+  onValue(ref(db,'products'),s=>{products=s.exists()?Object.values(s.val()):[];if(cu){renderProducts();renderSTags();renderCV();}});
+  onValue(ref(db,'inventory'),s=>{inventory=s.exists()?s.val():{};if(cu){renderProducts();renderMyInv();renderTeam();}});
+}
+
+window.doLogin=function(){
+  const name=document.getElementById('lu').value,pass=document.getElementById('lp').value;
+  const err=document.getElementById('lerr');
+  if(!name){err.textContent='Please select your name.';err.style.display='block';return;}
+  const u=USERS[name];
+  if(!u||pass!==u.pass){err.style.display='block';return;}
+  err.style.display='none';cu=name;senior=u.senior;
+  document.getElementById('login').style.display='none';
+  document.getElementById('app').style.display='flex';
+  document.getElementById('upill').textContent=name+(senior?' ★':'');
+  document.getElementById('sorg').value=name;
+  document.getElementById('sdate').value=new Date().toISOString().split('T')[0];
+  if(!senior)document.getElementById('n-summary').classList.add('locked');
+  document.getElementById('fab').className=senior?'fab show':'fab';
+  buildChips();showTab('products');
+};
+window.doLogout=function(){
+  cu=null;senior=false;selProd={};viewingOrg=null;
+  document.getElementById('login').style.display='flex';
+  document.getElementById('app').style.display='none';
+  document.getElementById('lp').value='';document.getElementById('lu').value='';
+};
+
+window.showTab=function(t){
+  if(t==='summary'&&!senior)return;
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.nitem').forEach(b=>b.classList.remove('on'));
+  document.getElementById('sec-'+t).classList.add('on');
+  document.getElementById('n-'+t).classList.add('on');
+  document.getElementById('scroll').scrollTop=0;
+  document.getElementById('fab').className=(t==='products'&&senior)?'fab show':'fab';
+  if(t==='products')renderProducts();
+  if(t==='team'){viewingOrg=null;renderTeam();}
+  if(t==='inv')renderMyInv();
+  if(t==='summary')renderSummary();
+  if(t==='client')renderCV();
+};
+
+function buildChips(){
+  document.getElementById('catchips').innerHTML=
+    ['All',...CATS].map(c=>`<span class="chip${(c==='All'&&!activeCat)||c===activeCat?' on':''}" onclick="setCat('${c}')">${CAT_EMOJI[c]||''} ${c}</span>`).join('');
+}
+window.setCat=function(c){activeCat=c==='All'?'':c;buildChips();renderProducts();};
+
+function renderProducts(){
+  const q=(document.getElementById('psearch').value||'').toLowerCase();
+  let list=products.filter(p=>{
+    if(activeCat&&p.cat!==activeCat)return false;
+    if(q&&!p.name.toLowerCase().includes(q)&&!(p.vendor||'').toLowerCase().includes(q)&&!(p.cat||'').toLowerCase().includes(q))return false;
+    return true;
+  });
+  const low=products.filter(p=>tqty(p.id)<=LOW);
+  const banner=document.getElementById('lowbanner');
+  banner.innerHTML=low.length?`<div class="alert awarn" style="margin:8px 1rem 0;">⚠️ <strong>${low.length} item${low.length>1?'s':''}</strong> low or out of stock</div>`:'';
+  if(!list.length){document.getElementById('plist').innerHTML='<div class="empty">No products found.</div>';return;}
+  document.getElementById('plist').innerHTML=list.map(p=>{
+    const pr=cp(p.retail),qty=tqty(p.id);
+    const badge=qty===0?'<span class="bdg bdanger">Out</span>':qty<=LOW?'<span class="bdg bwarn">Low</span>':'<span class="bdg bok">In stock</span>';
+    const hp=p.retail>0;
+    const imgUrl=getImgUrl(p.name,p.cat);
+    return`<div class="pcard">
+      <div class="pcard-img-wrap">
+        <img class="pcard-img" src="${imgUrl}" alt="${esc(p.name)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+        <div class="pcard-img-placeholder" style="display:none;">${CAT_EMOJI[p.cat]||'📦'}</div>
+      </div>
+      <div class="pcard-body">
+        <div class="pcard-top"><div class="pcard-name">${esc(p.name)}</div>${badge}</div>
+        <div class="pcard-meta">
+          <span class="bdg bgray">${esc(p.cat)}</span>
+          <span>${esc(p.vendor||'')}</span>
+          ${p.link?`<a href="${esc(p.link)}" target="_blank" style="color:var(--accent);font-weight:600;">↗ View</a>`:''}
+        </div>
+        ${hp?`<div class="prices">
+          <div class="pbox"><div class="pbox-lbl">Retail</div><div class="pbox-val">${fmt(pr.retail)}</div></div>
+          <div class="pbox"><div class="pbox-lbl">+25% fee</div><div class="pbox-val">${fmt(pr.src)}</div></div>
+          <div class="pbox cl"><div class="pbox-lbl">Client cost</div><div class="pbox-val">${fmt(pr.base)}</div></div>
+          <div class="pbox hb"><div class="pbox-lbl">w/ HB tax</div><div class="pbox-val">${fmt(pr.hb)}</div></div>
+        </div>`:`<div style="font-size:12px;color:var(--muted);margin-top:6px;">No price set yet</div>`}
+        <div style="font-size:12px;color:var(--muted);margin-top:6px;">Total in stock: <strong style="color:var(--dark);">${qty}</strong></div>
+        ${senior?`<div class="pcard-acts"><button class="btn btn-sm" onclick="openEdit('${p.id}')">✏️ Edit</button><button class="btn btn-sm btn-d" onclick="delProd('${p.id}')">🗑</button></div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+window.renderProducts=renderProducts;
+
+// ── TEAM TAB ──
+function renderTeam(){
+  if(viewingOrg){renderOrgDetail(viewingOrg);return;}
+  const orgs=senior?ALL_ORGS:ALL_ORGS;
+  document.getElementById('team-overview').style.display='block';
+  document.getElementById('team-detail').style.display='none';
+  const total=products.length;
+  document.getElementById('team-overview').innerHTML=`
+    <div style="padding:10px 1rem 0;"><p style="font-size:13px;color:var(--muted);">Tap any organizer to see their full inventory.</p></div>
+    <div class="team-grid">${orgs.map(org=>{
+      const inv=inventory[org]||{};
+      const stocked=products.filter(p=>(inv[p.id]||0)>0).length;
+      const low=products.filter(p=>{const q=inv[p.id]||0;return q>0&&q<=LOW;}).length;
+      const out=products.filter(p=>(inv[p.id]||0)===0).length;
+      return`<div class="tcard" onclick="drillOrg('${org}')">
+        <div class="tavatar">${initials(org)}</div>
+        <div class="tname">${org}</div>
+        <div class="tstat"><strong>${stocked}</strong> / ${total} stocked</div>
+        ${low?`<div style="margin-top:4px;"><span class="bdg bwarn">${low} low</span></div>`:''}
+        ${out===total?`<div style="margin-top:4px;"><span class="bdg bgray">Nothing set</span></div>`:''}
+      </div>`;
+    }).join('')}</div>`;
+}
+window.drillOrg=function(org){viewingOrg=org;document.getElementById('scroll').scrollTop=0;renderOrgDetail(org);};
+function renderOrgDetail(org){
+  document.getElementById('team-overview').style.display='none';
+  document.getElementById('team-detail').style.display='block';
+  const inv=inventory[org]||{};
+  const cats=[...new Set(products.map(p=>p.cat))].sort();
+  document.getElementById('team-detail').innerHTML=`
+    <div class="tback" onclick="backToTeam()">← Back to team</div>
+    <div style="padding:0 1rem 6px;display:flex;align-items:center;gap:10px;">
+      <div class="tavatar" style="width:40px;height:40px;font-size:14px;">${initials(org)}</div>
+      <div><div style="font-size:17px;font-weight:600;">${org}'s Inventory</div>
+      <div style="font-size:12px;color:var(--muted);">${products.filter(p=>(inv[p.id]||0)>0).length} of ${products.length} products stocked</div></div>
+    </div>
+    ${cats.map(cat=>{
+      const items=products.filter(p=>p.cat===cat);
+      return`<div class="inv-sec-lbl">${CAT_EMOJI[cat]||''} ${esc(cat)}</div>`+items.map(p=>{
+        const qty=inv[p.id]||0;
+        const canEdit=senior||(org===cu);
+        return`<div class="irow">
+          <div class="iinfo">
+            <div class="iname">${esc(p.name)}</div>
+            <div class="ivend">${esc(p.vendor||'')}${qty===0?' · <span style="color:var(--danger);font-weight:600;">Out</span>':qty<=LOW?' · <span style="color:var(--warn);font-weight:600;">Low</span>':''}</div>
+          </div>
+          ${canEdit?`<div class="qctrl">
+            <button class="qbtn" onclick="chgQ('${org}','${p.id}',-1)">−</button>
+            <span class="qnum">${qty}</span>
+            <button class="qbtn" onclick="chgQ('${org}','${p.id}',1)">+</button>
+          </div>`:`<span class="qnum" style="min-width:32px;text-align:right;">${qty}</span>`}
+        </div>`;
+      }).join('');
+    }).join('')}`;
+}
+window.backToTeam=function(){viewingOrg=null;renderTeam();};
+
+// ── MY INVENTORY ──
+function renderMyInv(){
+  const org=cu;
+  const inv=inventory[org]||{};
+  const cats=[...new Set(products.map(p=>p.cat))].sort();
+  if(!products.length){document.getElementById('myinv').innerHTML='<div class="empty">No products yet.</div>';return;}
+  document.getElementById('myinv').innerHTML=cats.map(cat=>{
+    const items=products.filter(p=>p.cat===cat);
+    return`<div class="inv-sec-lbl">${CAT_EMOJI[cat]||''} ${esc(cat)}</div>`+items.map(p=>{
+      const qty=inv[p.id]||0;
+      return`<div class="irow">
+        <div class="iinfo">
+          <div class="iname">${esc(p.name)}</div>
+          <div class="ivend">${esc(p.vendor||'')}${qty===0?' · <span style="color:var(--danger);font-weight:600;">Out</span>':qty<=LOW?' · <span style="color:var(--warn);font-weight:600;">Low</span>':''}</div>
+        </div>
+        <div class="qctrl">
+          <button class="qbtn" onclick="chgQ('${org}','${p.id}',-1)">−</button>
+          <span class="qnum">${qty}</span>
+          <button class="qbtn" onclick="chgQ('${org}','${p.id}',1)">+</button>
+        </div>
+      </div>`;
+    }).join('');
+  }).join('');
+}
+window.chgQ=async function(org,pid,d){
+  const cur=(inventory[org]||{})[pid]||0,nq=Math.max(0,cur+d);
+  if(!inventory[org])inventory[org]={};
+  inventory[org][pid]=nq;
+  renderMyInv();if(viewingOrg===org)renderOrgDetail(org);
+  sync('saving');await set(ref(db,`inventory/${org}/${pid}`),nq);sync('live');
+};
+
+// ── SUMMARY ──
+function renderSummary(){
+  if(!senior){
+    document.getElementById('sum-locked').innerHTML='<div class="alert awarn">🔒 Senior team members only.</div>';
+    document.getElementById('sum-locked').style.display='block';
+    document.getElementById('sum-content').style.display='none';return;
+  }
+  document.getElementById('sum-locked').style.display='none';
+  document.getElementById('sum-content').style.display='block';
+  renderSTags();
+}
+function renderSTags(){
+  const el=document.getElementById('stags');if(!el)return;
+  el.innerHTML=products.map(p=>`<span class="stag${selProd[p.id]?' on':''}" onclick="togP('${p.id}')">${esc(p.name)}</span>`).join('');
+  renderSQty();
+}
+window.togP=function(pid){if(selProd[pid])delete selProd[pid];else selProd[pid]={qty:1};renderSTags();};
+function renderSQty(){
+  const keys=Object.keys(selProd),el=document.getElementById('sqty');
+  if(!keys.length){el.innerHTML='';renderSOut();return;}
+  el.innerHTML=`<div class="pad" style="padding-top:0;">
+    <div class="sdivider" style="padding-left:0;border-top:none;padding-top:4px;">Quantities used</div>
+    ${keys.map(pid=>{
+      const p=products.find(x=>x.id===pid);if(!p)return'';
+      return`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;background:var(--white);border-radius:var(--r);padding:10px 12px;">
+        <span style="flex:1;font-size:13px;font-weight:500;line-height:1.3;">${esc(p.name)}</span>
+        <input type="number" min="1" value="${selProd[pid].qty}" style="width:60px;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:16px;text-align:center;background:var(--cream);font-family:'DM Mono',monospace;" oninput="selProd['${pid}'].qty=Math.max(1,parseInt(this.value)||1);renderSOut()">
+      </div>`;
+    }).join('')}
+  </div>`;
+  renderSOut();
+}
+window.renderSOut=function(){
+  const el=document.getElementById('sout');if(!el)return;
+  const keys=Object.keys(selProd);
+  if(!keys.length){el.innerHTML='';return;}
+  const client=document.getElementById('sc').value||'Client';
+  const proj=document.getElementById('sp').value||'Project';
+  const org=document.getElementById('sorg').value;
+  const date=document.getElementById('sdate').value;
+  const rows=keys.map(pid=>{
+    const p=products.find(x=>x.id===pid);if(!p)return null;
+    const qty=selProd[pid].qty,pr=cp(p.retail);
+    return{name:p.name,qty,base:pr.base*qty,hb:pr.hb*qty,ubase:pr.base,uhb:pr.hb,hp:p.retail>0};
+  }).filter(Boolean);
+  const tBase=rows.reduce((s,r)=>s+r.base,0),tHB=rows.reduce((s,r)=>s+r.hb,0),allP=rows.every(r=>r.hp);
+  const txt=rows.map(r=>`${r.name} x${r.qty} — ${r.hp?fmt(r.hb):'TBD'}`).join('\n')+`\n\nTotal w/ HB tax: ${allP?fmt(tHB):'—'}\nTotal no tax:    ${allP?fmt(tBase):'—'}`;
+  window._hbt=txt;
+  el.innerHTML=`<div class="pcard" style="border-radius:var(--rlg);overflow:hidden;">
+    <div style="padding:1rem;background:var(--accent);color:var(--white);">
+      <div style="font-size:16px;font-weight:600;">${esc(client)}</div>
+      <div style="font-size:13px;opacity:.85;">${esc(proj)}${org?' · '+esc(org):''}${date?' · '+date:''}</div>
+    </div>
+    <div style="padding:1rem;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Without HB Tax</div>
+      <table class="sum-tbl" style="margin-bottom:1rem;">
+        <thead><tr><th>Product</th><th>Qty</th><th>Total</th></tr></thead>
+        <tbody>${rows.map(r=>`<tr><td>${esc(r.name)}</td><td>${r.qty}</td><td>${r.hp?fmt(r.base):'—'}</td></tr>`).join('')}
+        <tr class="tot"><td colspan="2">Total</td><td>${allP?fmt(tBase):'—'}</td></tr></tbody>
+      </table>
+      <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--warn);margin-bottom:8px;">With HoneyBook Tax (8%)</div>
+      <table class="sum-tbl" style="margin-bottom:1rem;">
+        <thead><tr><th>Product</th><th>Qty</th><th>Total</th></tr></thead>
+        <tbody>${rows.map(r=>`<tr><td>${esc(r.name)}</td><td>${r.qty}</td><td>${r.hp?fmt(r.hb):'—'}</td></tr>`).join('')}
+        <tr class="tot"><td colspan="2">Total</td><td>${allP?fmt(tHB):'—'}</td></tr></tbody>
+      </table>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:500;">📋 Paste into HoneyBook invoice:</div>
+      <div class="hbbox">${esc(txt)}</div>
+      <button class="btn btn-a btn-full" onclick="copyHB()">📋 Copy for HoneyBook</button>
+    </div>
+  </div>`;
+};
+window.copyHB=function(){
+  if(!window._hbt)return;
+  navigator.clipboard.writeText(window._hbt).then(()=>{
+    const b=document.querySelector('.btn-a.btn-full');
+    if(b){const o=b.textContent;b.textContent='✓ Copied!';setTimeout(()=>b.textContent=o,2000);}
+  });
+};
+
+// ── CLIENT VIEW ──
+function renderCV(){
+  const q=(document.getElementById('cvsearch').value||'').toLowerCase();
+  const list=products.filter(p=>!q||p.name.toLowerCase().includes(q)||(p.vendor||'').toLowerCase().includes(q));
+  document.getElementById('cvbody').innerHTML=list.map(p=>`<tr>
+    <td style="font-weight:500;">${esc(p.name)}<br><span style="font-size:11px;color:var(--muted);">${esc(p.cat)}</span></td>
+    <td style="white-space:nowrap;font-size:13px;">${esc(p.vendor||'')}</td>
+    <td>${p.link?`<a href="${esc(p.link)}" target="_blank">View ↗</a>`:'—'}</td>
+  </tr>`).join('');
+}
+window.renderCV=renderCV;
+
+// ── ADD/EDIT PRODUCT ──
+window.openAdd=function(){editId=null;document.getElementById('stitle').textContent='Add Product';showForm({});openSheet();};
+window.openEdit=function(id){editId=id;const p=products.find(x=>x.id===id);document.getElementById('stitle').textContent='Edit Product';showForm(p||{});openSheet();};
+function showForm(p){
+  document.getElementById('sbody').innerHTML=`
+    <div class="ff"><label class="fl">Product name *</label><input type="text" class="fi" id="fn" value="${esc(p.name||'')}" placeholder="Product name"></div>
+    <div class="ff"><label class="fl">Category</label><select class="fi" id="fcat">${CATS.map(c=>`<option${p.cat===c?' selected':''}>${c}</option>`).join('')}</select></div>
+    <div class="ff"><label class="fl">Vendor(s)</label><input type="text" class="fi" id="fv" value="${esc(p.vendor||'')}" placeholder="e.g. Amazon, Target"></div>
+    <div class="ff"><label class="fl">Product link</label><input type="url" class="fi" id="fl" value="${esc(p.link||'')}" placeholder="https://…"></div>
+    <div class="ff"><label class="fl">Retail cost ($)</label><input type="number" class="fi" id="fr" min="0" step="0.01" value="${p.retail||''}" placeholder="0.00" oninput="updPP()"></div>
+    <div id="pp" style="display:none;" class="ppgrid">
+      <div class="ppcell"><div class="pplbl">Sourcing 25%</div><div class="ppval" id="pps">—</div></div>
+      <div class="ppcell"><div class="pplbl">Client cost</div><div class="ppval" id="ppc">—</div></div>
+      <div class="ppcell" style="background:var(--warn-light);"><div class="pplbl">HB Tax</div><div class="ppval" id="pph" style="color:var(--warn);">—</div></div>
+    </div>
+    <div class="ff"><label class="fl">Notes</label><input type="text" class="fi" id="fnotes" value="${esc(p.notes||'')}" placeholder="Optional"></div>
+    <button class="btn btn-p btn-full" onclick="saveProd()" style="margin-top:4px;">Save Product</button>`;
+  if(p.retail)updPP();
+}
+window.updPP=function(){
+  const v=document.getElementById('fr').value,pp=document.getElementById('pp');
+  if(!v){pp.style.display='none';return;}
+  pp.style.display='grid';const pr=cp(v);
+  document.getElementById('pps').textContent=fmt(pr.src);
+  document.getElementById('ppc').textContent=fmt(pr.base);
+  document.getElementById('pph').textContent=fmt(pr.hb);
+};
+window.saveProd=async function(){
+  const name=document.getElementById('fn').value.trim();
+  if(!name){alert('Product name is required.');return;}
+  const d={id:editId||uid(),name,cat:document.getElementById('fcat').value,vendor:document.getElementById('fv').value.trim(),link:document.getElementById('fl').value.trim(),retail:parseFloat(document.getElementById('fr').value)||0,notes:document.getElementById('fnotes').value.trim()};
+  closeSheet();sync('saving');await set(ref(db,'products/'+d.id),d);sync('live');
+};
+window.delProd=async function(id){
+  if(!confirm('Delete this product?'))return;
+  sync('saving');await set(ref(db,'products/'+id),null);sync('live');
+};
+
+function openSheet(){document.getElementById('sbg').classList.add('on');document.getElementById('sheet').classList.add('on');}
+window.closeSheet=function(){document.getElementById('sbg').classList.remove('on');document.getElementById('sheet').classList.remove('on');editId=null;};
+
+(async()=>{
+  try{await initData();listen();sync('live');}
+  catch(e){sync('offline');console.error(e);}
+  document.getElementById('loading').style.display='none';
+  document.getElementById('login').style.display='flex';
+})();
+</script>
+</body>
+</html>
