@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>OrganizeMeHelp</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#F7F4EF;--sand:#EDE8DF;--brown:#8B7355;--dark:#2C2416;
+  --accent:#5C7A5C;--al:#E8F0E8;--warn:#C17B2E;--wl:#FDF3E3;
+  --danger:#B84040;--dl:#FBE8E8;--white:#fff;--border:#DDD8CF;--muted:#8B8070;
+  --r:12px;--rlg:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--dark);font-size:15px;min-height:100vh;}
+
+/* LOADING */
+#loading{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;}
+.spin{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* LOGIN */
+#login{display:none;min-height:100vh;align-items:center;justify-content:center;padding:1.5rem;}
+.lcard{background:var(--white);border-radius:var(--rlg);padding:2rem 1.5rem;width:100%;max-width:380px;margin:auto;}
+.llogo{font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);margin-bottom:4px;}
+.ltitle{font-size:26px;font-weight:600;margin-bottom:4px;}
+.lsub{font-size:14px;color:var(--muted);margin-bottom:1.75rem;}
+.ll{font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;}
+.li{width:100%;padding:13px;border:1.5px solid var(--border);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:16px;background:var(--cream);color:var(--dark);margin-bottom:14px;appearance:none;}
+.li:focus{outline:none;border-color:var(--accent);}
+.lbtn{width:100%;padding:14px;background:var(--dark);color:var(--white);border:none;border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;cursor:pointer;}
+.lbtn:active{opacity:.88;}
+.lerr{color:var(--danger);font-size:13px;margin-top:10px;display:none;text-align:center;}
+
+/* APP */
+#app{display:none;}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 1rem;display:flex;align-items:center;justify-content:space-between;height:50px;position:sticky;top:0;z-index:50;}
+.tbrand{font-size:15px;font-weight:600;}.tbrand span{color:var(--accent);}
+.tright{display:flex;align-items:center;gap:8px;}
+.spill{font-size:11px;font-weight:600;padding:3px 8px;border-radius:999px;background:var(--al);color:var(--accent);display:flex;align-items:center;gap:3px;}
+.spill.off{background:var(--wl);color:var(--warn);}
+.sdot{width:5px;height:5px;border-radius:50%;background:currentColor;}
+.upill{font-size:12px;font-weight:600;background:var(--sand);border-radius:999px;padding:4px 10px;color:var(--brown);}
+.lout{font-size:18px;background:none;border:none;cursor:pointer;color:var(--muted);}
+
+/* TABS */
+.tabnav{background:var(--white);border-bottom:1px solid var(--border);display:flex;position:sticky;top:50px;z-index:49;}
+.tn{flex:1;padding:10px 4px;font-size:11px;font-weight:600;color:var(--muted);border:none;background:none;cursor:pointer;font-family:'DM Sans',sans-serif;border-bottom:2.5px solid transparent;white-space:nowrap;text-align:center;}
+.tn.on{color:var(--accent);border-bottom-color:var(--accent);}
+.tn.locked{opacity:.35;pointer-events:none;}
+
+/* SECTIONS */
+.sec{display:none;padding-bottom:2rem;}.sec.on{display:block;}
+
+/* SEARCH BAR */
+.sbar{padding:10px 1rem 6px;background:var(--cream);position:sticky;top:96px;z-index:48;}
+.si{width:100%;padding:11px 16px 11px 42px;border:1.5px solid var(--border);border-radius:999px;font-family:'DM Sans',sans-serif;font-size:15px;background:var(--white);color:var(--dark);appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%238B8070' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:14px center;}
+.si:focus{outline:none;border-color:var(--accent);}
+
+/* CATEGORY CHIPS */
+.chips{display:flex;gap:7px;overflow-x:auto;padding:0 1rem 10px;scrollbar-width:none;}
+.chips::-webkit-scrollbar{display:none;}
+.chip{flex-shrink:0;font-size:13px;font-weight:500;padding:7px 13px;border-radius:999px;border:1.5px solid var(--border);background:var(--white);color:var(--muted);cursor:pointer;}
+.chip.on{background:var(--dark);color:var(--white);border-color:var(--dark);}
+
+/* VIEW TOGGLE + TOOLBAR */
+.toolbar{display:flex;align-items:center;justify-content:space-between;padding:0 1rem 10px;gap:10px;flex-wrap:wrap;}
+.vtoggle{display:flex;border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.vbtn{padding:7px 14px;border:none;background:var(--white);color:var(--muted);cursor:pointer;font-size:14px;font-family:'DM Sans',sans-serif;font-weight:500;}
+.vbtn.on{background:var(--dark);color:var(--white);}
+
+/* GRID VIEW */
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 1rem;}
+.pgcard{background:var(--white);border-radius:var(--rlg);border:1px solid var(--border);overflow:hidden;position:relative;}
+.pgimgph{width:100%;aspect-ratio:1;background:var(--sand);display:flex;align-items:center;justify-content:center;font-size:36px;}
+.pgimg{width:100%;aspect-ratio:1;object-fit:cover;display:block;}
+.pgbody{padding:8px 10px 10px;}
+.pgname{font-size:12px;font-weight:600;color:var(--dark);line-height:1.3;margin-bottom:4px;}
+.pgprice{font-size:13px;font-weight:700;font-family:'DM Mono',monospace;color:var(--accent);margin-bottom:2px;}
+.pgvendor{font-size:11px;color:var(--muted);}
+.pgqctrl{display:flex;align-items:center;justify-content:center;gap:0;margin-top:8px;background:var(--cream);border-radius:999px;border:1.5px solid var(--border);overflow:hidden;}
+.pgqbtn{flex:1;height:36px;border:none;background:transparent;font-size:18px;cursor:pointer;color:var(--dark);display:flex;align-items:center;justify-content:center;font-weight:600;}
+.pgqbtn:active{background:var(--sand);}
+.pgqnum{font-size:14px;font-weight:700;min-width:28px;text-align:center;font-family:'DM Mono',monospace;}
+
+/* LIST VIEW — no images */
+.plist{padding:0 1rem;}
+.plrow{background:var(--white);border-radius:var(--rlg);border:1px solid var(--border);margin-bottom:8px;padding:12px;}
+.plname{font-size:14px;font-weight:600;color:var(--dark);margin-bottom:4px;line-height:1.3;}
+.plmeta{font-size:12px;color:var(--muted);margin-bottom:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+.prices{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;}
+.pb{border-radius:8px;padding:7px 10px;background:var(--cream);}
+.pb.cl{background:var(--al);}
+.pb.hb{background:var(--wl);}
+.pbl{font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);}
+.pb.cl .pbl{color:var(--accent);}
+.pb.hb .pbl{color:var(--warn);}
+.pbv{font-size:14px;font-weight:600;font-family:'DM Mono',monospace;color:var(--dark);margin-top:1px;}
+.pb.cl .pbv{color:var(--accent);}
+.pb.hb .pbv{color:var(--warn);}
+.plqrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px;padding-top:8px;border-top:1px solid var(--border);}
+.plqlbl{font-size:12px;color:var(--muted);font-weight:500;}
+.qctrl{display:flex;align-items:center;background:var(--cream);border-radius:999px;border:1.5px solid var(--border);overflow:hidden;}
+.qbtn{width:42px;height:42px;border:none;background:transparent;font-size:22px;cursor:pointer;color:var(--dark);display:flex;align-items:center;justify-content:center;}
+.qbtn:active{background:var(--sand);}
+.qnum{font-size:15px;font-weight:700;min-width:30px;text-align:center;font-family:'DM Mono',monospace;}
+
+/* BADGES */
+.bdg{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;}
+.bok{background:var(--al);color:var(--accent);}
+.bwarn{background:var(--wl);color:var(--warn);}
+.bdanger{background:var(--dl);color:var(--danger);}
+.bgray{background:var(--sand);color:var(--muted);}
+
+/* BTNS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:10px 16px;border-radius:var(--r);border:1.5px solid var(--border);background:var(--white);font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--dark);}
+.btn:active{opacity:.8;}
+.btn-p{background:var(--dark);color:var(--white);border-color:var(--dark);}
+.btn-a{background:var(--accent);color:var(--white);border-color:var(--accent);}
+.btn-d{color:var(--danger);border-color:#E8BFBF;}
+.btn-sm{padding:7px 12px;font-size:13px;}
+.btn-full{width:100%;padding:14px;font-size:16px;}
+
+/* ALERTS */
+.alert{border-radius:var(--r);padding:11px 14px;font-size:13px;margin:8px 1rem;display:flex;gap:8px;}
+.awarn{background:var(--wl);color:var(--warn);border:1px solid #F0D5A8;}
+
+/* TEAM */
+.tgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:1rem;}
+.tcard{background:var(--white);border-radius:var(--rlg);border:1px solid var(--border);padding:1rem;cursor:pointer;text-align:center;}
+.tcard:active{opacity:.8;}
+.tav{width:46px;height:46px;border-radius:50%;background:var(--al);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;margin:0 auto 8px;}
+.tname{font-size:14px;font-weight:600;margin-bottom:3px;}
+.tstat{font-size:12px;color:var(--muted);}
+.tback{display:flex;align-items:center;gap:6px;padding:12px 1rem;font-size:14px;font-weight:600;color:var(--accent);cursor:pointer;border-bottom:1px solid var(--border);background:var(--white);position:sticky;top:96px;z-index:47;}
+.isec{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:12px 1rem 5px;background:var(--cream);}
+.inv-sticky-header{position:sticky;top:96px;z-index:40;background:var(--cream);border-bottom:1px solid var(--border);}
+.irow{background:var(--white);border-bottom:1px solid var(--border);padding:11px 1rem;display:flex;align-items:center;gap:10px;}
+.iinfo{flex:1;min-width:0;}
+.iname{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ivend{font-size:12px;color:var(--muted);}
+
+/* ── SUMMARY (new cart-style flow) ── */
+.sum-search-wrap{padding:10px 1rem 6px;background:var(--cream);position:sticky;top:96px;z-index:48;}
+.sum-chips{display:flex;gap:7px;overflow-x:auto;padding:0 1rem 10px;scrollbar-width:none;}
+.sum-chips::-webkit-scrollbar{display:none;}
+
+/* Running total bar */
+.run-bar{position:sticky;top:96px;z-index:47;background:var(--dark);color:var(--white);padding:10px 1rem;display:none;flex-direction:column;gap:2px;}
+.run-bar.show{display:flex;}
+.run-bar-top{display:flex;justify-content:space-between;align-items:center;}
+.run-items{font-size:12px;opacity:.7;}
+.run-total{font-size:18px;font-weight:700;font-family:'DM Mono',monospace;}
+.run-hb{font-size:12px;opacity:.8;font-family:'DM Mono',monospace;}
+
+/* Product search results for summary */
+.sum-results{padding:0 1rem;}
+.sum-prow{background:var(--white);border-radius:var(--rlg);border:1px solid var(--border);margin-bottom:8px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer;}
+.sum-prow:active{background:var(--cream);}
+.sum-prow.added{border-color:var(--accent);background:var(--al);}
+.sum-pinfo{flex:1;min-width:0;}
+.sum-pname{font-size:13px;font-weight:600;color:var(--dark);line-height:1.3;}
+.sum-pprice{font-size:12px;color:var(--accent);font-family:'DM Mono',monospace;font-weight:600;}
+.sum-pmeta{font-size:11px;color:var(--muted);}
+.sum-add-btn{width:36px;height:36px;border-radius:50%;border:none;background:var(--accent);color:var(--white);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sum-add-btn.rem{background:var(--danger);}
+.sum-add-btn:active{opacity:.8;}
+
+/* Cart items */
+.cart-section{padding:0 1rem;margin-top:12px;}
+.cart-head{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:10px 0 6px;border-top:1px solid var(--border);}
+.cart-row{background:var(--white);border-radius:var(--r);border:1px solid var(--border);padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px;}
+.cart-name{flex:1;font-size:13px;font-weight:500;line-height:1.3;}
+.cart-price{font-size:12px;color:var(--accent);font-family:'DM Mono',monospace;font-weight:600;margin-top:2px;}
+
+/* Summary output */
+.sum-output{padding:0 1rem 1rem;}
+.stbl{width:100%;border-collapse:collapse;font-size:13px;}
+.stbl th{text-align:left;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding:7px 10px;border-bottom:1px solid var(--border);}
+.stbl td{padding:10px;border-bottom:1px solid var(--border);color:var(--dark);}
+.stbl .tot td{font-weight:700;background:var(--sand);font-family:'DM Mono',monospace;}
+.share-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+.share-btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:13px;border-radius:var(--r);border:1.5px solid var(--border);background:var(--white);font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--dark);}
+.share-btn:active{opacity:.8;}
+.share-btn.print{background:var(--dark);color:var(--white);border-color:var(--dark);}
+.share-btn.email{background:#1a73e8;color:var(--white);border-color:#1a73e8;}
+.share-btn.sms{background:var(--accent);color:var(--white);border-color:var(--accent);}
+.share-btn.copy{background:var(--sand);color:var(--dark);}
+
+/* FORM / MODAL */
+.ff{margin-bottom:14px;}
+.fl{font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;}
+.fi{width:100%;padding:13px;border:1.5px solid var(--border);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:16px;background:var(--cream);color:var(--dark);appearance:none;}
+.fi:focus{outline:none;border-color:var(--accent);}
+.ppg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin:8px 0;}
+.ppc{background:var(--sand);border-radius:8px;padding:8px;}
+.ppl{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em;}
+.ppv{font-size:14px;font-weight:700;font-family:'DM Mono',monospace;margin-top:2px;}
+#mbg{display:none;position:fixed;inset:0;background:rgba(44,36,22,.45);z-index:300;align-items:flex-end;justify-content:center;}
+#mbg.on{display:flex;}
+.modal{background:var(--white);border-radius:20px 20px 0 0;padding:1rem 1.25rem 2rem;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;}
+.mhandle{width:40px;height:4px;background:var(--border);border-radius:999px;margin:0 auto 1.25rem;}
+.mtitle{font-size:17px;font-weight:600;margin-bottom:1.25rem;}
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--muted);font-size:14px;}
+.pad{padding:1rem;}
+
+@media print{
+  .topbar,.tabnav,.sbar,.chips,.toolbar,.btn,button,.run-bar,.sum-search-wrap,.sum-chips,.sum-results,.cart-section,.share-btns,#print-overlay>button{display:none!important;}
+  #print-overlay{position:static!important;padding:0!important;}
+  #print-content{display:block!important;}
+  body{background:white;}
+}
+@media(min-width:540px){
+  .tgrid{grid-template-columns:repeat(3,1fr);}
+  .pgrid{grid-template-columns:repeat(3,1fr);}
+}
+</style>
+</head>
+<body>
+
+<div id="loading"><div class="spin"></div><span style="font-size:13px;color:var(--muted)">Connecting…</span></div>
+
+<div id="login">
+  <div class="lcard">
+    <div class="llogo">OrganizeMeHelp</div>
+    <div class="ltitle">Team Portal</div>
+    <div class="lsub">Sign in to manage inventory</div>
+    <label class="ll">Your name</label>
+    <select id="lu" class="li">
+      <option value="">Select your name…</option>
+      <option>Mollie</option><option>Elizabeth</option><option>Morgan</option><option>Mari</option>
+      <option>Janae</option><option>Reigan</option><option>Siena</option><option>Kimberly</option>
+      <option>Savita</option><option>Anne</option><option>Johanna</option><option>Indira</option>
+      <option>Brittany</option>
+    </select>
+    <label class="ll">Password</label>
+    <input type="password" id="lp" class="li" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="lbtn" onclick="doLogin()">Sign in</button>
+    <div class="lerr" id="lerr">Incorrect name or password.</div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="topbar">
+    <div class="tbrand">Organize<span>Me</span>Help</div>
+    <div class="tright">
+      <div class="spill" id="spill"><span class="sdot"></span><span id="slbl">Live</span></div>
+      <span class="upill" id="upill"></span>
+      <button class="lout" onclick="doLogout()">⏻</button>
+    </div>
+  </div>
+  <div class="tabnav">
+    <button class="tn on" id="n-products" onclick="showTab('products')">📦 Products</button>
+    <button class="tn" id="n-team" onclick="showTab('team')">👥 Team</button>
+    <button class="tn" id="n-inv" onclick="showTab('inv')">🗂 My Stock</button>
+    <button class="tn" id="n-summary" onclick="showTab('summary')">🧾 Client</button>
+  </div>
+
+  <!-- ── PRODUCTS ── -->
+  <div class="sec on" id="sec-products">
+    <div id="lowbanner"></div>
+    <div class="sbar"><input class="si" type="search" id="psearch" placeholder="Search products, vendors…" oninput="renderProducts()"></div>
+    <div class="chips" id="catchips"></div>
+    <div class="toolbar">
+      <div id="addwrap" style="display:none">
+        <button class="btn btn-p btn-sm" onclick="openAdd()">＋ Add Product</button>
+      </div>
+      <div style="flex:1"></div>
+      <div class="vtoggle">
+        <button class="vbtn on" id="vg" onclick="setView('grid')" title="Grid">⊞ Grid</button>
+        <button class="vbtn" id="vl" onclick="setView('list')" title="List">☰ List</button>
+      </div>
+    </div>
+    <div id="pgrid" class="pgrid"></div>
+    <div id="plist" class="plist" style="display:none"></div>
+  </div>
+
+  <!-- ── TEAM ── -->
+  <div class="sec" id="sec-team">
+    <div id="team-ov"></div>
+    <div id="team-dt" style="display:none"></div>
+  </div>
+
+  <!-- ── MY STOCK ── -->
+  <div class="sec" id="sec-inv">
+    <div style="padding:10px 1rem 4px;display:flex;align-items:center;gap:10px;">
+      <div class="tav" style="width:36px;height:36px;font-size:12px" id="my-av"></div>
+      <div id="my-name" style="font-size:15px;font-weight:600;color:var(--dark)"></div>
+    </div>
+    <div id="myinv"></div>
+  </div>
+
+  <!-- ── SUMMARY (cart flow) ── -->
+  <div class="sec" id="sec-summary">
+    <div id="sum-locked" style="display:none;padding:1rem"></div>
+    <div id="sum-content" style="display:none">
+
+      <!-- Job info -->
+      <div class="pad" style="padding-bottom:8px">
+        <div class="ff"><label class="fl">Client name</label><input type="text" class="fi" id="sc" placeholder="e.g. Sarah Johnson" oninput="updateRunBar()"></div>
+        <div class="ff"><label class="fl">Project / job</label><input type="text" class="fi" id="sp" placeholder="e.g. Kitchen pantry" oninput="updateRunBar()"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="ff"><label class="fl">Organizer</label>
+            <select class="fi" id="sorg">
+              <option value="">Select…</option>
+              <option>Mollie</option><option>Elizabeth</option><option>Morgan</option><option>Mari</option>
+              <option>Janae</option><option>Reigan</option><option>Siena</option><option>Kimberly</option>
+              <option>Savita</option><option>Anne</option><option>Johanna</option><option>Indira</option>
+              <option>Brittany</option>
+            </select>
+          </div>
+          <div class="ff"><label class="fl">Date</label><input type="date" class="fi" id="sdate"></div>
+        </div>
+      </div>
+
+      <!-- Running total bar -->
+      <div class="run-bar" id="runbar">
+        <div class="run-bar-top">
+          <span class="run-items" id="run-items">0 products</span>
+          <div>
+            <div class="run-total" id="run-total">$0.00</div>
+            <div class="run-hb" id="run-hb">w/ HB tax: $0.00</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search + filter for adding products -->
+      <div class="sum-search-wrap" style="position:relative;top:0;z-index:46">
+        <input class="si" type="search" id="ssearch" placeholder="🔍 Search and add products…" oninput="renderSumSearch()">
+      </div>
+      <div class="sum-chips" id="sumchips"></div>
+
+      <!-- Jump to summary / collapse products toggle -->
+      <div id="sum-jump-bar" style="display:none;margin:0 1rem 10px;">
+        <div style="display:flex;gap:8px;">
+          <button onclick="toggleSection('sumresults-wrap')" style="flex:1;display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--sand);border:1.5px solid var(--border);border-radius:var(--r);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--dark);">
+            <span id="sum-jump-lbl">▼ Hide products</span>
+            <span id="sum-cart-count" style="background:var(--accent);color:white;border-radius:999px;padding:2px 10px;font-size:12px;"></span>
+          </button>
+          <button onclick="scrollToSummary()" style="padding:10px 14px;background:var(--accent);color:white;border:none;border-radius:var(--r);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;">View Summary ↓</button>
+        </div>
+      </div>
+
+      <!-- Search results -->
+      <div id="sumresults-wrap">
+      <div class="sum-results" id="sumresults"></div>
+      </div>
+
+      <!-- Cart items -->
+      <div class="cart-section" id="cartsec" style="display:none">
+        <div id="cart-head" style="display:none"></div>
+        <div id="cartbody">
+          <div id="cartrows"></div>
+          <div style="padding:12px 1rem">
+            <button class="btn btn-a btn-full" onclick="buildFinalSummary()">Generate Summary →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Final summary output -->
+      <div class="sum-output" id="sumout"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PRINT OVERLAY -->
+<div id="print-overlay" style="display:none;position:fixed;inset:0;background:white;z-index:500;overflow-y:auto;padding:20px;">
+  <button onclick="closePrintView()" style="display:flex;align-items:center;gap:6px;padding:10px 16px;background:#2C2416;color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:16px;font-family:'DM Sans',sans-serif;width:100%;">✕ Close</button>
+  <button onclick="window.print()" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:12px 16px;background:#5C7A5C;color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:20px;font-family:'DM Sans',sans-serif;width:100%;">🖨️ Print / Save as PDF</button>
+  <div id="print-content"></div>
+</div>
+
+<!-- EDIT MODAL -->
+<div id="mbg" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle" id="mtitle">Add Product</div>
+    <div id="mbody"></div>
+  </div>
+</div>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import{getDatabase,ref,set,get,onValue}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+const FB={apiKey:"AIzaSyDw8USusWkZel2qPfUsE9Cs5UTy0jEd-FQ",authDomain:"organizeme--inventory-tracker.firebaseapp.com",databaseURL:"https://organizeme--inventory-tracker-default-rtdb.firebaseio.com",projectId:"organizeme--inventory-tracker",storageBucket:"organizeme--inventory-tracker.firebasestorage.app",messagingSenderId:"854910261181",appId:"1:854910261181:web:5eded9c74c4fef1319e4d4"};
+const db=getDatabase(initializeApp(FB));
+
+const USERS={'Mollie':{pass:'mollie123',senior:true,last:'Kudalis'},'Elizabeth':{pass:'elizabeth123',senior:true,last:'Adam'},'Morgan':{pass:'morgan123',senior:true,last:'Laddin'},'Mari':{pass:'mari123',senior:true,last:'Sapienza'},'Janae':{pass:'janae123',senior:false,last:'Rockmore'},'Reigan':{pass:'reigan123',senior:false,last:'Tinholt'},'Siena':{pass:'siena123',senior:false,last:'Gargnano'},'Kimberly':{pass:'kimberly123',senior:false,last:'Nelson'},'Savita':{pass:'savita123',senior:false,last:'Aher'},'Anne':{pass:'anne123',senior:false,last:'Yampolsky'},'Johanna':{pass:'johanna123',senior:false,last:'L'},'Indira':{pass:'indira123',senior:false,last:'Enamorado'},'Brittany':{pass:'brittany123',senior:false,last:'Doyle'}};
+const ORGS=['Mollie','Elizabeth','Morgan','Mari','Janae','Reigan','Siena','Kimberly','Savita','Anne','Johanna','Indira','Brittany'];
+const CATS=['Kitchen','Bathroom','Garage/Attic','Pantry','Moving Solutions','Storage Closet','Misc'];
+const EMO={'Kitchen':'🍳','Bathroom':'🛁','Garage/Attic':'🏠','Pantry':'🥫','Moving Solutions':'📦','Storage Closet':'🚪','Misc':'✨'};
+const LOW=3;const TAX=0.0725;
+
+const DP=[
+  {id:'p1',name:'5 Tier Rolling Shelving 35"×18"×72" w/o wheels',cat:'Garage/Attic',vendor:'Target',link:'https://www.walmart.com/ip/3463349084',retail:75,img:''},
+  {id:'p2',name:'5 Tier Rolling Shelving 36"×14"×54" w/o wheels',cat:'Garage/Attic',vendor:'Walmart',link:'https://www.walmart.com/ip/Hyper-Tough-4-Tier-Wire-Shelf-Unit-Chrome-1400-lb-Capacity-Adult/3463349084',retail:69.97,img:''},
+  {id:'p3',name:'5 Tier Rolling Shelving 36"×16"×72" w/o wheels',cat:'Garage/Attic',vendor:'Walmart',link:'https://www.walmart.com/ip/Hyper-Tough-5-Tier-Wire-Storage-Shelves-36-W-x-16-D-x-72-H-1750-lb-Load-Capacity-Black/5555914538',retail:79.97,img:''},
+  {id:'p4',name:'5 Tier Rolling Shelving 47"×18"×72" w/o wheels',cat:'Garage/Attic',vendor:'Target',link:'https://www.costco.com/p/-/trinity-5-tier-heavy-duty-wire-shelving-rack-60-x-24-x-72-nsf-includes-wheels/100709272',retail:85.0,img:''},
+  {id:'p5',name:'5 Tier Rolling Shelving 48"×16"×72" w/o wheels',cat:'Garage/Attic',vendor:'Walmart',link:'https://www.walmart.com/ip/Hyper-Tough-Black-Wire-Shelf-5-Tier-Heavy-Duty-72-H-x-48-W-x-16-D-3000lb-Total-Capacity/256423845',retail:99.97,img:''},
+  {id:'p6',name:'5 Tier Rolling Shelving 48"×24"×72" w/ wheels',cat:'Garage/Attic',vendor:'Target',link:'https://www.costco.com/p/-/trinity-ecostorage-5-tier-wire-shelving-rack-48-x-24-x-72-nsf-includes-wheels/100143963',retail:180.0,img:''},
+  {id:'p7',name:'5 Tier Rolling Shelving 60"×24"×72" w/ wheels',cat:'Garage/Attic',vendor:'Target',link:'https://www.costco.com/p/-/trinity-5-tier-heavy-duty-wire-shelving-rack-60-x-24-x-72-nsf-includes-wheels/100709272',retail:180.0,img:''},
+  {id:'p8',name:'Acrylic Bins (Bino)',cat:'Kitchen',vendor:'TJ Maxx/Homegoods',link:'https://binostorage.com',retail:16.0,img:''},
+  {id:'p9',name:'Acrylic Bins & Drawers (vtop)',cat:'Misc',vendor:'TJ Maxx/Homegoods',link:'https://a.co/d/0aJDAKgT',retail:16.0,img:''},
+  {id:'p10',name:'Acrylic Bins Open Front (mDesign)',cat:'Kitchen',vendor:'TJ Maxx/Homegoods',link:'https://a.co/d/06uQdtYs',retail:16.0,img:''},
+  {id:'p11',name:'Acrylic Bins w/ Single Drawers (Sorbus)',cat:'Kitchen',vendor:'TJ Maxx/Homegoods',link:'https://a.co/d/09pIx70S',retail:16.0,img:''},
+  {id:'p12',name:'Acrylic Candy Dispense',cat:'Misc',vendor:'Amazon',link:'https://a.co/d/0aibVyS8',retail:22.98,img:''},
+  {id:'p13',name:'Acrylic Shelf Dividers',cat:'Storage Closet',vendor:'Amazon',link:'https://a.co/d/0dnaRudL',retail:2.5,img:''},
+  {id:'p14',name:'Bamboo Drawer Dividers 2.4" Height',cat:'Kitchen',vendor:'Amazon',link:'https://a.co/d/02XVyLPw',retail:5.41,img:''},
+  {id:'p15',name:'Bamboo Drawer Dividers 4" Height',cat:'Kitchen',vendor:'Amazon',link:'https://a.co/d/05myctiO',retail:8.49,img:''},
+  {id:'p16',name:'Bamboo Kitchen Drawer Organizer Set (Costco)',cat:'Kitchen',vendor:'Costco',link:'https://www.costco.com/seville-classics-9-piece-bamboo-organizer-starter-set.product.4000100458.html',retail:59.99,img:''},
+  {id:'p17',name:'Bamboo Open Front Bins (The Home Edit/Walmart)',cat:'Kitchen',vendor:'Walmart',link:'https://www.walmart.com/ip/The-Home-Edit-Open-Front-Storage-chest-Brown-Bamboo-finish-2-Piece/1308763886',retail:14.0,img:''},
+  {id:'p18',name:'Bin Clips (Set of 30)',cat:'Misc',vendor:'Amazon',link:'https://a.co/d/0hfG4rNn',retail:0.29,img:''},
+  {id:'p19',name:'Bino Acrylic Bins Large',cat:'Misc',vendor:'Amazon, TJ Maxx/Homegoods',link:'https://binostorage.com',retail:14.0,img:''},
+  {id:'p20',name:'Bino Acrylic Bins Small',cat:'Misc',vendor:'Amazon, TJ Maxx/Homegoods',link:'https://binostorage.com',retail:8.5,img:''},
+  {id:'p21',name:'Bino Acrylic Bins X-Large',cat:'Misc',vendor:'Amazon, TJ Maxx/Homegoods',link:'https://binostorage.com',retail:18.0,img:''},
+  {id:'p22',name:'Bino Acrylic Stackable Drawers',cat:'Misc',vendor:'Amazon, TJ Maxx/Homegoods',link:'https://binostorage.com',retail:18.99,img:''},
+  {id:'p23',name:'Bino Drawer Organizers',cat:'Bathroom',vendor:'Amazon, TJ Maxx/Homegoods',link:'https://binostorage.com',retail:18.0,img:''},
+  {id:'p24',name:'Brightroom Acrylic 2-Drawer Storage Clear',cat:'Kitchen',vendor:'Target',link:'https://www.target.com/p/all-purpose-2-drawer-storage-clear-brightroom-8482/-/A-87646825',retail:16.0,img:''},
+  {id:'p25',name:'Brightroom Acrylic 3 Drawer Storage Clear',cat:'Kitchen',vendor:'Target',link:'https://www.target.com/p/all-purpose-3-drawer-storage-clear-brightroom-8482/',retail:16.0,img:''},
+  {id:'p26',name:'Brightroom Acrylic Bin w/divider — LG',cat:'Kitchen',vendor:'Target',link:'https://www.target.com/p/all-purpose-clear-storage-bin-with-adjustable-divider-large-brightroom-8482/-/A-93251227',retail:13.0,img:''},
+  {id:'p27',name:'Brightroom Acrylic Bin w/divider — SM ($12)',cat:'Kitchen',vendor:'Target',link:'https://www.target.com/p/all-purpose-clear-storage-bin-with-adjustable-divider-large-brightroom-8482/-/A-93251227',retail:13.0,img:''},
+  {id:'p28',name:'Brightroom Acrylic Bin w/divider — SM ($13)',cat:'Kitchen',vendor:'Target',link:'https://www.target.com/p/all-purpose-clear-storage-bin-with-adjustable-divider-small-brightroom-8482/-/A-93251231',retail:12.0,img:''},
+  {id:'p29',name:'Brightroom Acrylic Large All Purpose Full Depth Drawer',cat:'Kitchen',vendor:'Target',link:'https://www.target.com/p/all-purpose-clear-storage-bin-with-adjustable-divider-small-brightroom-8482/-/A-93251231',retail:13.0,img:''},
+  {id:'p30',name:'Brightroom Acrylic Single Drawer Organizer',cat:'Kitchen',vendor:'Target',link:'https://www.target.com/p/large-all-purpose-full-depth-drawer-clear-brightroom-8482/-/A-94711380',retail:12.0,img:''},
+  {id:'p31',name:'Brightroom Acrylic Small All Purpose Full Depth Drawer',cat:'Kitchen',vendor:'Target',link:'https://www.target.com/p/all-purpose-3-drawer-storage-clear-brightroom-8482/-/A-87646826',retail:16.0,img:''},
+  {id:'p32',name:'Brightroom Acrylic Tall All Purpose Full Depth Drawer',cat:'Kitchen',vendor:'Target',link:'https://www.target.com/p/small-all-purpose-full-depth-drawer-clear-brightroom-8482/-/A-94711377',retail:8.0,img:''},
+  {id:'p33',name:'Brightroom All Purpose Clear Storage Bin w/ Divider Small',cat:'Kitchen',vendor:'Target',link:'https://www.target.com/p/tall-all-purpose-full-depth-drawer-clear-brightroom-8482/-/A-94711379',retail:12.0,img:''},
+  {id:'p34',name:'Brightroom All Purpose Open Front Storage Bin 12"×12"×8"',cat:'Pantry',vendor:'Target',link:'https://www.target.com/p/all-purpose-clear-storage-bin-with-adjustable-divider-small-brightroom-8482/-/A-93251231',retail:13.0,img:''},
+  {id:'p35',name:'Brightroom All Purpose Storage Bin 12"×12"×8"',cat:'Pantry',vendor:'Target',link:'https://www.target.com/p/12-34-x-12-34-x-8-34-all-purpose-open-front-storage-bin-brightroom-8482/-/A-83279857',retail:13.0,img:''},
+  {id:'p36',name:'Brightroom Acrylic Large Bathroom Organizer Bin 6.5"×12"×9"',cat:'Bathroom',vendor:'Target',link:'https://www.target.com/p/12-34-x-12-34-x-8-34-all-purpose-storage-bin-brightroom-8482/-/A-83279887',retail:13.0,img:''},
+  {id:'p37',name:'Brightroom Acrylic Medium Bathroom Organizer Bin 6.5"×6"×9"',cat:'Bathroom',vendor:'Target',link:'https://www.target.com/p/large-bathroom-organizer-bin-with-handles-clear-brightroom-8482/-/A-81457178',retail:7.0,img:''},
+  {id:'p38',name:'Brightroom Organizer Tray/Riser',cat:'Misc',vendor:'Target',link:'https://www.target.com/p/large-bathroom-organizer-bin-with-handles-clear-brightroom-8482/-/A-81457178',retail:5.0,img:''},
+  {id:'p39',name:'Can Dispenser',cat:'Kitchen',vendor:'Amazon',link:'',retail:10.0,img:''},
+  {id:'p40',name:'Clothing Rolling Rack — Single Rod',cat:'Storage Closet',vendor:'Amazon',link:'https://a.co/d/0gwTlVIG',retail:29.99,img:''},
+  {id:'p41',name:'Clothing Rolling Rack — Double Rod',cat:'Storage Closet',vendor:'Amazon',link:'https://www.amazon.com/dp/B082V56R78',retail:79.99,img:''},
+  {id:'p42',name:'Drink Dispenser',cat:'Kitchen',vendor:'Amazon',link:'https://www.amazon.com/dp/B0D7HTH43B',retail:89.99,img:''},
+  {id:'p43',name:'Everything Organizer Acrylic Drawer Organizer (Container Store)',cat:'Kitchen',vendor:'Container Store',link:'https://a.co/d/0gwTlVIG',retail:29.99,img:''},
+  {id:'p44',name:'Everything Organizer Large Cabinet Depth Pantry Bin w/ Divider',cat:'Kitchen',vendor:'Container Store',link:'https://www.containerstore.com/s/kitchen/pantry-organizers/bins-and-baskets/everything-organizer-short-bin-organizer/123d?productId=11027249',retail:16.0,img:''},
+  {id:'p45',name:'Everything Organizer Large Shelf Depth Pantry Bin w/ Dividers',cat:'Kitchen',vendor:'Container Store',link:'https://www.containerstore.com/s/cabinet_depth-pantry-bins-with-divider/d?productId=11017101',retail:17.99,img:''},
+  {id:'p46',name:'Everything Organizer Large Short Bin Organizer',cat:'Kitchen',vendor:'Container Store',link:'https://www.containerstore.com/s/kitchen/pantry-organizers/bins-and-baskets/shelf-depth-pantry-bin-with-divider/123d?productId=11017102',retail:22.99,img:''},
+  {id:'p47',name:'Everything Organizer Medium Cabinet Depth Pantry Bin w/ Divider',cat:'Kitchen',vendor:'Container Store',link:'https://www.containerstore.com/s/kitchen/pantry-organizers/bins-and-baskets/everything-organizer-short-bin-organizer/123d?productId=11027252',retail:8.99,img:''},
+  {id:'p48',name:'Everything Organizer Medium Shelf Depth Pantry Bin w/ Dividers',cat:'Kitchen',vendor:'Container Store',link:'https://www.containerstore.com/s/cabinet_depth-pantry-bins-with-divider/d?productId=11017101',retail:14.99,img:''},
+  {id:'p49',name:'Everything Organizer Medium Short Bin Organizer',cat:'Kitchen',vendor:'Container Store',link:'https://www.containerstore.com/s/kitchen/pantry-organizers/bins-and-baskets/shelf-depth-pantry-bin-with-divider/123d?productId=11017102',retail:17.99,img:''},
+  {id:'p50',name:'Everything Organizer Narrow All-Purpose Bin',cat:'Kitchen',vendor:'Container Store',link:'https://www.containerstore.com/s/kitchen/pantry-organizers/bins-and-baskets/everything-organizer-short-bin-organizer/123d?productId=11027251',retail:6.99,img:''},
+  {id:'p51',name:'Everything Organizer Narrow All-Purpose Open-Front Bin',cat:'Kitchen',vendor:'Container Store',link:'https://www.containerstore.com/s/featured/the-everything-organizer/everything-organizer-all_purpose-bin/12d?productId=11026844',retail:16.99,img:''},
+  {id:'p52',name:'Everything Organizer Regular All-Purpose Bin',cat:'Kitchen',vendor:'Container Store',link:'https://www.containerstore.com/s/closet/closet-boxes-bins/everything-organizer-all-purpose-open-front-bin/12d?productId=11026836',retail:19.99,img:''},
+  {id:'p53',name:'Everything Organizer Regular All-Purpose Open-Front Bin',cat:'Kitchen',vendor:'Container Store',link:'https://www.containerstore.com/s/featured/the-everything-organizer/everything-organizer-all_purpose-bin/12d?productId=11026844',retail:18.99,img:''},
+  {id:'p54',name:'Everything Organizer Small Cabinet Depth Pantry Bin w/ Divider',cat:'Kitchen',vendor:'Container Store',link:'https://www.containerstore.com/s/closet/closet-boxes-bins/everything-organizer-all-purpose-open-front-bin/12d?productId=11026836',retail:25.99,img:''},
+  {id:'p55',name:'Everything Organizer Small Shelf Depth Pantry Bin w/ Dividers',cat:'Kitchen',vendor:'Container Store',link:'https://www.containerstore.com/s/cabinet_depth-pantry-bins-with-divider/d?productId=11017101',retail:10.99,img:''},
+  {id:'p56',name:'Everything Organizer Small Short Bin Organizer',cat:'Kitchen',vendor:'Container Store',link:'https://www.containerstore.com/s/kitchen/pantry-organizers/bins-and-baskets/shelf-depth-pantry-bin-with-divider/123d?productId=11017102',retail:13.99,img:''},
+  {id:'p57',name:'Everything Organizer Wide All-Purpose Bin (Pantry)',cat:'Pantry',vendor:'Container Store',link:'https://www.containerstore.com/s/kitchen/pantry-organizers/bins-and-baskets/everything-organizer-short-bin-organizer/123d?productId=11027250',retail:5.49,img:''},
+  {id:'p58',name:'Everything Organizer Wide All-Purpose Bin (Kitchen)',cat:'Kitchen',vendor:'Container Store',link:'',retail:26.99,img:''},
+  {id:'p59',name:'Everything Organizer Wide All-Purpose Open-Front Bin',cat:'Kitchen',vendor:'Container Store',link:'',retail:25.99,img:''},
+  {id:'p60',name:'Everything Organizer X-Small Short Bin Organizer',cat:'Kitchen',vendor:'Container Store',link:'https://www.containerstore.com/s/closet/closet-boxes-bins/everything-organizer-all-purpose-open-front-bin/12d?productId=11026836',retail:27.99,img:''},
+  {id:'p61',name:'Everything Organizer XL Cabinet Depth Pantry Bin w/ Divider',cat:'Kitchen',vendor:'Container Store',link:'https://www.containerstore.com/s/kitchen/pantry-organizers/bins-and-baskets/everything-organizer-short-bin-organizer/123d?productId=11027249',retail:3.99,img:''},
+  {id:'p62',name:'Everything Organizer XL Shelf Depth Pantry Bin w/ Dividers',cat:'Kitchen',vendor:'Container Store',link:'https://www.containerstore.com/s/cabinet_depth-pantry-bins-with-divider/d?productId=11017101',retail:22.99,img:''},
+  {id:'p63',name:'Flexmounts: Overhead Garage Storage',cat:'Garage/Attic',vendor:'Amazon',link:'https://www.containerstore.com/s/kitchen/pantry-organizers/bins-and-baskets/shelf-depth-pantry-bin-with-divider/123d?productId=11017102',retail:27.99,img:''},
+  {id:'p64',name:'Garbage Bags',cat:'Misc',vendor:'Amazon',link:'https://a.co/d/cthX6xD',retail:195.99,img:''},
+  {id:'p65',name:'Heavy Duty Shelving (SafeRacks)',cat:'Garage/Attic',vendor:'Costco',link:'https://www.amazon.com/dp/B00A441B2I',retail:0,img:''},
+  {id:'p66',name:'Heavy Duty Storage Totes — 12GAL (4PK)',cat:'Garage/Attic',vendor:'Costco',link:'',retail:190.0,img:''},
+  {id:'p67',name:'Heavy Duty Storage Totes — 27GAL (4PK)',cat:'Garage/Attic',vendor:'Costco, Lowes, Walmart',link:'https://www.costco.com/p/-/greenmade-12-gallon-storage-bin-4-pack/4000229972',retail:7.5,img:''},
+  {id:'p68',name:'Heavy Duty Storage Totes — 27GAL (8PK & ALT colors)',cat:'Garage/Attic',vendor:'Costco, Lowes, Walmart',link:'https://www.costco.com/greenmade-27-gallon-storage-bin-4-pack.product.4000205525.html',retail:9.0,img:''},
+  {id:'p69',name:'Heavy Duty Storage Totes — 27GAL CLEAR (8PK)',cat:'Garage/Attic',vendor:'Costco',link:'https://www.costco.com/greenmade-27-gallon-storage-bin-8-pack.product.4000377855.html',retail:12.0,img:''},
+  {id:'p70',name:'Heavy Duty Tote Rack (Proslat)',cat:'Garage/Attic',vendor:'Costco',link:'https://www.costco.com/p/-/greenmade-27-gallon-clear-storage-bin-8pack/4201008753',retail:16.25,img:''},
+  {id:'p71',name:'iDesign Acrylic Drawer Organizer (Costco)',cat:'Kitchen',vendor:'Costco',link:'',retail:180.0,img:''},
+  {id:'p72',name:'IKEA Bags',cat:'Misc',vendor:'IKEA',link:'https://www.costco.com/idesign-9-piece-drawer-organizer-set.product.4000332003.html',retail:29.99,img:''},
+  {id:'p73',name:'Label Maker',cat:'Misc',vendor:'Container Store',link:'https://www.ikea.com/us/en/p/frakta-shopping-bag-large-blue-17228340/',retail:1.49,img:''},
+  {id:'p74',name:'Label Maker Tape (Black)',cat:'Misc',vendor:'Amazon',link:'https://www.containerstore.com/s/office/labels-label-makers/p-touch-cube-plus-label-maker/12d?productId=11016156',retail:99.99,img:''},
+  {id:'p75',name:'Label Maker Tape (White)',cat:'Misc',vendor:'Amazon',link:'https://a.co/d/00nw9RrJ',retail:5.65,img:''},
+  {id:'p76',name:'Lazy Susans (Amazon)',cat:'Misc',vendor:'Amazon',link:'https://a.co/d/06ciL6h7',retail:5.0,img:''},
+  {id:'p77',name:'Lazy Susans XL Acrylic',cat:'Kitchen',vendor:'Container Store',link:'https://a.co/d/btKEhjC',retail:8.0,img:''},
+  {id:'p78',name:'Lazy Susans XL Black (Brightroom/Target)',cat:'Garage/Attic',vendor:'Target',link:'',retail:18.0,img:''},
+  {id:'p79',name:'Organizer Tote Bags (Black/multi-colors)',cat:'Misc',vendor:'Amazon',link:'https://www.target.com/p/18-34-storage-turntable-brightroom-8482/-/A-89811888',retail:12.0,img:''},
+  {id:'p80',name:'Packing Boxes — Large',cat:'Moving Solutions',vendor:'Lowes, Home Depot',link:'https://a.co/d/0ho0Alqt',retail:25.99,img:''},
+  {id:'p81',name:'Packing Boxes — Med.',cat:'Moving Solutions',vendor:'Lowes, Home Depot',link:'https://www.uhaul.com/MovingSupplies/Boxes/',retail:2.78,img:''},
+  {id:'p82',name:'Packing Boxes — Sm.',cat:'Moving Solutions',vendor:'Lowes, Home Depot',link:'https://www.uhaul.com/MovingSupplies/Boxes/',retail:2.35,img:''},
+  {id:'p83',name:'Packing Boxes — XL',cat:'Moving Solutions',vendor:'Lowes, Home Depot',link:'https://www.uhaul.com/MovingSupplies/Boxes/',retail:1.78,img:''},
+  {id:'p84',name:'Packing Paper — 100 Sheets (Lowes)',cat:'Moving Solutions',vendor:'Lowes',link:'https://www.uhaul.com/MovingSupplies/Boxes/',retail:3.78,img:''},
+  {id:'p85',name:'Packing Paper — 200 Sheets (U-Haul)',cat:'Moving Solutions',vendor:'Lowes, Home Depot',link:'https://www.lowes.com/pd/Blue-Hawk-30-in-x-2-ft-Paper-Packing-Paper/1000882128',retail:13.98,img:''},
+  {id:'p86',name:'Packing Paper — 500 Sheets (U-Haul)',cat:'Moving Solutions',vendor:'Lowes, Home Depot',link:'https://www.uhaul.com/MovingSupplies/Packing-Supplies/Packing-Paper-Bulk-(25-lb-pack)/?id=8606',retail:39.95,img:''},
+  {id:'p87',name:'Packing Tape (clear rolls)',cat:'Moving Solutions',vendor:'Lowes',link:'https://www.uhaul.com/MovingSupplies/Packing-Supplies/Packing-Paper-Bulk-(25-lb-pack)/?id=8606',retail:39.95,img:''},
+  {id:'p88',name:'Painters Tape',cat:'Moving Solutions',vendor:'Amazon',link:'https://www.costco.com/p/-/scotch-heavy-duty-shipping-tape-8-pack/11748454',retail:3.25,img:''},
+  {id:'p89',name:'Plastic Utility Storage Bin — Large',cat:'Storage Closet',vendor:'Target, Container Store',link:'https://www.amazon.com/dp/B07XNTGRJB',retail:10.89,img:''},
+  {id:'p90',name:'Plastic Utility Storage Bin — Medium',cat:'Moving Solutions',vendor:'Target, Container Store',link:'https://www.walmart.com/ip/430879032',retail:6.37,img:''},
+  {id:'p91',name:'Pull Out Cabinet Organizer Drawers',cat:'Kitchen',vendor:'Amazon',link:'https://www.walmart.com/ip/3181212716',retail:5.32,img:''},
+  {id:'p92',name:'Stackable Bottle Organizer (Container Store)',cat:'Kitchen',vendor:'Container Store',link:'https://www.amazon.com/Pull-out-Cabinet-Organizer-Organization/dp/B0DNVR6BSW/',retail:37.69,img:''},
+  {id:'p93',name:'Step Stool (2-steps)',cat:'Misc',vendor:'Walmart',link:'',retail:16.99,img:''},
+  {id:'p94',name:'Step Stool (3-steps)',cat:'Misc',vendor:'Walmart',link:'https://www.walmart.com/ip/5251337973',retail:24.97,img:''},
+  {id:'p95',name:'Sterilite Med. Short Latching Storage Bin — 15 Quart',cat:'Garage/Attic',vendor:'Walmart, Target',link:'https://www.walmart.com/ip/13987464224',retail:39.97,img:''},
+  {id:'p96',name:'Sterilite Med. Tall Latching Storage Bin — 27 Quart',cat:'Garage/Attic',vendor:'Walmart, Target',link:'https://www.walmart.com/ip/46001916',retail:5.98,img:''},
+  {id:'p97',name:'Sterilite Small Latching Storage Bin — 7 Quart',cat:'Garage/Attic',vendor:'Walmart, Target',link:'https://www.walmart.com/ip/46001917',retail:7.28,img:''},
+  {id:'p98',name:'Sterilite Lg Latching Storage Totes — 66QT',cat:'Garage/Attic',vendor:'Walmart, Target',link:'https://www.walmart.com/ip/46001913',retail:3.98,img:''},
+  {id:'p99',name:'The Home Edit Acrylic Drawer Organizer — Bathroom',cat:'Bathroom',vendor:'Container Store',link:'https://www.walmart.com/ip/202840819',retail:8.98,img:''},
+  {id:'p100',name:'The Home Edit Acrylic Drawer Organizer — Kitchen',cat:'Kitchen',vendor:'Container Store',link:'',retail:27.99,img:''},
+  {id:'p101',name:'Wall Mount Organizer',cat:'Misc',vendor:'Container Store',link:'',retail:27.99,img:''},
+  {id:'p102',name:'Water Bottle Organizer',cat:'Kitchen',vendor:'TJ Maxx/Homegoods',link:'',retail:14.99,img:''},
+  {id:'p103',name:'Water Hyacinth Bin Natural Large',cat:'Kitchen',vendor:'Container Store',link:'https://www.amazon.com/Winscj-Magnetic-Organizer-Refrigerator-Accessories/dp/B0F47VTNZW/',retail:24.99,img:''},
+  {id:'p104',name:'Water Hyacinth Bin Natural Medium',cat:'Kitchen',vendor:'Container Store',link:'',retail:24.99,img:''},
+  {id:'p105',name:'Water Hyacinth Bin Natural Small',cat:'Kitchen',vendor:'Container Store',link:'',retail:17.99,img:''},
+  {id:'p106',name:'Water Hyacinth Bin Natural X-Large',cat:'Kitchen',vendor:'Container Store',link:'',retail:14.99,img:''},
+];
+
+let cu=null,senior=false,editId=null,cart={},products=[],inventory={},activeCat='',viewOrg=null,curView='grid',sumCat='';
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function uid(){return'p'+Date.now().toString(36)+Math.random().toString(36).slice(2);}
+function fmt(n){return'$'+(+n||0).toFixed(2);}
+function cp(r){const v=parseFloat(r)||0;return{retail:v,src:v*.25,base:v*1.25,hb:v*1.25*(1+TAX)};}
+function tqty(pid){return ORGS.reduce((s,o)=>s+((inventory[o]||{})[pid]||0),0);}
+function ini(n){
+  const u=USERS[n];
+  if(u&&u.last&&u.last!=='?')return n[0].toUpperCase()+(u.last[0]||'').toUpperCase();
+  return n.slice(0,2).toUpperCase();
+}
+function syncUI(s){const p=document.getElementById('spill'),l=document.getElementById('slbl');if(!p)return;if(s==='live'){p.className='spill';l.textContent='Live';}else if(s==='saving'){p.className='spill';l.textContent='Saving…';}else{p.className='spill off';l.textContent='Offline';}}
+
+async function initData(){
+  const s=await get(ref(db,'products'));
+  if(!s.exists()){const o={};DP.forEach(p=>{o[p.id]=p;});await set(ref(db,'products'),o);products=[...DP];}
+  else{
+    const ex=s.val();
+    const merged={};
+    // Always apply latest prices/links from DP, preserve custom fields (img, notes) from DB
+    DP.forEach(p=>{
+      const saved=ex[p.id]||{};
+      merged[p.id]={...p,img:saved.img||'',notes:saved.notes||''};
+    });
+    // Keep any custom products added by team (not in DP)
+    Object.keys(ex).forEach(id=>{if(!merged[id])merged[id]=ex[id];});
+    products=Object.values(merged);
+    await set(ref(db,'products'),merged);
+  }
+  const iv=await get(ref(db,'inventory'));
+  inventory=iv.exists()?iv.val():{};
+}
+function listen(){
+  onValue(ref(db,'products'),s=>{products=s.exists()?Object.values(s.val()):[];if(cu){renderProducts();renderSumSearch();}});
+  onValue(ref(db,'inventory'),s=>{inventory=s.exists()?s.val():{};if(cu){renderProducts();renderMyInv();renderTeam();}});
+}
+
+window.doLogin=function(){
+  const name=document.getElementById('lu').value,pass=document.getElementById('lp').value;
+  const err=document.getElementById('lerr');
+  if(!name){err.textContent='Please select your name.';err.style.display='block';return;}
+  const u=USERS[name];
+  if(!u||pass!==u.pass){err.style.display='block';return;}
+  err.style.display='none';cu=name;senior=u.senior;
+  document.getElementById('login').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('upill').textContent=name+(senior?' ★':'');
+  document.getElementById('sorg').value=name;
+  const av=document.getElementById('my-av');
+  const nm=document.getElementById('my-name');
+  if(av)av.textContent=ini(name);
+  if(nm)nm.textContent=name+"'s Inventory";
+  document.getElementById('sdate').value=new Date().toISOString().split('T')[0];
+  if(!senior)document.getElementById('n-summary').classList.add('locked');
+  document.getElementById('addwrap').style.display=senior?'block':'none';
+  buildChips();buildSumChips();showTab('products');
+};
+window.doLogout=function(){
+  cu=null;senior=false;cart={};viewOrg=null;
+  document.getElementById('login').style.display='flex';
+  document.getElementById('app').style.display='none';
+  document.getElementById('lp').value='';document.getElementById('lu').value='';
+};
+
+window.showTab=function(t){
+  if(t==='summary'&&!senior)return;
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.tn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('sec-'+t).classList.add('on');
+  document.getElementById('n-'+t).classList.add('on');
+  window.scrollTo(0,0);
+  if(t==='products')renderProducts();
+  if(t==='team'){viewOrg=null;renderTeam();}
+  if(t==='inv')renderMyInv();
+  if(t==='summary')initSummary();
+};
+
+function buildChips(){
+  document.getElementById('catchips').innerHTML=
+    ['All',...CATS].map(c=>`<span class="chip${(c==='All'&&!activeCat)||c===activeCat?' on':''}" onclick="setCat('${c}')">${EMO[c]||''} ${c}</span>`).join('');
+}
+function buildSumChips(){
+  document.getElementById('sumchips').innerHTML=
+    ['All',...CATS].map(c=>`<span class="chip${(c==='All'&&!sumCat)||c===sumCat?' on':''}" onclick="setSumCat('${c}')">${EMO[c]||''} ${c}</span>`).join('');
+}
+window.setCat=function(c){activeCat=c==='All'?'':c;buildChips();renderProducts();};
+window.setSumCat=function(c){sumCat=c==='All'?'':c;buildSumChips();renderSumSearch();};
+
+window.setView=function(v){
+  curView=v;
+  document.getElementById('vg').className='vbtn'+(v==='grid'?' on':'');
+  document.getElementById('vl').className='vbtn'+(v==='list'?' on':'');
+  document.getElementById('pgrid').style.display=v==='grid'?'grid':'none';
+  document.getElementById('plist').style.display=v==='list'?'block':'none';
+  renderProducts();
+};
+
+function filteredProds(){
+  const q=(document.getElementById('psearch').value||'').toLowerCase();
+  return products.filter(p=>{
+    if(activeCat&&p.cat!==activeCat)return false;
+    if(q&&!p.name.toLowerCase().includes(q)&&!(p.vendor||'').toLowerCase().includes(q))return false;
+    return true;
+  });
+}
+
+function renderProducts(){
+  const list=filteredProds();
+  const out=products.filter(p=>tqty(p.id)===0).length;
+  document.getElementById('lowbanner').innerHTML=out>0?`<div class="alert awarn">⚠️ <strong>${out} item${out>1?'s':''}</strong> out of stock</div>`:'';
+  if(curView==='grid')renderGrid(list);
+  else renderListView(list);
+}
+window.renderProducts=renderProducts;
+
+function renderGrid(list){
+  if(!list.length){document.getElementById('pgrid').innerHTML='<div class="empty" style="grid-column:1/-1">No products found.</div>';return;}
+  document.getElementById('pgrid').innerHTML=list.map(p=>{
+    const pr=cp(p.retail),qty=(inventory[cu]||{})[p.id]||0,tq=tqty(p.id);
+    const badge=tq===0?'<span class="bdg bdanger" style="font-size:10px">Out</span>':tq<=LOW?'<span class="bdg bwarn" style="font-size:10px">Low</span>':'';
+    const imgHtml=p.img?`<img class="pgimg" src="${esc(p.img)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:'';
+    const phHtml=`<div class="pgimgph" style="${p.img?'display:none':''}">${EMO[p.cat]||'📦'}</div>`;
+    return`<div class="pgcard">
+      ${imgHtml}${phHtml}
+      <div class="pgbody">
+        <div class="pgname">${esc(p.name)}</div>
+        <div class="pgprice">${p.retail>0?fmt(pr.base):''} ${badge}</div>
+        <div class="pgvendor">${esc(p.vendor||'')}</div>
+        <div class="pgqctrl">
+          <button class="pgqbtn" onclick="qkQty('${p.id}',-1)">−</button>
+          <span class="pgqnum">${qty}</span>
+          <button class="pgqbtn" onclick="qkQty('${p.id}',1)">+</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderListView(list){
+  if(!list.length){document.getElementById('plist').innerHTML='<div class="empty">No products found.</div>';return;}
+  document.getElementById('plist').innerHTML=list.map(p=>{
+    const pr=cp(p.retail),qty=(inventory[cu]||{})[p.id]||0,tq=tqty(p.id);
+    const badge=tq===0?'<span class="bdg bdanger">Out</span>':tq<=LOW?'<span class="bdg bwarn">Low</span>':'<span class="bdg bok">In stock</span>';
+    const hp=p.retail>0;
+    return`<div class="plrow">
+      <div class="plname">${esc(p.name)}</div>
+      <div class="plmeta">
+        <span class="bdg bgray">${esc(p.cat)}</span>
+        <span>${esc(p.vendor||'')}</span>
+        ${badge}
+        ${p.link?`<a href="${esc(p.link)}" target="_blank" style="color:var(--accent);font-weight:600">↗ View</a>`:''}
+      </div>
+      ${hp?`<div class="prices">
+        <div class="pb"><div class="pbl">Retail</div><div class="pbv">${fmt(pr.retail)}</div></div>
+        <div class="pb"><div class="pbl">Sourcing Fee (25%)</div><div class="pbv">${fmt(pr.src)}</div></div>
+        <div class="pb cl"><div class="pbl">Client Cost</div><div class="pbv">${fmt(pr.base)}</div></div>
+        <div class="pb hb"><div class="pbl">Client Cost w/ HB Tax (7.25%)</div><div class="pbv">${fmt(pr.hb)}</div></div>
+      </div>`:`<div style="font-size:12px;color:var(--muted);margin-bottom:6px">No price set yet</div>`}
+      <div class="plqrow">
+        <span class="plqlbl">My qty: </span>
+        <div class="qctrl">
+          <button class="qbtn" onclick="qkQty('${p.id}',-1)">−</button>
+          <span class="qnum">${qty}</span>
+          <button class="qbtn" onclick="qkQty('${p.id}',1)">+</button>
+        </div>
+      </div>
+      ${senior?`<div style="display:flex;gap:8px;margin-top:8px"><button class="btn btn-sm" onclick="openEdit('${p.id}')">✏️ Edit</button><button class="btn btn-sm btn-d" onclick="delProd('${p.id}')">🗑 Delete</button></div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// Quick qty update from products tab
+window.qkQty=async function(pid,d){
+  const org=cu;
+  const cur=(inventory[org]||{})[pid]||0,nq=Math.max(0,cur+d);
+  if(!inventory[org])inventory[org]={};
+  inventory[org][pid]=nq;
+  renderProducts();
+  syncUI('saving');await set(ref(db,`inventory/${org}/${pid}`),nq);syncUI('live');
+};
+
+// ── TEAM ──
+function renderTeam(){
+  if(viewOrg){renderOrgDetail(viewOrg);return;}
+  document.getElementById('team-ov').style.display='block';
+  document.getElementById('team-dt').style.display='none';
+  document.getElementById('team-ov').innerHTML=`
+    <div style="padding:10px 1rem 4px"><p style="font-size:13px;color:var(--muted)">Tap any organizer to see their inventory.</p></div>
+    <div class="tgrid">${ORGS.map(org=>{
+      const inv=inventory[org]||{};
+      const stocked=products.filter(p=>(inv[p.id]||0)>0).length;
+      const low=products.filter(p=>{const q=inv[p.id]||0;return q>0&&q<=LOW;}).length;
+      return`<div class="tcard" onclick="drillOrg('${org}')">
+        <div class="tav">${ini(org)}</div>
+        <div class="tname">${org}</div>
+        <div class="tstat"><strong>${stocked}</strong>/${products.length} stocked</div>
+        ${low?`<div style="margin-top:4px"><span class="bdg bwarn">${low} low</span></div>`:''}
+      </div>`;
+    }).join('')}</div>`;
+}
+window.drillOrg=function(org){viewOrg=org;window.scrollTo(0,0);renderOrgDetail(org);};
+function renderOrgDetail(org){
+  document.getElementById('team-ov').style.display='none';
+  document.getElementById('team-dt').style.display='block';
+  const inv=inventory[org]||{};
+  const cats=[...new Set(products.map(p=>p.cat))].sort();
+  const canEdit=senior||(org===cu);
+  document.getElementById('team-dt').innerHTML=`
+    <div class="tback" onclick="backTeam()">← Back to team</div>
+    <div style="padding:10px 1rem 6px;display:flex;align-items:center;gap:10px">
+      <div class="tav" style="width:40px;height:40px;font-size:13px">${ini(org)}</div>
+      <div><div style="font-size:16px;font-weight:600">${org}'s Inventory</div></div>
+    </div>
+    <div id="team-inv-${org}"></div>`;
+  renderOrgInv(org, `team-inv-${org}`, canEdit);
+}
+window.backTeam=function(){viewOrg=null;renderTeam();};
+
+// ── MY STOCK ──
+function renderMyInv(){
+  const sv=document.getElementById(`inv-search-${cu}`);
+  renderOrgInv(cu,'myinv',true,sv?sv.value:'');
+}
+
+function renderOrgInv(org, containerId, canEdit, searchVal=''){
+  const inv=inventory[org]||{};
+  const allCats=[...new Set(products.map(p=>p.cat))].sort();
+  const el=document.getElementById(containerId);
+  if(!el)return;
+  if(!products.length){el.innerHTML='<div class="empty">No products yet.</div>';return;}
+
+  // Stats
+  const stocked=products.filter(p=>(inv[p.id]||0)>0);
+  const low=stocked.filter(p=>(inv[p.id]||0)<=LOW);
+  const out=products.filter(p=>(inv[p.id]||0)===0);
+  const totalQtyAll=stocked.reduce((s,p)=>s+(inv[p.id]||0),0);
+
+  // Active filter state
+  if(!window._invFilter)window._invFilter={};
+  const activeFilter=searchVal.startsWith('__filter:')?searchVal.replace('__filter:',''):null;
+  const searchQ=(!activeFilter&&searchVal)?searchVal.toLowerCase():'';
+
+  // Stats bar - tappable cards
+  const statsBar=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;padding:1rem;">
+    <div onclick="setInvFilter('${org}','${containerId}',${canEdit},'${activeFilter==='all'?'':'all'}')"
+      style="background:${activeFilter==='all'?'var(--dark)':'var(--sand)'};border-radius:var(--r);padding:10px;text-align:center;cursor:pointer;border:2px solid ${activeFilter==='all'?'var(--dark)':'transparent'}">
+      <div style="font-size:22px;font-weight:700;color:${activeFilter==='all'?'white':'var(--dark)'}">${products.length}</div>
+      <div style="font-size:11px;font-weight:600;margin-top:2px;color:${activeFilter==='all'?'white':'var(--dark)'}">All</div>
+      <div style="font-size:10px;opacity:.75;color:${activeFilter==='all'?'white':'var(--dark)'};">products</div>
+    </div>
+    <div onclick="setInvFilter('${org}','${containerId}',${canEdit},'${activeFilter==='stocked'?'':'stocked'}')"
+      style="background:${activeFilter==='stocked'?'var(--accent)':'var(--al)'};border-radius:var(--r);padding:10px;text-align:center;cursor:pointer;border:2px solid ${activeFilter==='stocked'?'var(--accent)':'transparent'}">
+      <div style="font-size:22px;font-weight:700;color:${activeFilter==='stocked'?'white':'var(--accent)'}">${stocked.length}</div>
+      <div style="font-size:11px;font-weight:600;margin-top:2px;color:${activeFilter==='stocked'?'white':'var(--accent)'}">Stocked</div>
+      <div style="font-size:10px;opacity:.75;color:${activeFilter==='stocked'?'white':'var(--accent)'};">${totalQtyAll} items</div>
+    </div>
+    <div onclick="setInvFilter('${org}','${containerId}',${canEdit},'${activeFilter==='low'?'':'low'}')"
+      style="background:${activeFilter==='low'?'var(--warn)':low.length?'var(--wl)':'var(--sand)'};border-radius:var(--r);padding:10px;text-align:center;cursor:pointer;border:2px solid ${activeFilter==='low'?'var(--warn)':'transparent'}">
+      <div style="font-size:22px;font-weight:700;color:${activeFilter==='low'?'white':low.length?'var(--warn)':'var(--muted)'}">${low.length}</div>
+      <div style="font-size:11px;font-weight:600;margin-top:2px;color:${activeFilter==='low'?'white':low.length?'var(--warn)':'var(--muted)'}">Low</div>
+      <div style="font-size:10px;opacity:.75;color:${activeFilter==='low'?'white':low.length?'var(--warn)':'var(--muted)'};">≤ ${LOW} left</div>
+    </div>
+    <div onclick="setInvFilter('${org}','${containerId}',${canEdit},'${activeFilter==='out'?'':'out'}')"
+      style="background:${activeFilter==='out'?'var(--danger)':out.length?'var(--dl)':'var(--sand)'};border-radius:var(--r);padding:10px;text-align:center;cursor:pointer;border:2px solid ${activeFilter==='out'?'var(--danger)':'transparent'}">
+      <div style="font-size:22px;font-weight:700;color:${activeFilter==='out'?'white':out.length?'var(--danger)':'var(--muted)'}">${out.length}</div>
+      <div style="font-size:11px;font-weight:600;margin-top:2px;color:${activeFilter==='out'?'white':out.length?'var(--danger)':'var(--muted)'}">Out</div>
+      <div style="font-size:10px;opacity:.75;color:${activeFilter==='out'?'white':out.length?'var(--danger)':'var(--muted)'};">of ${products.length}</div>
+    </div>
+  </div>`;
+
+  // Search bar
+  const searchBar=`<div style="padding:0 1rem 10px;display:flex;gap:8px;align-items:center;">
+    <input class="si" type="search" id="inv-search-${org}"
+      placeholder="🔍 Search products…"
+      value="${searchQ.replace(/"/g,'&quot;')}"
+      oninput="renderOrgInv('${org}','${containerId}',${canEdit},this.value)"
+      style="flex:1">
+    ${activeFilter?`<button onclick="setInvFilter('${org}','${containerId}',${canEdit},'')" style="padding:8px 12px;border-radius:var(--r);border:1.5px solid var(--border);background:var(--white);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;">✕ Clear</button>`:''}
+  </div>
+  ${activeFilter?`<div style="padding:0 1rem 8px;font-size:12px;font-weight:600;color:${activeFilter==='all'?'var(--dark)':activeFilter==='stocked'?'var(--accent)':activeFilter==='low'?'var(--warn)':'var(--danger)'}">
+    Showing: ${activeFilter==='all'?'all '+products.length+' products':activeFilter==='stocked'?stocked.length+' stocked items':activeFilter==='low'?low.length+' low stock items':out.length+' out of stock items'}
+  </div>`:''}`;
+
+  // Determine which products to show in flat list mode
+  let flatProducts=null;
+  if(activeFilter==='all') flatProducts=products;
+  else if(activeFilter==='stocked') flatProducts=stocked;
+  else if(activeFilter==='low') flatProducts=low;
+  else if(activeFilter==='out') flatProducts=out;
+  else if(searchQ) flatProducts=products.filter(p=>p.name.toLowerCase().includes(searchQ)||(p.vendor||'').toLowerCase().includes(searchQ));
+
+  // Flat list for filter/search results
+  if(flatProducts!==null){
+    const rows=flatProducts.map(p=>{
+      const qty=inv[p.id]||0;
+      return`<div class="irow">
+        <div class="iinfo">
+          <div class="iname">${esc(p.name)}</div>
+          <div class="ivend">${esc(p.cat)} · ${esc(p.vendor||'')}${qty===0?' · <span style="color:var(--danger);font-weight:600">Out</span>':qty<=LOW?' · <span style="color:var(--warn);font-weight:600">Low</span>':''}</div>
+        </div>
+        ${canEdit?`<div class="qctrl">
+          <button class="qbtn" onclick="chgQ('${org}','${p.id}',-1)">−</button>
+          <span class="qnum">${qty}</span>
+          <button class="qbtn" onclick="chgQ('${org}','${p.id}',1)">+</button>
+        </div>`:`<span class="qnum" style="min-width:30px;text-align:right">${qty}</span>`}
+      </div>`;
+    }).join('')||`<div class="empty">No products in this category.</div>`;
+    el.innerHTML=`<div class="inv-sticky-header">`+statsBar+searchBar+`</div><div style="border-top:1px solid var(--border)">${rows}</div>`;
+    if(!activeFilter){
+      const si=document.getElementById(`inv-search-${org}`);
+      if(si){const v=si.value;si.focus();si.setSelectionRange(v.length,v.length);}
+    }
+    return;
+  }
+
+  // Categories — all expanded by default
+  const catSections=allCats.map(cat=>{
+    const items=products.filter(p=>p.cat===cat);
+    const catStocked=items.filter(p=>(inv[p.id]||0)>0).length;
+    const secId=`inv-cat-${org}-${cat.replace(/[^a-z0-9]/gi,'_')}`;
+    // Remember open/closed state
+    const wasOpen=window._invCatState&&window._invCatState[secId]!==undefined?window._invCatState[secId]:true;
+    return`<div style="border-top:1px solid var(--border);">
+      <div onclick="toggleInvCat('${secId}')" style="display:flex;align-items:center;justify-content:space-between;padding:12px 1rem;cursor:pointer;background:var(--cream);user-select:none;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:18px">${EMO[cat]||''}</span>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--dark)">${esc(cat)}</div>
+            <div style="font-size:11px;color:var(--muted)">${catStocked} of ${items.length} stocked</div>
+          </div>
+        </div>
+        <span id="${secId}-ico" style="font-size:14px;color:var(--muted)">${wasOpen?'▲':'▼'}</span>
+      </div>
+      <div id="${secId}" style="display:${wasOpen?'block':'none'};">
+        ${items.map(p=>{
+          const qty=inv[p.id]||0;
+          return`<div class="irow">
+            <div class="iinfo">
+              <div class="iname">${esc(p.name)}</div>
+              <div class="ivend">${esc(p.vendor||'')}${qty===0?' · <span style="color:var(--danger);font-weight:600">Out</span>':qty<=LOW?' · <span style="color:var(--warn);font-weight:600">Low</span>':''}</div>
+            </div>
+            ${canEdit?`<div class="qctrl">
+              <button class="qbtn" onclick="chgQ('${org}','${p.id}',-1)">−</button>
+              <span class="qnum">${qty}</span>
+              <button class="qbtn" onclick="chgQ('${org}','${p.id}',1)">+</button>
+            </div>`:`<span class="qnum" style="min-width:30px;text-align:right">${qty}</span>`}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML=`<div class="inv-sticky-header">`+statsBar+searchBar+`</div><div style="margin-top:0">`+catSections+`</div>`;
+}
+window.setInvFilter=function(org,containerId,canEdit,filter){
+  renderOrgInv(org,containerId,canEdit,filter?'__filter:'+filter:'');
+};
+window.toggleInvCat=function(id){
+  const el=document.getElementById(id);
+  const ico=document.getElementById(id+'-ico');
+  if(!el)return;
+  const hidden=el.style.display==='none';
+  el.style.display=hidden?'block':'none';
+  if(ico)ico.textContent=hidden?'▲':'▼';
+  // Remember state
+  if(!window._invCatState)window._invCatState={};
+  window._invCatState[id]=!hidden;
+};
+window.chgQ=async function(org,pid,d){
+  const cur=(inventory[org]||{})[pid]||0,nq=Math.max(0,cur+d);
+  if(!inventory[org])inventory[org]={};
+  inventory[org][pid]=nq;
+  // Re-render preserving search
+  // Preserve current filter/search state
+  const getInvState=(containerId,org)=>{
+    const si=document.getElementById(`inv-search-${org}`);
+    if(si&&si.value)return si.value;
+    // check if filter mode active by looking at container
+    return '';
+  };
+  if(org===cu){
+    const sv=getInvState('myinv',org);
+    renderOrgInv(org,'myinv',true,sv);
+  }
+  if(viewOrg===org){
+    const canEdit=senior||(org===cu);
+    const sv=getInvState(`team-inv-${org}`,org);
+    renderOrgInv(org,`team-inv-${org}`,canEdit,sv);
+  }
+  syncUI('saving');await set(ref(db,`inventory/${org}/${pid}`),nq);syncUI('live');
+};
+
+// ── SUMMARY (cart flow) ──
+function initSummary(){
+  if(!senior){
+    document.getElementById('sum-locked').innerHTML='<div class="alert awarn">🔒 Senior team members only.</div>';
+    document.getElementById('sum-locked').style.display='block';
+    document.getElementById('sum-content').style.display='none';return;
+  }
+  document.getElementById('sum-locked').style.display='none';
+  document.getElementById('sum-content').style.display='block';
+  renderSumSearch();updateRunBar();
+}
+
+function renderSumSearch(){
+  const q=(document.getElementById('ssearch')?document.getElementById('ssearch').value||'':'').toLowerCase();
+  const list=products.filter(p=>{
+    if(sumCat&&p.cat!==sumCat)return false;
+    if(q&&!p.name.toLowerCase().includes(q)&&!(p.vendor||'').toLowerCase().includes(q))return false;
+    return true;
+  });
+  const el=document.getElementById('sumresults');
+  if(!el)return;
+  el.innerHTML=list.map(p=>{
+    const pr=cp(p.retail),inCart=!!cart[p.id],qty=cart[p.id]?.qty||1;
+    return`<div class="sum-prow${inCart?' added':''}">
+      <div class="sum-pinfo" onclick="toggleCart('${p.id}')">
+        <div class="sum-pname">${esc(p.name)}</div>
+        <div class="sum-pprice">${p.retail>0?'Client: '+fmt(pr.base*(inCart?qty:1))+(inCart&&qty>1?' ('+qty+'×'+fmt(pr.base)+')':''):''}</div>
+        <div class="sum-pmeta">${esc(p.cat)} · ${esc(p.vendor||'')}</div>
+      </div>
+      ${inCart?`<div style="display:flex;align-items:center;gap:0;background:var(--white);border-radius:999px;border:1.5px solid var(--accent);overflow:hidden;flex-shrink:0;">
+        <button onclick="sumQty('${p.id}',-1)" style="width:36px;height:36px;border:none;background:transparent;font-size:18px;cursor:pointer;color:var(--danger);font-weight:700;display:flex;align-items:center;justify-content:center;">−</button>
+        <span style="font-size:14px;font-weight:700;min-width:24px;text-align:center;font-family:'DM Mono',monospace;">${qty}</span>
+        <button onclick="sumQty('${p.id}',1)" style="width:36px;height:36px;border:none;background:transparent;font-size:18px;cursor:pointer;color:var(--accent);font-weight:700;display:flex;align-items:center;justify-content:center;">+</button>
+      </div>`:`<button class="sum-add-btn" onclick="toggleCart('${p.id}')">+</button>`}
+    </div>`;
+  }).join('');
+}
+window.renderSumSearch=renderSumSearch;
+
+window.toggleCart=function(pid){
+  if(cart[pid])delete cart[pid];
+  else cart[pid]={qty:1};
+  renderSumSearch();updateRunBar();renderCartRows();
+};
+window.sumQty=function(pid,d){
+  if(!cart[pid])return;
+  const nq=cart[pid].qty+d;
+  if(nq<=0){delete cart[pid];}
+  else{cart[pid].qty=nq;}
+  renderSumSearch();updateRunBar();renderCartRows();
+};
+
+function updateRunBar(){
+  const keys=Object.keys(cart);
+  const bar=document.getElementById('runbar');
+  if(!keys.length){bar.classList.remove('show');return;}
+  bar.classList.add('show');
+  let tRetail=0,tSrc=0,tB=0,tH=0;
+  keys.forEach(pid=>{
+    const p=products.find(x=>x.id===pid);if(!p)return;
+    const pr=cp(p.retail),qty=cart[pid]?.qty||1;
+    const sourced=cart[pid]?.sourced!==false;
+    tRetail+=pr.retail*qty;
+    tSrc+=sourced?pr.src*qty:0;
+    tB+=(sourced?pr.base:pr.retail)*qty;
+    tH+=(sourced?pr.hb:pr.retail*(1+TAX))*qty;
+  });
+  document.getElementById('run-items').textContent=keys.length+' product'+(keys.length>1?'s':'');
+  document.getElementById('run-total').textContent=fmt(tB);
+  document.getElementById('run-hb').textContent='w/ HB tax (7.25%): '+fmt(tH);
+  const breakEl=document.getElementById('run-break');
+  if(breakEl)breakEl.textContent=tSrc>0?'Retail: '+fmt(tRetail)+' + Sourcing: '+fmt(tSrc):'Retail: '+fmt(tRetail)+' (no sourcing fees)';
+}
+window.updateRunBar=updateRunBar;
+
+function renderCartRows(){
+  const keys=Object.keys(cart);
+  const sec=document.getElementById('cartsec');
+  const rows=document.getElementById('cartrows');
+  if(!keys.length){sec.style.display='none';document.getElementById('sumout').innerHTML='';return;}
+  sec.style.display='block';
+  document.getElementById('cart-head').textContent=keys.length+' product'+(keys.length>1?'s':'')+' added to this job';
+  // Show/update jump bar
+  const jbar=document.getElementById('sum-jump-bar');
+  const jcount=document.getElementById('sum-cart-count');
+  if(jbar)jbar.style.display=keys.length?'block':'none';
+  if(jcount)jcount.textContent=keys.length+' item'+(keys.length>1?'s':'');
+  rows.innerHTML=keys.map(pid=>{
+    const p=products.find(x=>x.id===pid);if(!p)return'';
+    const pr=cp(p.retail),qty=cart[pid].qty;
+    const sourced=cart[pid].sourced!==false; // default true
+    const lineTotal=sourced?pr.base*qty:pr.retail*qty;
+    return`<div class="cart-row">
+      <div style="flex:1;min-width:0">
+        <div class="cart-name">${esc(p.name)}</div>
+        ${p.retail>0?`<div style="font-size:12px;color:var(--muted);margin-top:2px">
+          ${sourced?fmt(pr.retail)+' retail + '+fmt(pr.src)+' sourcing = <span style="color:var(--accent);font-weight:600">'+fmt(pr.base)+'</span> each':fmt(pr.retail)+' retail each'}
+        </div>
+        <div style="font-size:12px;font-weight:600;color:var(--accent);margin-top:1px">Total: ${fmt(lineTotal)}</div>`:'<div style="font-size:12px;color:var(--muted)">No price set</div>'}
+        <label style="display:flex;align-items:center;gap:6px;margin-top:8px;cursor:pointer;user-select:none;">
+          <input type="checkbox" ${sourced?'checked':''} onchange="toggleSourced('${pid}',this.checked)" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;">
+          <span style="font-size:12px;font-weight:600;color:${sourced?'var(--accent)':'var(--muted)'}">Sourced by us (+25%)</span>
+        </label>
+      </div>
+      <div class="qctrl" style="margin-left:10px;flex-shrink:0">
+        <button class="qbtn" onclick="cartQty('${pid}',-1)">−</button>
+        <span class="qnum">${qty}</span>
+        <button class="qbtn" onclick="cartQty('${pid}',1)">+</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.cartQty=function(pid,d){
+  if(!cart[pid])return;
+  cart[pid].qty=Math.max(1,cart[pid].qty+d);
+  updateRunBar();renderCartRows();
+};
+window.toggleSourced=function(pid,val){
+  if(!cart[pid])return;
+  cart[pid].sourced=val;
+  updateRunBar();renderCartRows();
+};
+
+
+window.buildFinalSummary=function(){
+  const keys=Object.keys(cart);
+  if(!keys.length)return;
+  const client=document.getElementById('sc').value||'Client';
+  const proj=document.getElementById('sp').value||'Project';
+  const org=document.getElementById('sorg').value;
+  const date=document.getElementById('sdate').value;
+  const rows=keys.map(pid=>{
+    const p=products.find(x=>x.id===pid);if(!p)return null;
+    const qty=cart[pid].qty,pr=cp(p.retail);
+    const sourced=cart[pid].sourced!==false;
+    const unit=sourced?pr.base:pr.retail;
+    const unitHB=sourced?pr.hb:pr.retail*(1+TAX);
+    return{name:p.name,qty,sourced,retail:pr.retail,src:pr.src,unit,unitHB,base:unit*qty,hb:unitHB*qty,hp:p.retail>0,img:p.img||''};
+  }).filter(Boolean);
+  const tRetail=rows.reduce((s,r)=>s+r.retail*r.qty,0);
+  const tSrc=rows.reduce((s,r)=>s+(r.sourced?r.src*r.qty:0),0);
+  const tB=rows.reduce((s,r)=>s+r.base,0);
+  const tH=rows.reduce((s,r)=>s+r.hb,0);
+  const allP=rows.every(r=>r.hp);
+  const txt=`${client} — ${proj}${org?' ('+org+')':''}${date?' | '+date:''}\n\n`+
+    rows.map(r=>`${r.name} x${r.qty}${r.sourced?' [Sourced by us]':' [Client self-sourced]'}\n  ${r.hp?'Retail: '+fmt(r.retail)+(r.sourced?' + Sourcing (25%): '+fmt(r.src)+' = '+fmt(r.unit)+' each':'')+'  |  Total: '+fmt(r.base):'TBD'}`).join('\n')+
+    `\n\n─────────────────────────\nRetail subtotal:         ${allP?fmt(tRetail):'—'}${tSrc>0?'\nSourcing fees (25%):     '+fmt(tSrc):''}\nTotal (no tax):          ${allP?fmt(tB):'—'}\nTotal w/ HB tax (7.25%): ${allP?fmt(tH):'—'}`;
+  window._hbt=txt;window._sumClient=client;window._sumProj=proj;window._sumRows=rows;
+
+  document.getElementById('sumout').innerHTML=`
+    <div style="background:var(--white);border-radius:var(--rlg);border:1px solid var(--border);overflow:hidden;margin-top:12px;">
+
+      <!-- Header -->
+      <div style="padding:1rem;background:var(--accent);color:var(--white)">
+        <div style="font-size:16px;font-weight:600">${esc(client)}</div>
+        <div style="font-size:13px;opacity:.85">${esc(proj)}${org?' · '+esc(org):''}${date?' · '+date:''}</div>
+      </div>
+
+      <div style="padding:1rem">
+
+        <!-- WITHOUT HB TAX -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;cursor:pointer" onclick="toggleSection('s-notax')">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">Without HB Tax</div>
+          <span id="s-notax-ico" style="font-size:16px;color:var(--muted)">▲</span>
+        </div>
+        <div id="s-notax">
+          <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+          <table class="stbl" style="margin-bottom:6px;min-width:500px">
+            <thead><tr><th>Product</th><th>Qty</th><th>Retail</th><th>Sourcing (25%)</th><th>Unit Price</th><th>Total</th></tr></thead>
+            <tbody>
+              ${rows.map((r,i)=>`<tr>
+                <td>
+                  <div style="display:flex;align-items:center;gap:6px;cursor:pointer" onclick="toggleImgRow('img-row-${i}','img-ico-${i}')">
+                    <div>
+                      <div style="font-size:13px">${esc(r.name)}</div>
+                      <span style="font-size:10px;font-weight:600;color:${r.sourced?'var(--accent)':'var(--muted)'}">${r.sourced?'✓ Sourced by us':'Client self-sources'}</span>
+                    </div>
+                    <span id="img-ico-${i}" style="font-size:12px;color:var(--muted);margin-left:4px">${r.img?'🖼 ▼':''}</span>
+                  </div>
+                  ${r.img?`<div id="img-row-${i}" style="display:none;margin-top:6px"><img src="${esc(r.img)}" style="width:100%;max-width:200px;border-radius:8px;object-fit:cover;" loading="lazy"></div>`:''}
+                </td>
+                <td>${r.qty}</td>
+                <td>${r.hp?fmt(r.retail):'—'}</td>
+                <td>${r.sourced&&r.hp?fmt(r.src):'—'}</td>
+                <td>${r.hp?fmt(r.unit):'—'}</td>
+                <td style="font-weight:600">${r.hp?fmt(r.unit*r.qty):'—'}</td>
+              </tr>`).join('')}
+              <tr class="tot">
+                <td colspan="2">Totals</td>
+                <td>${allP?fmt(tRetail):'—'}</td>
+                <td>${allP&&tSrc>0?fmt(tSrc):'—'}</td>
+                <td></td>
+                <td>${allP?fmt(tB):'—'}</td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:1rem;padding:8px;background:var(--cream);border-radius:var(--r)">
+            Retail subtotal: <strong>${allP?fmt(tRetail):'—'}</strong>${tSrc>0?' + Sourcing fees: <strong>'+fmt(tSrc)+'</strong>':''} = <strong style="color:var(--dark)">${allP?fmt(tB):'—'}</strong>
+          </div>
+        </div>
+
+        <!-- WITH HB TAX -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;cursor:pointer;border-top:1px solid var(--border);padding-top:1rem" onclick="toggleSection('s-tax')">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--warn)">With HoneyBook Tax (7.25%)</div>
+          <span id="s-tax-ico" style="font-size:16px;color:var(--muted)">▲</span>
+        </div>
+        <div id="s-tax">
+          <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+          <table class="stbl" style="margin-bottom:6px;min-width:500px">
+            <thead><tr><th>Product</th><th>Qty</th><th>Retail</th><th>Sourcing (25%)</th><th>Unit Price w/ Tax</th><th>Total</th></tr></thead>
+            <tbody>
+              ${rows.map((r,i)=>`<tr>
+                <td>
+                  <div style="display:flex;align-items:center;gap:6px;cursor:pointer" onclick="toggleImgRow('img-row-hb-${i}','img-ico-hb-${i}')">
+                    <div>
+                      <div style="font-size:13px">${esc(r.name)}</div>
+                      <span style="font-size:10px;font-weight:600;color:${r.sourced?'var(--accent)':'var(--muted)'}">${r.sourced?'✓ Sourced by us':'Client self-sources'}</span>
+                    </div>
+                    <span id="img-ico-hb-${i}" style="font-size:12px;color:var(--muted);margin-left:4px">${r.img?'🖼 ▼':''}</span>
+                  </div>
+                  ${r.img?`<div id="img-row-hb-${i}" style="display:none;margin-top:6px"><img src="${esc(r.img)}" style="width:100%;max-width:200px;border-radius:8px;object-fit:cover;" loading="lazy"></div>`:''}
+                </td>
+                <td>${r.qty}</td>
+                <td>${r.hp?fmt(r.retail):'—'}</td>
+                <td>${r.sourced&&r.hp?fmt(r.src):'—'}</td>
+                <td>${r.hp?fmt(r.unitHB):'—'}</td>
+                <td style="font-weight:600">${r.hp?fmt(r.unitHB*r.qty):'—'}</td>
+              </tr>`).join('')}
+              <tr class="tot">
+                <td colspan="4">Total w/ HB Tax (7.25%)</td>
+                <td></td>
+                <td>${allP?fmt(tH):'—'}</td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:1rem;padding:8px;background:var(--wl);border-radius:var(--r)">
+            Subtotal: <strong>${allP?fmt(tB):'—'}</strong> + HB Tax (7.25%): <strong>${allP?fmt(tH-tB):'—'}</strong> = <strong style="color:var(--warn)">${allP?fmt(tH):'—'}</strong>
+          </div>
+        </div>
+
+        <!-- SHARE -->
+        <div class="share-btns">
+          <button class="share-btn print" onclick="openPrintView()">🖨️ Print / PDF</button>
+          <button class="share-btn email" onclick="emailSum()">✉️ Email</button>
+          <button class="share-btn sms" onclick="openPrintView()">📱 Share</button>
+          <button class="share-btn copy" id="copybtn" onclick="copySum()">📋 Copy</button>
+        </div>
+      </div>
+    </div>`;
+  window.scrollTo(0,document.body.scrollHeight);
+};
+
+window.toggleSection=function(id){
+  const el=document.getElementById(id);
+  const ico=document.getElementById(id+'-ico');
+  const lbl=document.getElementById(id+'-lbl');
+  if(!el)return;
+  const hidden=el.style.display==='none';
+  el.style.display=hidden?'block':'none';
+  if(ico)ico.textContent=hidden?'▲':'▼';
+  if(lbl)lbl.textContent=hidden?'Tap to collapse':'Tap to expand';
+  // special label for sumresults-wrap
+  if(id==='sumresults-wrap'){
+    const jlbl=document.getElementById('sum-jump-lbl');
+    if(jlbl)jlbl.textContent=hidden?'▼ Hide products':'▶ Show products';
+  }
+};
+window.scrollToSummary=function(){
+  const el=document.getElementById('sumout');
+  if(el)el.scrollIntoView({behavior:'smooth'});
+};
+window.toggleImgRow=function(rowId,icoId){
+  const el=document.getElementById(rowId);
+  const ico=document.getElementById(icoId);
+  if(!el)return;
+  const hidden=el.style.display==='none';
+  el.style.display=hidden?'block':'none';
+  if(ico)ico.textContent=hidden?'🖼 ▲':'🖼 ▼';
+};
+window.openPrintView=function(){
+  if(!window._sumRows)return;
+  const rows=window._sumRows;
+  const client=window._sumClient||'Client';
+  const proj=window._sumProj||'Project';
+  const org=document.getElementById('sorg').value;
+  const date=document.getElementById('sdate').value;
+  const allP=rows.every(r=>r.hp);
+  const tRetail=rows.reduce((s,r)=>s+r.retail*r.qty,0);
+  const tSrc=rows.reduce((s,r)=>s+(r.sourced?r.src*r.qty:0),0);
+  const tB=rows.reduce((s,r)=>s+r.base,0);
+  const tH=rows.reduce((s,r)=>s+r.hb,0);
+
+  document.getElementById('print-content').innerHTML=`
+    <div style="background:#5C7A5C;color:white;padding:16px;border-radius:10px;margin-bottom:16px;">
+      <div style="font-size:20px;font-weight:700;margin-bottom:4px;">${esc(client)}</div>
+      <div style="font-size:13px;opacity:.85;">${esc(proj)}${org?' · '+esc(org):''}${date?' · '+date:''}</div>
+    </div>
+
+    <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8B8070;margin-bottom:10px;">Without HoneyBook Tax</div>
+    ${rows.map(r=>`
+      <div style="border:1px solid #EDE8DF;border-radius:10px;padding:12px;margin-bottom:8px;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:6px;">${esc(r.name)}</div>
+        <div style="font-size:11px;font-weight:600;color:${r.sourced?'#5C7A5C':'#8B8070'};margin-bottom:8px;">${r.sourced?'✓ Sourced by us':'Client self-sources'}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          <div style="background:#F7F4EF;border-radius:6px;padding:6px 8px;">
+            <div style="font-size:10px;color:#8B8070;font-weight:600;text-transform:uppercase;">Retail</div>
+            <div style="font-size:14px;font-weight:700;">${r.hp?fmt(r.retail):'—'}</div>
+          </div>
+          <div style="background:#F7F4EF;border-radius:6px;padding:6px 8px;">
+            <div style="font-size:10px;color:#8B8070;font-weight:600;text-transform:uppercase;">Sourcing (25%)</div>
+            <div style="font-size:14px;font-weight:700;">${r.sourced&&r.hp?fmt(r.src):'—'}</div>
+          </div>
+          <div style="background:#E8F0E8;border-radius:6px;padding:6px 8px;">
+            <div style="font-size:10px;color:#5C7A5C;font-weight:600;text-transform:uppercase;">Unit Price</div>
+            <div style="font-size:14px;font-weight:700;color:#5C7A5C;">${r.hp?fmt(r.unit):'—'}</div>
+          </div>
+          <div style="background:#E8F0E8;border-radius:6px;padding:6px 8px;">
+            <div style="font-size:10px;color:#5C7A5C;font-weight:600;text-transform:uppercase;">Qty × Total</div>
+            <div style="font-size:14px;font-weight:700;color:#5C7A5C;">${r.qty} × ${r.hp?fmt(r.unit):''} = ${r.hp?fmt(r.unit*r.qty):'—'}</div>
+          </div>
+        </div>
+      </div>
+    `).join('')}
+    <div style="background:#EDE8DF;border-radius:10px;padding:12px 14px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-size:13px;font-weight:600;color:#2C2416;">Total (no tax)</div>
+      <div style="font-size:20px;font-weight:700;color:#2C2416;">${allP?fmt(tB):'—'}</div>
+    </div>
+
+    <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#C17B2E;margin-bottom:10px;">With HoneyBook Tax (7.25%)</div>
+    ${rows.map(r=>`
+      <div style="border:1px solid #F0D5A8;border-radius:10px;padding:12px;margin-bottom:8px;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:6px;">${esc(r.name)}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          <div style="background:#FDF3E3;border-radius:6px;padding:6px 8px;">
+            <div style="font-size:10px;color:#C17B2E;font-weight:600;text-transform:uppercase;">Unit w/ Tax</div>
+            <div style="font-size:14px;font-weight:700;color:#C17B2E;">${r.hp?fmt(r.unitHB):'—'}</div>
+          </div>
+          <div style="background:#FDF3E3;border-radius:6px;padding:6px 8px;">
+            <div style="font-size:10px;color:#C17B2E;font-weight:600;text-transform:uppercase;">Qty × Total</div>
+            <div style="font-size:14px;font-weight:700;color:#C17B2E;">${r.qty} × = ${r.hp?fmt(r.unitHB*r.qty):'—'}</div>
+          </div>
+        </div>
+      </div>
+    `).join('')}
+    <div style="background:#FDF3E3;border:1px solid #F0D5A8;border-radius:10px;padding:12px 14px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-size:13px;font-weight:600;color:#C17B2E;">Total w/ HB Tax</div>
+      <div style="font-size:20px;font-weight:700;color:#C17B2E;">${allP?fmt(tH):'—'}</div>
+    </div>
+
+    <div style="text-align:center;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#5C7A5C;padding-top:16px;border-top:1px solid #EDE8DF;">OrganizeMeHelp</div>
+  `;
+
+  document.getElementById('print-overlay').style.display='block';
+  window.scrollTo(0,0);
+};
+window.closePrintView=function(){
+  document.getElementById('print-overlay').style.display='none';
+};
+window.smsSum=function(){window.openPrintView();};
+window.emailSum=function(){if(!window._hbt)return;window.open('mailto:?subject='+encodeURIComponent('Product Summary — '+window._sumClient+' — '+window._sumProj)+'&body='+encodeURIComponent(window._hbt));};
+window.smsSum=function(){
+  if(!window._sumRows)return;
+  // Open a clean printable summary in a new window
+  const rows=window._sumRows;
+  const client=window._sumClient||'Client';
+  const proj=window._sumProj||'Project';
+  const org=document.getElementById('sorg').value;
+  const date=document.getElementById('sdate').value;
+  const allP=rows.every(r=>r.hp);
+  const tRetail=rows.reduce((s,r)=>s+r.retail*r.qty,0);
+  const tSrc=rows.reduce((s,r)=>s+(r.sourced?r.src*r.qty:0),0);
+  const tB=rows.reduce((s,r)=>s+r.base,0);
+  const tH=rows.reduce((s,r)=>s+r.hb,0);
+
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Summary — ${client}</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:-apple-system,sans-serif;background:#fff;color:#2C2416;font-size:14px;padding:20px;}
+    .header{background:#5C7A5C;color:white;padding:16px;border-radius:10px;margin-bottom:16px;}
+    .header h1{font-size:20px;font-weight:700;margin-bottom:4px;}
+    .header p{font-size:13px;opacity:.85;}
+    .section-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8B8070;margin:16px 0 8px;}
+    .section-title.hb{color:#C17B2E;}
+    table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:8px;}
+    th{text-align:left;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8B8070;padding:6px 8px;border-bottom:2px solid #DDD8CF;}
+    td{padding:8px;border-bottom:1px solid #EDE8DF;vertical-align:top;}
+    .sourced{font-size:10px;font-weight:600;color:#5C7A5C;}
+    .self{font-size:10px;font-weight:600;color:#8B8070;}
+    .tot td{font-weight:700;background:#EDE8DF;font-size:13px;}
+    .breakdown{background:#F7F4EF;border-radius:8px;padding:10px 12px;font-size:12px;color:#8B8070;margin-bottom:16px;}
+    .breakdown strong{color:#2C2416;}
+    .breakdown.hb{background:#FDF3E3;color:#C17B2E;}
+    .breakdown.hb strong{color:#C17B2E;}
+    .logo{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#5C7A5C;text-align:center;margin-top:24px;padding-top:16px;border-top:1px solid #EDE8DF;}
+    .print-btn{display:block;width:100%;padding:14px;background:#2C2416;color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:16px;font-family:-apple-system,sans-serif;}
+    @media print{.print-btn{display:none;}}
+  </style></head><body>
+  <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+  <div class="header">
+    <h1>${client}</h1>
+    <p>${proj}${org?' · '+org:''}${date?' · '+date:''}</p>
+  </div>
+  <div class="section-title">Without HoneyBook Tax</div>
+  <table>
+    <thead><tr><th>Product</th><th>Qty</th><th>Retail</th><th>Sourcing</th><th>Unit</th><th>Total</th></tr></thead>
+    <tbody>
+      ${rows.map(r=>`<tr>
+        <td>${r.name}<br><span class="${r.sourced?'sourced':'self'}">${r.sourced?'✓ Sourced by us':'Client self-sources'}</span></td>
+        <td>${r.qty}</td>
+        <td>${r.hp?fmt(r.retail):'—'}</td>
+        <td>${r.sourced&&r.hp?fmt(r.src):'—'}</td>
+        <td>${r.hp?fmt(r.unit):'—'}</td>
+        <td><strong>${r.hp?fmt(r.unit*r.qty):'—'}</strong></td>
+      </tr>`).join('')}
+      <tr class="tot"><td colspan="5">Total</td><td>${allP?fmt(tB):'—'}</td></tr>
+    </tbody>
+  </table>
+  <div class="breakdown">
+    Retail: <strong>${allP?fmt(tRetail):'—'}</strong>${tSrc>0?' + Sourcing: <strong>'+fmt(tSrc)+'</strong>':''} = <strong>${allP?fmt(tB):'—'}</strong>
+  </div>
+  <div class="section-title hb">With HoneyBook Tax (7.25%)</div>
+  <table>
+    <thead><tr><th>Product</th><th>Qty</th><th>Retail</th><th>Sourcing</th><th>Unit</th><th>Total</th></tr></thead>
+    <tbody>
+      ${rows.map(r=>`<tr>
+        <td>${r.name}<br><span class="${r.sourced?'sourced':'self'}">${r.sourced?'✓ Sourced by us':'Client self-sources'}</span></td>
+        <td>${r.qty}</td>
+        <td>${r.hp?fmt(r.retail):'—'}</td>
+        <td>${r.sourced&&r.hp?fmt(r.src):'—'}</td>
+        <td>${r.hp?fmt(r.unitHB):'—'}</td>
+        <td><strong>${r.hp?fmt(r.unitHB*r.qty):'—'}</strong></td>
+      </tr>`).join('')}
+      <tr class="tot"><td colspan="5">Total w/ Tax</td><td>${allP?fmt(tH):'—'}</td></tr>
+    </tbody>
+  </table>
+  <div class="breakdown hb">
+    Subtotal: <strong>${allP?fmt(tB):'—'}</strong> + Tax: <strong>${allP?fmt(tH-tB):'—'}</strong> = <strong>${allP?fmt(tH):'—'}</strong>
+  </div>
+  <div class="logo">OrganizeMeHelp</div>
+  </body></html>`;
+
+  const w=window.open('','_blank','width=420,height=700');
+  if(w){w.document.write(html);w.document.close();}
+};
+window.copySum=function(){
+  if(!window._hbt)return;
+  navigator.clipboard.writeText(window._hbt).then(()=>{
+    const b=document.getElementById('copybtn');
+    if(b){const o=b.textContent;b.textContent='✓ Copied!';setTimeout(()=>b.textContent=o,2000);}
+  });
+};
+
+// ── ADD/EDIT ──
+window.openAdd=function(){editId=null;document.getElementById('mtitle').textContent='Add Product';showForm({});openModal();};
+window.openEdit=function(id){editId=id;const p=products.find(x=>x.id===id);document.getElementById('mtitle').textContent='Edit Product';showForm(p||{});openModal();};
+function showForm(p){
+  document.getElementById('mbody').innerHTML=`
+    <div class="ff"><label class="fl">Product name *</label><input type="text" class="fi" id="fn" value="${esc(p.name||'')}" placeholder="Product name"></div>
+    <div class="ff"><label class="fl">Category</label><select class="fi" id="fcat">${CATS.map(c=>`<option${p.cat===c?' selected':''}>${c}</option>`).join('')}</select></div>
+    <div class="ff"><label class="fl">Vendor(s)</label><input type="text" class="fi" id="fv" value="${esc(p.vendor||'')}" placeholder="e.g. Amazon, Target"></div>
+    <div class="ff"><label class="fl">Product link</label><input type="url" class="fi" id="fl2" value="${esc(p.link||'')}" placeholder="https://…"></div>
+    <div class="ff"><label class="fl">Retail cost ($)</label><input type="number" class="fi" id="fr" min="0" step="0.01" value="${p.retail||''}" placeholder="0.00" oninput="updPP()"></div>
+    <div id="pp" style="display:none" class="ppg">
+      <div class="ppc"><div class="ppl">Sourcing Fee (25%)</div><div class="ppv" id="pps">—</div></div>
+      <div class="ppc"><div class="ppl">Client Cost</div><div class="ppv" id="ppc2">—</div></div>
+      <div class="ppc" style="background:var(--wl)"><div class="ppl">w/ HB Tax 7.25%</div><div class="ppv" id="pph" style="color:var(--warn)">—</div></div>
+    </div>
+    <div class="ff"><label class="fl">Product image URL</label><input type="url" class="fi" id="fimg" value="${esc(p.img||'')}" placeholder="Paste image URL (optional)"></div>
+    <div class="ff"><label class="fl">Notes</label><input type="text" class="fi" id="fnotes" value="${esc(p.notes||'')}" placeholder="Optional"></div>
+    <button class="btn btn-p btn-full" onclick="saveProd()" style="margin-top:4px">Save Product</button>
+    <button class="btn btn-full" onclick="closeModal()" style="margin-top:8px">Cancel</button>`;
+  if(p.retail)updPP();
+}
+window.updPP=function(){
+  const v=document.getElementById('fr').value,pp=document.getElementById('pp');
+  if(!v){pp.style.display='none';return;}
+  pp.style.display='grid';const pr=cp(v);
+  document.getElementById('pps').textContent=fmt(pr.src);
+  document.getElementById('ppc2').textContent=fmt(pr.base);
+  document.getElementById('pph').textContent=fmt(pr.hb);
+};
+window.saveProd=async function(){
+  const name=document.getElementById('fn').value.trim();
+  if(!name){alert('Product name is required.');return;}
+  const d={id:editId||uid(),name,cat:document.getElementById('fcat').value,vendor:document.getElementById('fv').value.trim(),link:document.getElementById('fl2').value.trim(),retail:parseFloat(document.getElementById('fr').value)||0,img:document.getElementById('fimg').value.trim(),notes:document.getElementById('fnotes').value.trim()};
+  closeModal();syncUI('saving');await set(ref(db,'products/'+d.id),d);syncUI('live');
+};
+window.delProd=async function(id){
+  if(!confirm('Delete this product?'))return;
+  syncUI('saving');await set(ref(db,'products/'+id),null);syncUI('live');
+};
+function openModal(){document.getElementById('mbg').classList.add('on');}
+window.closeModal=function(){document.getElementById('mbg').classList.remove('on');editId=null;};
+
+(async()=>{
+  try{await initData();listen();syncUI('live');}
+  catch(e){syncUI('offline');console.error(e);}
+  document.getElementById('loading').style.display='none';
+  document.getElementById('login').style.display='flex';
+})();
+</script>
+</body>
+</html>
