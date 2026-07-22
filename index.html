@@ -1,0 +1,2218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>OrganizeMe</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#F7F4EF;--sand:#EDE8DF;--brown:#8B7355;--dark:#2C2416;
+  --accent:#5C7A5C;--al:#E8F0E8;--warn:#C17B2E;--wl:#FDF3E3;
+  --danger:#B84040;--dl:#FBE8E8;--white:#fff;--border:#DDD8CF;--muted:#8B8070;
+  --r:12px;--rlg:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--dark);font-size:15px;min-height:100vh;}
+#loading{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;}
+.spin{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+#login{display:none;min-height:100vh;align-items:center;justify-content:center;padding:1.5rem;}
+.lcard{background:var(--white);border-radius:var(--rlg);padding:2rem 1.5rem;width:100%;max-width:380px;margin:auto;}
+.llogo{font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);margin-bottom:4px;}
+.ltitle{font-size:26px;font-weight:600;margin-bottom:4px;}
+.lsub{font-size:14px;color:var(--muted);margin-bottom:1.75rem;}
+.ll{font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;}
+.li{width:100%;padding:13px;border:1.5px solid var(--border);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:16px;background:var(--cream);color:var(--dark);margin-bottom:14px;appearance:none;}
+.li:focus{outline:none;border-color:var(--accent);}
+.lbtn{width:100%;padding:14px;background:var(--dark);color:var(--white);border:none;border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;cursor:pointer;}
+.lbtn:active{opacity:.88;}
+.lerr{color:var(--danger);font-size:13px;margin-top:10px;display:none;text-align:center;}
+#app{display:none;}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 1rem;display:flex;align-items:center;justify-content:space-between;height:50px;position:sticky;top:0;z-index:50;}
+.tbrand{font-size:15px;font-weight:600;}.tbrand span{color:var(--accent);}
+.tright{display:flex;align-items:center;gap:8px;}
+.spill{font-size:11px;font-weight:600;padding:3px 8px;border-radius:999px;background:var(--al);color:var(--accent);display:flex;align-items:center;gap:3px;}
+.spill.off{background:var(--wl);color:var(--warn);}
+.sdot{width:5px;height:5px;border-radius:50%;background:currentColor;}
+.upill{font-size:12px;font-weight:600;background:var(--sand);border-radius:999px;padding:4px 10px;color:var(--brown);}
+.lout{font-size:18px;background:none;border:none;cursor:pointer;color:var(--muted);}
+.tabnav{background:var(--white);border-bottom:1px solid var(--border);display:flex;position:sticky;top:50px;z-index:49;}
+.tn{flex:1;padding:10px 4px;font-size:11px;font-weight:600;color:var(--muted);border:none;background:none;cursor:pointer;font-family:'DM Sans',sans-serif;border-bottom:2.5px solid transparent;white-space:nowrap;text-align:center;position:relative;}
+.tn.on{color:var(--accent);border-bottom-color:var(--accent);}
+.tn.locked{opacity:.35;pointer-events:none;}
+.tab-badge{position:absolute;top:4px;right:2px;background:var(--danger);color:white;border-radius:999px;font-size:9px;font-weight:700;padding:1px 5px;min-width:16px;text-align:center;display:none;}
+.tab-badge.show{display:inline-block;}
+.sec{display:none;padding-bottom:5rem;}.sec.on{display:block;-webkit-overflow-scrolling:touch;}
+.sbar{padding:10px 1rem 6px;background:var(--cream);position:sticky;top:96px;z-index:48;}
+.si{width:100%;padding:11px 16px 11px 42px;border:1.5px solid var(--border);border-radius:999px;font-family:'DM Sans',sans-serif;font-size:15px;background:var(--white);color:var(--dark);appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%238B8070' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:14px center;}
+.si:focus{outline:none;border-color:var(--accent);}
+.chips{display:flex;gap:7px;overflow-x:auto;padding:0 1rem 10px;scrollbar-width:none;}
+.chips::-webkit-scrollbar{display:none;}
+.chip{flex-shrink:0;font-size:13px;font-weight:500;padding:7px 13px;border-radius:999px;border:1.5px solid var(--border);background:var(--white);color:var(--muted);cursor:pointer;}
+.chip.on{background:var(--dark);color:var(--white);border-color:var(--dark);}
+.toolbar{display:flex;align-items:center;justify-content:space-between;padding:0 1rem 10px;gap:10px;flex-wrap:wrap;}
+.vtoggle{display:flex;border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.vbtn{padding:7px 14px;border:none;background:var(--white);color:var(--muted);cursor:pointer;font-size:14px;font-family:'DM Sans',sans-serif;font-weight:500;}
+.vbtn.on{background:var(--dark);color:var(--white);}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 1rem;}
+.pgcard{background:var(--white);border-radius:var(--rlg);border:1px solid var(--border);overflow:hidden;}
+.pgimgph{width:100%;aspect-ratio:1;background:var(--sand);display:flex;align-items:center;justify-content:center;font-size:36px;}
+.pgimg{width:100%;aspect-ratio:1;object-fit:cover;display:block;}
+.pgbody{padding:8px 10px 10px;}
+.pgname{font-size:12px;font-weight:600;color:var(--dark);line-height:1.3;margin-bottom:4px;}
+.pgprice{font-size:13px;font-weight:700;font-family:'DM Mono',monospace;color:var(--accent);margin-bottom:2px;}
+.pgvendor{font-size:11px;color:var(--muted);}
+.pgqctrl{display:flex;align-items:center;justify-content:center;margin-top:8px;background:var(--cream);border-radius:999px;border:1.5px solid var(--border);overflow:hidden;}
+.pgqbtn{flex:1;height:36px;border:none;background:transparent;font-size:18px;cursor:pointer;color:var(--dark);display:flex;align-items:center;justify-content:center;font-weight:600;}
+.pgqbtn:active{background:var(--sand);}
+.pgqnum{font-size:14px;font-weight:700;min-width:28px;text-align:center;font-family:'DM Mono',monospace;}
+.plist{padding:0 1rem;}
+.plrow{background:var(--white);border-radius:var(--rlg);border:1px solid var(--border);margin-bottom:8px;padding:12px;}
+.plname{font-size:14px;font-weight:600;color:var(--dark);margin-bottom:4px;line-height:1.3;}
+.plmeta{font-size:12px;color:var(--muted);margin-bottom:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+.prices{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;}
+.pb{border-radius:8px;padding:7px 10px;background:var(--cream);}
+.pb.cl{background:var(--al);}
+.pbl{font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);}
+.pb.cl .pbl{color:var(--accent);}
+.pbv{font-size:14px;font-weight:600;font-family:'DM Mono',monospace;color:var(--dark);margin-top:1px;}
+.pb.cl .pbv{color:var(--accent);}
+.plqrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px;padding-top:8px;border-top:1px solid var(--border);}
+.plqlbl{font-size:12px;color:var(--muted);font-weight:500;}
+.qctrl{display:flex;align-items:center;background:var(--cream);border-radius:999px;border:1.5px solid var(--border);overflow:hidden;}
+.qbtn{width:42px;height:42px;border:none;background:transparent;font-size:22px;cursor:pointer;color:var(--dark);display:flex;align-items:center;justify-content:center;}
+.qbtn:active{background:var(--sand);}
+.qnum{font-size:15px;font-weight:700;min-width:30px;text-align:center;font-family:'DM Mono',monospace;}
+.bdg{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;}
+.bok{background:var(--al);color:var(--accent);}
+.bwarn{background:var(--wl);color:var(--warn);}
+.bdanger{background:var(--dl);color:var(--danger);}
+.bgray{background:var(--sand);color:var(--muted);}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:10px 16px;border-radius:var(--r);border:1.5px solid var(--border);background:var(--white);font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--dark);}
+.btn:active{opacity:.8;}
+.btn-p{background:var(--dark);color:var(--white);border-color:var(--dark);}
+.btn-a{background:var(--accent);color:var(--white);border-color:var(--accent);}
+.btn-d{color:var(--danger);border-color:#E8BFBF;}
+.btn-sm{padding:7px 12px;font-size:13px;}
+.btn-full{width:100%;padding:14px;font-size:16px;}
+.alert{border-radius:var(--r);padding:11px 14px;font-size:13px;margin:8px 1rem;display:flex;gap:8px;}
+.awarn{background:var(--wl);color:var(--warn);border:1px solid #F0D5A8;}
+.tgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:1rem;}
+.tcard{background:var(--white);border-radius:var(--rlg);border:1px solid var(--border);padding:1rem;cursor:pointer;text-align:center;}
+.tcard:active{opacity:.8;}
+.tav{width:46px;height:46px;border-radius:50%;background:var(--al);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;margin:0 auto 8px;}
+.tname{font-size:14px;font-weight:600;margin-bottom:3px;}
+.tstat{font-size:12px;color:var(--muted);}
+.tback{display:flex;align-items:center;gap:6px;padding:12px 1rem;font-size:14px;font-weight:600;color:var(--accent);cursor:pointer;border-bottom:1px solid var(--border);background:var(--white);position:sticky;top:96px;z-index:47;}
+.inv-sticky-header{position:sticky;top:96px;z-index:40;background:var(--cream);border-bottom:1px solid var(--border);}
+.irow{background:var(--white);border-bottom:1px solid var(--border);padding:11px 1rem;display:flex;align-items:center;gap:10px;}
+.iinfo{flex:1;min-width:0;}
+.iname{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ivend{font-size:12px;color:var(--muted);}
+/* FLOATING CART FAB */
+#cart-fab{position:fixed;bottom:24px;right:20px;z-index:200;background:var(--accent);color:white;border:none;border-radius:999px;padding:13px 20px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:0 4px 16px rgba(92,122,92,.4);display:none;align-items:center;gap:8px;}
+#cart-fab-count{background:white;color:var(--accent);border-radius:999px;padding:2px 8px;font-size:12px;font-weight:800;}
+/* CART DRAWER */
+#cart-drawer{position:fixed;inset:0;z-index:400;display:none;}
+#cart-drawer.open{display:block;}
+#cart-drawer-bg{position:absolute;inset:0;background:rgba(44,36,22,.5);}
+#cart-drawer-panel{position:absolute;bottom:0;left:0;right:0;background:var(--white);border-radius:20px 20px 0 0;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:max(16px,env(safe-area-inset-bottom));}
+.cart-handle{width:40px;height:4px;background:var(--border);border-radius:999px;margin:12px auto 0;}
+.cart-drawer-head{padding:12px 1rem 8px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.cart-drawer-title{font-size:17px;font-weight:700;}
+.cart-close-btn{background:var(--sand);border:none;border-radius:999px;width:32px;height:32px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+/* CART ROWS */
+.cdr-row{padding:12px 1rem;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:flex-start;}
+.cdr-thumb{width:52px;height:52px;border-radius:8px;background:var(--sand);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;overflow:hidden;}
+.cdr-thumb img{width:52px;height:52px;object-fit:cover;}
+.cdr-info{flex:1;min-width:0;}
+.cdr-name{font-size:13px;font-weight:600;line-height:1.3;margin-bottom:3px;}
+.cdr-price{font-size:12px;font-family:'DM Mono',monospace;color:var(--accent);font-weight:600;margin-bottom:5px;}
+.cdr-sourcing{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;}
+.cdr-sourcing input{width:15px;height:15px;accent-color:var(--accent);}
+.cdr-sourcing-lbl{font-size:12px;font-weight:600;}
+.consumable-warn{font-size:11px;font-weight:600;color:var(--warn);background:var(--wl);padding:3px 8px;border-radius:6px;margin-top:4px;display:inline-block;}
+.cdr-qctrl{display:flex;align-items:center;background:var(--cream);border-radius:999px;border:1.5px solid var(--border);overflow:hidden;flex-shrink:0;}
+.cdr-qbtn{width:34px;height:34px;border:none;background:transparent;font-size:17px;cursor:pointer;color:var(--dark);display:flex;align-items:center;justify-content:center;font-weight:600;}
+.cdr-qnum{font-size:13px;font-weight:700;min-width:24px;text-align:center;font-family:'DM Mono',monospace;}
+/* TOTAL BAR */
+.inv-total-bar{background:var(--dark);color:white;padding:12px 1rem;}
+.inv-total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;}
+.inv-total-lbl{font-size:13px;opacity:.8;}
+.inv-total-val{font-size:22px;font-weight:700;font-family:'DM Mono',monospace;}
+/* DISCOUNT */
+.disc-wrap{background:var(--wl);border-top:1px solid #F0D5A8;padding:10px 1rem;}
+.disc-row{display:flex;gap:8px;align-items:center;}
+.disc-input{padding:9px 11px;border:1.5px solid #F0D5A8;border-radius:var(--r);font-size:15px;font-family:'DM Mono',monospace;background:white;width:100px;color:var(--dark);}
+.disc-type-btn{padding:8px 14px;border-radius:var(--r);border:1.5px solid #F0D5A8;background:white;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--warn);}
+.disc-type-btn.on{background:var(--warn);color:white;border-color:var(--warn);}
+/* SESSION AREA */
+.sess-bar{background:var(--dark);color:white;padding:10px 1rem;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+.sess-bar-name{font-size:14px;font-weight:700;}
+.sess-bar-meta{font-size:12px;opacity:.7;}
+.presence-pills{display:flex;gap:4px;flex-wrap:wrap;margin-top:2px;}
+.presence-pill{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.18);color:white;}
+.presence-pill.me{background:rgba(255,255,255,.38);}
+.sess-card{background:var(--white);border-radius:var(--rlg);border:1.5px solid var(--border);padding:14px;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;}
+.sess-card:active{opacity:.8;}
+.sess-card-name{font-size:14px;font-weight:600;}
+.sess-card-meta{font-size:12px;color:var(--muted);margin-top:2px;}
+.sess-count{background:var(--accent);color:white;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;}
+/* INVOICE PRODUCT GRID */
+.inv-pgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 1rem 1rem;}
+.inv-pgcard{background:var(--white);border-radius:var(--rlg);border:1px solid var(--border);overflow:hidden;}
+.inv-pgcard.in-cart{border-color:var(--accent);border-width:2px;}
+.inv-pgcard.consumable{border-color:var(--warn);}
+.inv-pgimgph{width:100%;aspect-ratio:1;background:var(--sand);display:flex;align-items:center;justify-content:center;font-size:32px;}
+.inv-pgimg{width:100%;aspect-ratio:1;object-fit:cover;display:block;}
+.inv-pgbody{padding:8px 10px 10px;}
+.inv-pgname{font-size:12px;font-weight:600;line-height:1.3;margin-bottom:4px;}
+.inv-pgprice{font-size:12px;font-weight:700;font-family:'DM Mono',monospace;color:var(--accent);margin-bottom:6px;}
+.inv-add-btn{width:100%;padding:8px;border:none;border-radius:8px;background:var(--accent);color:white;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.inv-add-btn.added{background:var(--danger);}
+.inv-qty-ctrl{display:flex;align-items:center;background:var(--cream);border-radius:999px;border:1.5px solid var(--accent);overflow:hidden;margin-bottom:6px;}
+.inv-qbtn{flex:1;height:30px;border:none;background:transparent;font-size:16px;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.inv-qbtn.minus{color:var(--danger);}
+.inv-qbtn.plus{color:var(--accent);}
+.inv-qnum{font-size:13px;font-weight:700;min-width:24px;text-align:center;font-family:'DM Mono',monospace;}
+/* CONFLICT TOAST */
+#conflict-toast{position:fixed;top:60px;left:1rem;right:1rem;z-index:600;background:var(--danger);color:white;border-radius:var(--rlg);padding:12px 16px;font-size:13px;font-weight:600;display:none;box-shadow:0 4px 16px rgba(184,64,64,.35);line-height:1.4;}
+/* SCANNER */
+#scanner-overlay{position:fixed;inset:0;z-index:700;background:rgba(0,0,0,.92);display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:2rem;}
+#scanner-overlay.open{display:flex;}
+#scanner-video{width:min(320px,85vw);height:min(260px,55vw);border-radius:12px;object-fit:cover;border:3px solid var(--accent);}
+#scanner-result{color:white;font-size:14px;font-weight:600;text-align:center;max-width:300px;}
+#scanner-close{padding:12px 32px;background:white;color:var(--dark);border:none;border-radius:999px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;}
+/* CHECKLISTS */
+.cl-card{background:var(--white);border-radius:var(--rlg);border:1px solid var(--border);margin-bottom:10px;overflow:hidden;cursor:pointer;}
+.cl-card-head{padding:14px 1rem;display:flex;align-items:center;justify-content:space-between;}
+.cl-card-title{font-size:15px;font-weight:600;color:var(--dark);}
+.cl-card-meta{font-size:12px;color:var(--muted);margin-top:2px;}
+.cl-section{padding:14px 1rem;border-top:1px solid var(--border);}
+.cl-section-title{font-size:13px;font-weight:700;color:var(--dark);margin-bottom:4px;}
+.cl-section-desc{font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5;}
+.cl-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);}
+.cl-item:last-child{border-bottom:none;}
+.cl-item input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;margin-top:1px;cursor:pointer;}
+.cl-item-label{font-size:14px;color:var(--dark);line-height:1.4;flex:1;}
+.cl-item.checked .cl-item-label{text-decoration:line-through;color:var(--muted);}
+.cl-text{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:14px;background:var(--cream);color:var(--dark);resize:vertical;min-height:60px;}
+.cl-text:focus{outline:none;border-color:var(--accent);}
+.cl-tip{background:#E8F0E8;border-radius:var(--r);padding:14px;margin:14px 1rem;border:1px solid var(--accent);}
+.cl-tip-title{font-size:12px;font-weight:700;color:var(--accent);margin-bottom:6px;letter-spacing:.04em;text-transform:uppercase;}
+.cl-tip-text{font-size:13px;color:var(--dark);line-height:1.6;}
+.cl-actions{display:flex;gap:8px;padding:10px 1rem;border-top:1px solid var(--border);background:var(--cream);}
+.cl-progress{height:4px;background:var(--border);border-radius:999px;margin:0 1rem 10px;}
+.cl-progress-bar{height:4px;background:var(--accent);border-radius:999px;transition:width .3s;}
+/* PRINT OVERLAY */
+#print-overlay{display:none;position:fixed;inset:0;background:white;z-index:500;overflow-y:auto;padding:16px;padding-top:max(16px,env(safe-area-inset-top));}
+/* FORM / MODAL */
+.ff{margin-bottom:14px;}
+.fl{font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;}
+.fi{width:100%;padding:13px;border:1.5px solid var(--border);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:16px;background:var(--cream);color:var(--dark);appearance:none;}
+.fi:focus{outline:none;border-color:var(--accent);}
+.ppg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0;}
+.ppc{background:var(--sand);border-radius:8px;padding:8px;}
+.ppl{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em;}
+.ppv{font-size:14px;font-weight:700;font-family:'DM Mono',monospace;margin-top:2px;}
+#mbg{display:none;position:fixed;inset:0;background:rgba(44,36,22,.45);z-index:300;align-items:flex-end;justify-content:center;}
+#mbg.on{display:flex;}
+.modal{background:var(--white);border-radius:20px 20px 0 0;padding:1rem 1.25rem 2rem;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;}
+.mhandle{width:40px;height:4px;background:var(--border);border-radius:999px;margin:0 auto 1.25rem;}
+.mtitle{font-size:17px;font-weight:600;margin-bottom:1.25rem;}
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--muted);font-size:14px;}
+.pad{padding:1rem;}
+@media print{.topbar,.tabnav,.sbar,.chips,.toolbar,.btn,button,#cart-fab,#cart-drawer,#print-overlay>div:first-child,#native-share-btn{display:none!important;}body{background:white;}}
+@media(min-width:540px){.tgrid,.pgrid,.inv-pgrid{grid-template-columns:repeat(3,1fr);}}
+</style>
+</head>
+<body>
+<div id="loading"><div class="spin"></div><span style="font-size:13px;color:var(--muted)">Connecting…</span></div>
+<div id="client-checklist" style="display:none;min-height:100vh;background:#F7F4EF;font-family:'DM Sans',sans-serif;"></div>
+<div id="login">
+  <div class="lcard">
+    <div class="llogo">OrganizeMe</div>
+    <div class="ltitle">Team Portal</div>
+    <div class="lsub">Sign in to manage inventory</div>
+    <label class="ll">Your name</label>
+    <select id="lu" class="li"><option value="">Select your name…</option><option>Mollie</option><option>Elizabeth</option><option>Morgan</option><option>Mari</option><option>Janae</option><option>Reigan</option><option>Siena</option><option>Savita</option><option>Johanna</option><option>Indira</option></select>
+    <label class="ll">Password</label>
+    <input type="password" id="lp" class="li" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="lbtn" onclick="doLogin()">Sign in</button>
+    <div class="lerr" id="lerr">Incorrect name or password.</div>
+  </div>
+</div>
+<div id="app">
+  <div class="topbar">
+    <div class="tbrand">Organize<span>Me</span></div>
+    <div class="tright">
+      <div class="spill" id="spill"><span class="sdot"></span><span id="slbl">Live</span></div>
+      <span class="upill" id="upill"></span>
+      <button class="lout" onclick="doLogout()">⏻</button>
+    </div>
+  </div>
+  <div class="tabnav">
+    <button class="tn on" id="n-products" onclick="showTab('products')">📦 Products</button>
+    <button class="tn" id="n-team" onclick="showTab('team')">👥 Team</button>
+    <button class="tn" id="n-inv" onclick="showTab('inv')">🗂 My Stock</button>
+    <button class="tn" id="n-invoice" onclick="showTab('invoice')">🧾 Invoice<span class="tab-badge" id="inv-tab-badge"></span></button>
+    <button class="tn locked" id="n-checklists" onclick="showTab('checklists')">✅ Checklists</button>
+    <button class="tn locked" id="n-history" onclick="showTab('history')">🕓 History</button>
+  </div>
+  <!-- PRODUCTS -->
+  <div class="sec on" id="sec-products">
+    <div id="lowbanner"></div>
+    <div class="sbar"><input class="si" type="search" id="psearch" placeholder="Search products, vendors…" oninput="renderProducts()"></div>
+    <div class="chips" id="catchips"></div>
+    <div class="toolbar">
+      <div id="addwrap" style="display:none"><button class="btn btn-p btn-sm" onclick="openAdd()">＋ Add Product</button></div>
+      <div style="flex:1"></div>
+      <div class="vtoggle">
+        <button class="vbtn on" id="vg" onclick="setView('grid')">⊞ Grid</button>
+        <button class="vbtn" id="vl" onclick="setView('list')">☰ List</button>
+      </div>
+    </div>
+    <div id="pgrid" class="pgrid"></div>
+    <div id="plist" class="plist" style="display:none"></div>
+  </div>
+  <!-- TEAM -->
+  <div class="sec" id="sec-team">
+    <div id="team-ov"></div>
+    <div id="team-dt" style="display:none"></div>
+  </div>
+  <!-- MY STOCK -->
+  <div class="sec" id="sec-inv">
+    <div style="padding:10px 1rem 4px;display:flex;align-items:center;gap:10px;">
+      <div class="tav" style="width:36px;height:36px;font-size:12px" id="my-av"></div>
+      <div id="my-name" style="font-size:15px;font-weight:600"></div>
+    </div>
+    <div id="myinv"></div>
+  </div>
+  <!-- INVOICE -->
+  <div class="sec" id="sec-invoice">
+    <div id="inv-locked" style="display:none;padding:1rem"></div>
+    <div id="inv-content" style="display:none">
+      <div id="inv-session-area"></div>
+      <div id="inv-back-bar" style="display:none;position:sticky;top:96px;z-index:46;background:var(--white);border-bottom:1px solid var(--border);padding:8px 1rem;display:none;">
+        <button onclick="openCartDrawer()" style="width:100%;padding:10px;background:var(--dark);color:white;border:none;border-radius:var(--r);font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">🛒 View Cart & Invoice</button>
+      </div>
+      <div id="inv-products-area" style="display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+        <div style="padding:10px 1rem 6px;display:flex;gap:8px;align-items:center;">
+          <input class="si" type="search" id="inv-search" placeholder="Search products…" oninput="renderInvGrid()" style="flex:1">
+          <button onclick="openScanner()" style="width:42px;height:42px;border-radius:50%;border:1.5px solid var(--border);background:var(--white);font-size:18px;cursor:pointer;flex-shrink:0;" title="Scan barcode">📷</button>
+        </div>
+        <div class="chips" id="inv-catchips"></div>
+        <div class="inv-pgrid" id="inv-pgrid"></div>
+      </div>
+    </div>
+  </div>
+  <!-- CHECKLISTS -->
+  <div class="sec" id="sec-checklists">
+    <div id="cl-locked" style="display:none;padding:1rem"></div>
+    <div id="cl-content" style="display:none">
+      <div style="padding:0">
+        <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Move Management</div>
+      </div>
+      <div id="cl-list"></div>
+    </div>
+  </div>
+  <!-- HISTORY -->
+  <div class="sec" id="sec-history">
+    <div class="pad" style="padding-bottom:0;">
+      <input class="si" type="search" id="hsearch" placeholder="Search client or project..." oninput="renderHistory()" style="margin-bottom:10px;">
+      <select id="horg-filter" onchange="renderHistory()" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:var(--r);font-size:15px;background:var(--white);font-family:'DM Sans',sans-serif;margin-bottom:10px;appearance:none;"><option value="">All organizers</option><option>Mollie</option><option>Elizabeth</option><option>Morgan</option><option>Mari</option></select>
+    </div>
+    <div id="history-list"><div class="empty">No saved invoices yet.</div></div>
+  </div>
+</div>
+<!-- FLOATING CART FAB -->
+<button id="cart-fab" onclick="openCartDrawer()">🛒 Cart <span id="cart-fab-count">0</span></button>
+<!-- CART DRAWER -->
+<div id="cart-drawer">
+  <div id="cart-drawer-bg" onclick="closeCartDrawer()"></div>
+  <div id="cart-drawer-panel">
+    <div class="cart-handle"></div>
+    <div class="cart-drawer-head">
+      <div class="cart-drawer-title" id="cart-drawer-title">Invoice Cart</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button onclick="closeCartDrawer()" style="background:var(--al);border:none;border-radius:999px;padding:6px 14px;color:var(--accent);font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;">＋ Add More</button>
+        <button class="cart-close-btn" onclick="closeCartDrawer()">✕</button>
+      </div>
+    </div>
+    <div id="cart-session-meta" style="padding:6px 1rem;font-size:12px;color:var(--muted);border-bottom:1px solid var(--border);"></div>
+    <div id="cart-items-wrap"></div>
+    <div id="disc-wrap" class="disc-wrap" style="display:none">
+      <div class="disc-row">
+        <span style="font-size:13px;font-weight:600;color:var(--warn);white-space:nowrap;">Discount</span>
+        <input type="number" class="disc-input" id="disc-val" placeholder="0" min="0" step="0.01" oninput="calcTotal()">
+        <button class="disc-type-btn on" id="disc-pct" onclick="setDiscType('pct')">%</button>
+        <button class="disc-type-btn" id="disc-flat" onclick="setDiscType('flat')">$</button>
+        <button onclick="removeDiscount()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--muted);padding:0;">✕</button>
+      </div>
+    </div>
+    <div id="cart-total-wrap" style="display:none">
+      <div style="padding:8px 1rem;border-top:1px solid var(--border);">
+        <button onclick="closeCartDrawer()" style="width:100%;padding:11px;background:var(--al);color:var(--accent);border:1.5px solid var(--accent);border-radius:var(--r);font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">← Back to Products</button>
+      </div>
+      <div class="inv-total-bar">
+        <div class="inv-total-row"><span class="inv-total-lbl" id="cart-item-count">0 items</span></div>
+        <div class="inv-total-row" id="cart-src-row" style="display:none"><span class="inv-total-lbl">Sourcing Fee</span><span style="font-family:'DM Mono',monospace;" id="cart-src-amt">$0.00</span></div>
+        <div class="inv-total-row" id="cart-disc-row" style="display:none"><span class="inv-total-lbl">Discount</span><span style="font-family:'DM Mono',monospace;color:#FFAAAA;" id="cart-disc-amt">-$0.00</span></div>
+        <div class="inv-total-row" id="cart-tax-row" style="display:none"><span class="inv-total-lbl">Sales Tax (8.25%)</span><span style="font-family:'DM Mono',monospace;" id="cart-tax-amt">$0.00</span></div>
+        <div class="inv-total-row" style="border-top:1px solid rgba(255,255,255,.2);padding-top:8px;margin-top:6px;">
+          <span style="font-size:15px;font-weight:700;">Total</span>
+          <span class="inv-total-val" id="cart-total-val">$0.00</span>
+        </div>
+      </div>
+      <div style="padding:10px 1rem;display:flex;flex-direction:column;gap:8px;">
+        <button id="add-disc-btn" onclick="toggleDiscount()" style="width:100%;padding:11px;background:var(--wl);color:var(--warn);border:1.5px solid #F0D5A8;border-radius:var(--r);font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">＋ Add Discount</button>
+        <button onclick="saveInvoice()" style="width:100%;padding:14px;background:var(--accent);color:white;border:none;border-radius:var(--r);font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;" id="save-inv-btn">💾 Save Invoice to History</button>
+        <button onclick="shareInvoice()" style="width:100%;padding:14px;background:var(--dark);color:white;border:none;border-radius:var(--r);font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">📤 Share / Print</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- CONFLICT TOAST -->
+<div id="conflict-toast"></div>
+<!-- BARCODE SCANNER -->
+<div id="scanner-overlay">
+  <video id="scanner-video" autoplay playsinline muted></video>
+  <div id="scanner-result">Point camera at a product barcode</div>
+  <button id="scanner-close" onclick="closeScanner()">✕ Cancel</button>
+</div>
+<!-- PRINT OVERLAY -->
+<div id="print-overlay">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
+    <button onclick="closePrintView()" style="padding:12px;background:var(--dark);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">✕ Close</button>
+    <button onclick="window.print()" style="padding:12px;background:var(--accent);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">🖨️ Print / PDF</button>
+  </div>
+  <button id="native-share-btn" onclick="doNativeShare()" style="display:none;width:100%;padding:14px;background:#1a73e8;color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:16px;">📤 Share via Messages</button>
+  <div id="print-content"></div>
+</div>
+<!-- NEW SESSION MODAL -->
+<div id="sess-modal-bg" style="display:none;position:fixed;inset:0;background:rgba(44,36,22,.45);z-index:300;align-items:flex-end;justify-content:center;" onclick="if(event.target===this)closeSessModal()">
+  <div class="modal"><div class="mhandle"></div><div class="mtitle">New Invoice Session</div><div id="sess-modal-body"></div></div>
+</div>
+<!-- EDIT MODAL -->
+<div id="mbg" onclick="if(event.target===this)closeModal()">
+  <div class="modal"><div class="mhandle"></div><div class="mtitle" id="mtitle">Add Product</div><div id="mbody"></div></div>
+</div>
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import{getDatabase,ref,set,get,onValue}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+const FB={apiKey:"AIzaSyDw8USusWkZel2qPfUsE9Cs5UTy0jEd-FQ",authDomain:"organizeme--inventory-tracker.firebaseapp.com",databaseURL:"https://organizeme--inventory-tracker-default-rtdb.firebaseio.com",projectId:"organizeme--inventory-tracker",storageBucket:"organizeme--inventory-tracker.firebasestorage.app",messagingSenderId:"854910261181",appId:"1:854910261181:web:5eded9c74c4fef1319e4d4"};
+const db=getDatabase(initializeApp(FB));
+const USERS={'Mollie':{pass:'mollie123',senior:true,last:'Kudalis'},'Elizabeth':{pass:'elizabeth123',senior:true,last:'Adam'},'Morgan':{pass:'morgan123',senior:true,last:'Laddin'},'Mari':{pass:'mari123',senior:true,last:'Sapienza'},'Janae':{pass:'janae123',senior:false,last:'Rockmore'},'Reigan':{pass:'reigan123',senior:false,last:'Tinholt'},'Siena':{pass:'siena123',senior:false,last:'Gargnano'},'Savita':{pass:'savita123',senior:false,last:'Aher'},'Johanna':{pass:'johanna123',senior:false,last:'L'},'Indira':{pass:'indira123',senior:false,last:'Enamorado'}};
+const ORGS=['Mollie','Elizabeth','Morgan','Mari','Janae','Reigan','Siena','Savita','Johanna','Indira'];
+const SENIOR=['Mollie','Elizabeth','Morgan','Mari'];
+const CATS=['Kitchen','Bathroom','Garage/Attic','Pantry','Moving Solutions','Storage Closet','Misc'];
+const EMO={'Kitchen':'🍳','Bathroom':'🛁','Garage/Attic':'🏠','Pantry':'🥫','Moving Solutions':'📦','Storage Closet':'🚪','Misc':'✨'};
+const LOW=3;
+const ZAPIER='https://hooks.zapier.com/hooks/catch/16077471/4uekjuw/';
+const TAX=0.0825; // 8.25% sales tax
+const DP=[
+{id:'p1',name:'5 Tier Rolling Shelving 60"W×24"D×72"H w/wheels (Online)',cat:'Garage/Attic',vendor:'Costco',retail:239,img:'',link:'https://www.costco.com/p/-/trinity-5-tier-heavy-duty-wire-shelving-rack-60-x-24-x-72-nsf-includes-wheels/100709272'},
+{id:'p1b',name:'5 Tier Rolling Shelving 60"W×24"D×72"H w/wheels (In-Store)',cat:'Garage/Attic',vendor:'Costco',retail:129,img:'',link:'https://www.costco.com/p/-/trinity-5-tier-heavy-duty-wire-shelving-rack-60-x-24-x-72-nsf-includes-wheels/100709272'},
+{id:'p6',name:'5 Tier Rolling Shelving 48"W×24"D×72"H w/wheels',cat:'Garage/Attic',vendor:'Costco',retail:180,img:'',link:'https://www.costco.com/p/-/trinity-ecostorage-5-tier-wire-shelving-rack-48-x-24-x-72-nsf-includes-wheels/100143963'},
+{id:'p2',name:'4 Tier Wire Shelving 36"W×14"D×54"H (w/o wheels)',cat:'Garage/Attic',vendor:'Walmart',retail:69.97,img:'',link:'https://www.walmart.com/ip/3463349084'},
+{id:'p3',name:'5 Tier Wire Shelving 36"W×16"D×72"H (w/o wheels)',cat:'Garage/Attic',vendor:'Walmart',retail:79.97,img:'',link:'https://www.walmart.com/ip/5555914538'},
+{id:'p5',name:'5 Tier Wire Shelving 48"W×16"D×72"H (w/o wheels)',cat:'Garage/Attic',vendor:'Walmart',retail:99.97,img:'',link:'https://www.walmart.com/ip/256423845'},
+{id:'p5b',name:'5 Tier Wire Shelving 48"W×24"D×72"H (w/o wheels)',cat:'Garage/Attic',vendor:'Walmart',retail:129.97,img:'',link:'https://www.walmart.com/ip/529390511'},
+{id:'p7a',name:'3 Tier Wire Shelving 36"W×18"D×35"H (Brightroom)',cat:'Garage/Attic',vendor:'Target',retail:45,img:'',link:''},
+{id:'p7b',name:'5 Tier Wire Shelving 36"W×18"D×72"H (Brightroom)',cat:'Garage/Attic',vendor:'Target',retail:75,img:'',link:''},
+{id:'p4',name:'5 Tier Wire Shelving 47"W×18"D×72"H (Brightroom)',cat:'Garage/Attic',vendor:'Target',retail:85,img:'',link:''},
+{id:'p7c',name:'6 Tier Wire Shelving 48"W×18"D×72"H (Lowes)',cat:'Garage/Attic',vendor:'Lowes',retail:159,img:'',link:''},
+{id:'p7d',name:'5 Tier Wire Shelving 48"W×18"D×72"H (Lowes)',cat:'Garage/Attic',vendor:'Lowes',retail:139,img:'',link:''},
+{id:'p7e',name:'4 Tier Wire Shelving 48"W×18"D×72"H (Lowes)',cat:'Garage/Attic',vendor:'Lowes',retail:84.98,img:'',link:''},
+{id:'p10',name:'Acrylic Bins Open Front (mDesign)',cat:'Kitchen',vendor:'TJ Maxx/Homegoods',retail:20,img:'',link:'https://a.co/d/06uQdtYs'},
+{id:'p11',name:'Acrylic Bins w/ Single Drawers (Sorbus)',cat:'Kitchen',vendor:'TJ Maxx/Homegoods',retail:19.50,img:'',link:'https://a.co/d/09pIx70S'},
+{id:'p12',name:'Acrylic Candy Dispense',cat:'Misc',vendor:'Amazon',retail:22.98,img:'',link:'https://a.co/d/0aibVyS8'},
+{id:'p13',name:'Acrylic Shelf Dividers',cat:'Storage Closet',vendor:'Amazon',retail:2.50,img:'',link:'https://a.co/d/0dnaRudL'},
+{id:'p14',name:'Bamboo Drawer Dividers 2.4" Height',cat:'Kitchen',vendor:'Amazon',retail:6.47,img:'',link:'https://a.co/d/0cx7DORu'},
+{id:'p15',name:'Bamboo Drawer Dividers 4" Height',cat:'Kitchen',vendor:'Amazon',retail:8.49,img:'',link:'https://a.co/d/075uMdR0'},
+{id:'p16',name:'Bamboo Kitchen Drawer Organizer Set (Costco)',cat:'Kitchen',vendor:'Costco',retail:59.99,img:'',link:'https://www.costco.com/seville-classics-9-piece-bamboo-organizer-starter-set.product.4000100458.html'},
+{id:'p17',name:'Bamboo Open Front Bins (The Home Edit/Walmart)',cat:'Kitchen',vendor:'Walmart',retail:14,img:'',link:'https://www.walmart.com/ip/1308763886'},
+{id:'p18',name:'Bin Clips (Set of 30)',cat:'Misc',vendor:'Amazon',retail:0.29,img:'',link:'https://a.co/d/0hfG4rNn',consumable:true},
+{id:'p19',name:'Bino Acrylic Bins Large',cat:'Misc',vendor:'Amazon, TJ Maxx/Homegoods',retail:14,img:'',link:'https://a.co/d/0e6AKmr4'},
+{id:'p20',name:'Bino Acrylic Bins Small',cat:'Misc',vendor:'Amazon, TJ Maxx/Homegoods',retail:8.50,img:'',link:'https://a.co/d/0bEb9RF1'},
+{id:'p21',name:'Bino Acrylic Bins X-Large',cat:'Misc',vendor:'Amazon, TJ Maxx/Homegoods',retail:18,img:'',link:'https://a.co/d/09Hzg73J'},
+{id:'p22',name:'Bino Acrylic Stackable Drawers',cat:'Misc',vendor:'Amazon, TJ Maxx/Homegoods',retail:18.99,img:'',link:'https://binostorage.com'},
+{id:'p23',name:'Bino Drawer Organizers',cat:'Bathroom',vendor:'Amazon, TJ Maxx/Homegoods',retail:18,img:'',link:'https://binostorage.com'},
+{id:'p24',name:'Brightroom Acrylic 2-Drawer Storage Clear',cat:'Kitchen',vendor:'Target',retail:16,img:'',link:''},
+{id:'p25',name:'Brightroom Acrylic 3-Drawer Storage Clear',cat:'Kitchen',vendor:'Target',retail:16,img:'',link:''},
+{id:'p26',name:'Brightroom Acrylic Bin w/Divider — LG',cat:'Kitchen',vendor:'Target',retail:13,img:'',link:''},
+{id:'p27',name:'Brightroom Acrylic Bin w/Divider — SM',cat:'Kitchen',vendor:'Target',retail:13,img:'',link:''},
+{id:'p29',name:'Brightroom Acrylic Large Full Depth Drawer',cat:'Kitchen',vendor:'Target',retail:12,img:'',link:''},
+{id:'p30',name:'Brightroom Acrylic Single Drawer Organizer',cat:'Kitchen',vendor:'Target',retail:16,img:'',link:''},
+{id:'p31',name:'Brightroom Acrylic Small Full Depth Drawer Clear',cat:'Kitchen',vendor:'Target',retail:8,img:'',link:''},
+{id:'p32',name:'Brightroom Acrylic Tall Full Depth Drawer',cat:'Kitchen',vendor:'Target',retail:12,img:'',link:''},
+{id:'p34',name:'Brightroom All Purpose Open Front Storage Bin 12"×12"×8"',cat:'Pantry',vendor:'Target',retail:13,img:'',link:''},
+{id:'p35',name:'Brightroom All Purpose Storage Bin 12"×12"×8"',cat:'Pantry',vendor:'Target',retail:13,img:'',link:''},
+{id:'p36',name:'Brightroom Acrylic Large Bathroom Organizer Bin 6.5"×12"×9"',cat:'Bathroom',vendor:'Target',retail:7,img:'',link:''},
+{id:'p37',name:'Brightroom Acrylic Medium Bathroom Organizer Bin 6.5"×6"×9"',cat:'Bathroom',vendor:'Target',retail:5,img:'',link:''},
+{id:'p38',name:'Brightroom Organizer Tray/Riser',cat:'Misc',vendor:'Target',retail:10,img:'',link:''},
+{id:'p38b',name:'Brightroom Lazy Susan',cat:'Kitchen',vendor:'Target',retail:16,img:'',link:'https://www.target.com/p/18-34-storage-turntable-brightroom-8482/-/A-89811888'},
+{id:'p40',name:'Clothing Rolling Rack — Single Rod',cat:'Storage Closet',vendor:'Amazon',retail:79.99,img:'',link:'https://www.amazon.com/dp/B082V56R78'},
+{id:'p41',name:'Clothing Rolling Rack — Double Rod',cat:'Storage Closet',vendor:'Amazon',retail:89.99,img:'',link:'https://www.amazon.com/dp/B0D7HTH43B'},
+{id:'p42',name:'6 Row Drink Dispenser',cat:'Kitchen',vendor:'Amazon',retail:29.99,img:'',link:'https://a.co/d/0gwTlVIG'},
+{id:'p56a',name:'Everything Organizer Small Drawer Clear',cat:'Kitchen',vendor:'Container Store',retail:21.99,img:'',link:'https://www.containerstore.com/s/kitchen'},
+{id:'p56b',name:'Everything Organizer Medium Drawer Clear',cat:'Kitchen',vendor:'Container Store',retail:28.99,img:'',link:'https://www.containerstore.com/s/kitchen'},
+{id:'p56c',name:'Everything Organizer Large Drawer Clear',cat:'Kitchen',vendor:'Container Store',retail:32.99,img:'',link:'https://www.containerstore.com/s/kitchen'},
+{id:'p50',name:'Everything Organizer Narrow All-Purpose Bin',cat:'Kitchen',vendor:'Container Store',retail:16.99,img:'',link:'https://www.containerstore.com/s/featured/the-everything-organizer/everything-organizer-all_purpose-bin/12d?productId=11026844'},
+{id:'p52',name:'Everything Organizer Regular All-Purpose Bin',cat:'Kitchen',vendor:'Container Store',retail:18.99,img:'',link:'https://www.containerstore.com/s/featured/the-everything-organizer/everything-organizer-all_purpose-bin/12d?productId=11026844'},
+{id:'p58',name:'Everything Organizer Wide All-Purpose Bin',cat:'Kitchen',vendor:'Container Store',retail:25.99,img:'',link:'https://www.containerstore.com/s/featured/the-everything-organizer/everything-organizer-all_purpose-bin/12d?productId=11026844'},
+{id:'p51',name:'Everything Organizer Narrow All-Purpose Open-Front Bin',cat:'Kitchen',vendor:'Container Store',retail:19.99,img:'',link:'https://www.containerstore.com/s/closet/closet-boxes-bins/everything-organizer-all-purpose-open-front-bin/12d?productId=11026836'},
+{id:'p53',name:'Everything Organizer Regular All-Purpose Open-Front Bin',cat:'Kitchen',vendor:'Container Store',retail:25.99,img:'',link:'https://www.containerstore.com/s/closet/closet-boxes-bins/everything-organizer-all-purpose-open-front-bin/12d?productId=11026836'},
+{id:'p59',name:'Everything Organizer Wide All-Purpose Open-Front Bin',cat:'Kitchen',vendor:'Container Store',retail:27.99,img:'',link:'https://www.containerstore.com/s/closet/closet-boxes-bins/everything-organizer-all-purpose-open-front-bin/12d?productId=11026836'},
+{id:'p61',name:'Everything Organizer XL Cabinet Depth Pantry Bin w/ Divider',cat:'Kitchen',vendor:'Container Store',retail:22.99,img:'',link:''},
+{id:'p44',name:'Everything Organizer Large Cabinet Depth Pantry Bin w/ Divider',cat:'Kitchen',vendor:'Container Store',retail:17.99,img:'',link:''},
+{id:'p47',name:'Everything Organizer Medium Cabinet Depth Pantry Bin w/ Divider',cat:'Kitchen',vendor:'Container Store',retail:14.99,img:'',link:''},
+{id:'p54',name:'Everything Organizer Small Cabinet Depth Pantry Bin w/ Divider',cat:'Kitchen',vendor:'Container Store',retail:10.99,img:'',link:''},
+{id:'p55',name:'Everything Organizer Small Shelf Depth Pantry Bin w/ Dividers',cat:'Kitchen',vendor:'Container Store',retail:14.99,img:'',link:''},
+{id:'p48',name:'Everything Organizer Medium Shelf Depth Pantry Bin w/ Dividers',cat:'Kitchen',vendor:'Container Store',retail:17.99,img:'',link:''},
+{id:'p45',name:'Everything Organizer Large Shelf Depth Pantry Bin w/ Dividers',cat:'Kitchen',vendor:'Container Store',retail:22.99,img:'',link:''},
+{id:'p62',name:'Everything Organizer XL Shelf Depth Pantry Bin w/ Dividers',cat:'Kitchen',vendor:'Container Store',retail:27.99,img:'',link:'https://www.containerstore.com/s/kitchen/pantry-organizers/bins-and-baskets/shelf-depth-pantry-bin-with-divider/123d?productId=11017102'},
+{id:'p63',name:'Flexmounts: Overhead Garage Storage',cat:'Garage/Attic',vendor:'Amazon',retail:195.99,img:'',link:'https://a.co/d/cthX6xD'},
+{id:'p64',name:'Garbage Bags (55-60 Gal, 50ct)',cat:'Misc',vendor:'Amazon',retail:0.55,img:'',link:'',consumable:true},
+{id:'p65',name:'Heavy Duty Shelving (SafeRacks)',cat:'Garage/Attic',vendor:'Costco',retail:190,img:'',link:''},
+{id:'p66',name:'Heavy Duty Storage Totes — 12GAL (4PK)',cat:'Garage/Attic',vendor:'Costco',retail:9.99,img:'',link:'https://www.costco.com/p/-/greenmade-12-gallon-storage-bin-4-pack/4000229972'},
+{id:'p68',name:'Heavy Duty Storage Totes — 27GAL (8PK & ALT colors)',cat:'Garage/Attic',vendor:'Costco',retail:12,img:'',link:'https://www.costco.com/greenmade-27-gallon-storage-bin-8-pack.product.4000377855.html'},
+{id:'p69',name:'Heavy Duty Storage Totes — 27GAL CLEAR (8PK)',cat:'Garage/Attic',vendor:'Costco',retail:12,img:'',link:'https://www.costco.com/p/-/greenmade-27-gallon-clear-storage-bin-8pack/4201008753'},
+{id:'p70',name:'Heavy Duty Tote Rack (Proslat)',cat:'Garage/Attic',vendor:'Costco',retail:180,img:'',link:''},
+{id:'p71',name:'iDesign Acrylic Drawer Organizer Set (Costco)',cat:'Kitchen',vendor:'Costco',retail:29.99,img:'',link:''},
+{id:'p72',name:'IKEA Bags',cat:'Misc',vendor:'IKEA',retail:1.49,img:'',link:'https://www.ikea.com/us/en/p/frakta-shopping-bag-large-blue-17228340/'},
+{id:'p73',name:'Label Maker',cat:'Misc',vendor:'Container Store',retail:99.99,img:'',link:''},
+{id:'p74',name:'Label Maker Tape (Black)',cat:'Misc',vendor:'Amazon',retail:5.65,img:'',link:'https://a.co/d/09dKM19v',consumable:true},
+{id:'p75',name:'Label Maker Tape (White)',cat:'Misc',vendor:'Amazon',retail:5.65,img:'',link:'https://a.co/d/0dUVJgh6',consumable:true},
+{id:'p75b',name:'Label Maker Tape (Clear w/ Black Font)',cat:'Misc',vendor:'Amazon',retail:6.30,img:'',link:'https://a.co/d/09dKM19v',consumable:true},
+{id:'p75c',name:'Label Maker Tape (Clear w/ White Font)',cat:'Misc',vendor:'Amazon',retail:6.30,img:'',link:'https://a.co/d/04umbAL6',consumable:true},
+{id:'p76',name:'Lazy Susans (Amazon)',cat:'Misc',vendor:'Amazon',retail:10,img:'',link:'https://a.co/d/btKEhjC'},
+{id:'p77',name:'Lazy Susans XL Acrylic',cat:'Kitchen',vendor:'Burlington',retail:18,img:'',link:''},
+{id:'p78',name:'Lazy Susans XL Black (Brightroom/Target)',cat:'Garage/Attic',vendor:'Target',retail:12,img:'',link:'https://www.target.com/p/18-34-storage-turntable-brightroom-8482/-/A-89811888'},
+{id:'p79',name:'Organizer Tote Bags (Black/multi-colors)',cat:'Misc',vendor:'Amazon',retail:25.99,img:'',link:'https://a.co/d/0ho0Alqt'},
+{id:'p80',name:'Packing Boxes — Large',cat:'Moving Solutions',vendor:'U-Haul',retail:2.78,img:'',link:'https://www.uhaul.com/MovingSupplies/Boxes/'},
+{id:'p81',name:'Packing Boxes — Med.',cat:'Moving Solutions',vendor:'U-Haul',retail:2.35,img:'',link:'https://www.uhaul.com/MovingSupplies/Boxes/'},
+{id:'p82',name:'Packing Boxes — Sm.',cat:'Moving Solutions',vendor:'U-Haul',retail:1.78,img:'',link:'https://www.uhaul.com/MovingSupplies/Boxes/'},
+{id:'p83',name:'Packing Boxes — XL',cat:'Moving Solutions',vendor:'U-Haul',retail:3.78,img:'',link:'https://www.uhaul.com/MovingSupplies/Boxes/'},
+{id:'p84',name:'Packing Paper — 100 Sheets (Lowes)',cat:'Moving Solutions',vendor:'Lowes',retail:13.98,img:'',link:''},
+{id:'p85',name:'Packing Paper — 200 Sheets (U-Haul)',cat:'Moving Solutions',vendor:'U-Haul',retail:39.95,img:'',link:''},
+{id:'p86',name:'Packing Paper — 500 Sheets (U-Haul)',cat:'Moving Solutions',vendor:'U-Haul',retail:39.95,img:'',link:''},
+{id:'p87',name:'Packing Tape (clear rolls)',cat:'Moving Solutions',vendor:'Costco',retail:5,img:'',link:'',consumable:true},
+{id:'p88',name:'Painters Tape',cat:'Moving Solutions',vendor:'Amazon',retail:10.89,img:'',link:'',consumable:true},
+{id:'p89',name:'Plastic Utility Storage Bin — Large',cat:'Storage Closet',vendor:'Walmart',retail:6.37,img:'',link:''},
+{id:'p90',name:'Plastic Utility Storage Bin — Medium',cat:'Storage Closet',vendor:'Walmart',retail:5.32,img:'',link:''},
+{id:'p91',name:'Pull Out Cabinet Organizer Drawers',cat:'Kitchen',vendor:'Amazon',retail:37.69,img:'',link:'https://www.amazon.com/Pull-out-Cabinet-Organizer-Organization/dp/B0DNVR6BSW/'},
+{id:'p92',name:'Stackable Bottle Organizer (Container Store)',cat:'Kitchen',vendor:'Container Store',retail:16.99,img:'',link:''},
+{id:'p93',name:'Step Stool (2-steps)',cat:'Misc',vendor:'Walmart',retail:24.97,img:'',link:'https://www.walmart.com/ip/5251337973'},
+{id:'p94',name:'Step Stool (3-steps)',cat:'Misc',vendor:'Walmart',retail:39.97,img:'',link:'https://www.walmart.com/ip/13987464224'},
+{id:'p95',name:'Sterilite Med. Short Latching Storage Bin — 15QT',cat:'Garage/Attic',vendor:'Walmart, Target',retail:5.98,img:'',link:''},
+{id:'p96',name:'Sterilite Med. Tall Latching Storage Bin — 27QT',cat:'Garage/Attic',vendor:'Walmart, Target',retail:7.28,img:'',link:'https://www.walmart.com/ip/46001917'},
+{id:'p97',name:'Sterilite Small Latching Storage Bin — 7QT',cat:'Garage/Attic',vendor:'Walmart, Target',retail:3.98,img:'',link:'https://www.walmart.com/ip/46001913'},
+{id:'p98',name:'Sterilite Lg Latching Storage Totes — 66QT',cat:'Garage/Attic',vendor:'Walmart, Target',retail:8.98,img:'',link:''},
+{id:'p99',name:'The Home Edit Acrylic Drawer Organizer — Bathroom',cat:'Bathroom',vendor:'Container Store',retail:27.99,img:'',link:''},
+{id:'p100',name:'The Home Edit Acrylic Drawer Organizer — Kitchen',cat:'Kitchen',vendor:'Container Store',retail:27.99,img:'',link:''},
+{id:'p101',name:'Wall Mount Organizer',cat:'Misc',vendor:'Container Store',retail:14.99,img:'',link:''},
+{id:'p102',name:'Water Bottle Organizer',cat:'Kitchen',vendor:'Amazon',retail:24.99,img:'',link:'https://www.amazon.com/dp/B0F47VTNZW/'},
+{id:'p103',name:'Water Hyacinth Bin Natural Large',cat:'Kitchen',vendor:'Container Store',retail:24.99,img:'',link:''},
+{id:'p104',name:'Water Hyacinth Bin Natural Medium',cat:'Kitchen',vendor:'Container Store',retail:17.99,img:'',link:''},
+{id:'p105',name:'Water Hyacinth Bin Natural Small',cat:'Kitchen',vendor:'Container Store',retail:14.99,img:'',link:''},
+{id:'p106',name:'Water Hyacinth Bin Natural X-Large',cat:'Kitchen',vendor:'Container Store',retail:69.99,img:'',link:''},
+{id:'p107',name:'Bamboo Drawer Utensil Organizer',cat:'Kitchen',vendor:'Amazon',retail:28.99,img:'',link:'https://a.co/d/02iUDJez'},
+{id:'p108',name:'Bamboo Drawer Silverware Organizer',cat:'Kitchen',vendor:'Amazon',retail:39.97,img:'',link:'https://a.co/d/05FddCIR'},
+{id:'p109',name:'Bamboo In-Drawer Knife Block Organizer',cat:'Kitchen',vendor:'Amazon',retail:37.99,img:'',link:'https://a.co/d/07ilx7Lb'},
+{id:'p110',name:'Bamboo Drawer Organizer Boxes',cat:'Kitchen',vendor:'Amazon',retail:47.99,img:'',link:'https://a.co/d/0daDJxqj'}
+];
+let cu=null,senior=false,editId=null,products=[],inventory={},activeCat='',viewOrg=null,curView='grid';
+let activeSessionId=null,allSessions={},invCat='',discType='pct',showDisc=false;
+let localCart={}; // local source of truth for cart, avoids Firebase round-trip lag
+let lastCartWrite=0; // timestamp of last local write, to ignore our own Firebase echoes
+let scanStream=null,scanActive=false;
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function uid(){return'p'+Date.now().toString(36)+Math.random().toString(36).slice(2);}
+function fmt(n){return'$'+(+n||0).toFixed(2);}
+function cp(r){const v=parseFloat(r)||0;return{retail:v,src:v*.25,base:v*1.25};}
+function tqty(pid){return ORGS.reduce((s,o)=>s+((inventory[o]||{})[pid]||0),0);}
+function lt(p){return(p&&p.consumable)?10:LOW;}
+function ini(n){const u=USERS[n];if(u&&u.last)return n[0].toUpperCase()+(u.last[0]||'').toUpperCase();return n.slice(0,2).toUpperCase();}
+function syncUI(s){const p=document.getElementById('spill'),l=document.getElementById('slbl');if(!p)return;if(s==='live'){p.className='spill';l.textContent='Live';}else if(s==='saving'){p.className='spill';l.textContent='Saving…';}else{p.className='spill off';l.textContent='Offline';}}
+function toast(msg,type='warn'){
+  const el=document.getElementById('conflict-toast');if(!el)return;
+  el.textContent=msg;el.style.background=type==='danger'?'var(--danger)':type==='ok'?'var(--accent)':'var(--warn)';
+  el.style.display='block';clearTimeout(el._t);el._t=setTimeout(()=>el.style.display='none',4500);
+}
+function getSession(){return activeSessionId?allSessions[activeSessionId]:null;}
+function getCart(){return localCart;}
+async function pushCart(cart){
+  if(!activeSessionId)return;
+  localCart=cart;
+  lastCartWrite=Date.now();
+  syncUI('saving');
+  await set(ref(db,`sessions/${activeSessionId}/cart`),Object.keys(cart).length?cart:null);
+  syncUI('live');
+}
+
+async function initData(){
+  const s=await get(ref(db,'products'));
+  if(!s.exists()){const o={};DP.forEach(p=>{o[p.id]=p;});await set(ref(db,'products'),o);products=[...DP];}
+  else{
+    const ex=s.val(),merged={};
+    DP.forEach(p=>{const sv=ex[p.id]||{};merged[p.id]={...p,img:sv.img||'',notes:sv.notes||'',consumable:sv.consumable!==undefined?sv.consumable:!!p.consumable,barcode:sv.barcode||''};});
+    Object.keys(ex).forEach(id=>{if(!merged[id])merged[id]=ex[id];});
+    products=Object.values(merged);
+    await set(ref(db,'products'),merged);
+  }
+  const iv=await get(ref(db,'inventory'));inventory=iv.exists()?iv.val():{};
+}
+function listen(){
+  onValue(ref(db,'products'),s=>{products=s.exists()?Object.values(s.val()):[];if(cu){renderProducts();renderInvGrid();}});
+  onValue(ref(db,'inventory'),s=>{inventory=s.exists()?s.val():{};if(cu){renderProducts();renderMyInv();renderTeam();}});
+  onValue(ref(db,'sessions'),s=>{
+    const prev=JSON.stringify(allSessions);
+    allSessions=s.exists()?s.val():{};
+    if(cu){
+      // Sync localCart from Firebase, but only if we don't have a pending local update
+      if(activeSessionId&&allSessions[activeSessionId]){
+        const fbCart=allSessions[activeSessionId].cart||{};
+        // Only sync from Firebase if it's been >1.5s since our last write
+        // This prevents our own Firebase echoes from overwriting optimistic updates
+        if(Date.now()-lastCartWrite>1500){
+          localCart=JSON.parse(JSON.stringify(fbCart));
+        }
+        checkConflicts(JSON.parse(prev),allSessions);
+      }
+      updateBadge();
+      if(activeSessionId&&allSessions[activeSessionId]){
+        if(document.getElementById('sec-invoice').classList.contains('on')){
+          renderSessionBar();renderInvGrid();
+          if(document.getElementById('cart-drawer').classList.contains('open'))renderCartDrawer();
+        }
+      }
+    }
+  });
+}
+function checkConflicts(oldAll,newAll){
+  if(!activeSessionId)return;
+  const oldC=(oldAll[activeSessionId]||{}).cart||{};
+  const newC=(newAll[activeSessionId]||{}).cart||{};
+  Object.keys(newC).forEach(pid=>{
+    const ni=newC[pid],oi=oldC[pid];
+    if(!oi)return;
+    if(ni.lastEditor&&ni.lastEditor!==cu&&ni.qty!==oi.qty){
+      const p=products.find(x=>x.id===pid);
+      const stock=tqty(pid);
+      if(stock>0&&ni.qty>=stock)toast(`⚠️ ${ni.lastEditor} also has "${p?p.name:pid}" — only ${stock} in stock!`,'danger');
+      else toast(`${ni.lastEditor} updated "${p?p.name:pid}" qty to ${ni.qty}`);
+    }
+  });
+}
+function updateBadge(){
+  const cart=getCart();
+  const n=Object.keys(cart).length;
+  const totalQty=Object.values(cart).reduce((s,item)=>s+(Number(item.qty)||1),0);
+  const b=document.getElementById('inv-tab-badge');
+  if(b){b.textContent=totalQty||'';b.className='tab-badge'+(totalQty?' show':'');}
+  const onInv=document.getElementById('sec-invoice').classList.contains('on');
+  const fab=document.getElementById('cart-fab');
+  if(fab){
+    fab.style.display=(n&&onInv)?'flex':'none';
+    const fc=document.getElementById('cart-fab-count');if(fc)fc.textContent=totalQty;
+  }
+  const bb=document.getElementById('inv-back-bar');
+  if(bb)bb.style.display=(n&&onInv&&activeSessionId)?'block':'none';
+}
+window.doLogin=function(){
+  const name=document.getElementById('lu').value,pass=document.getElementById('lp').value;
+  const err=document.getElementById('lerr');
+  if(!name){err.textContent='Please select your name.';err.style.display='block';return;}
+  const u=USERS[name];if(!u||pass!==u.pass){err.style.display='block';return;}
+  err.style.display='none';cu=name;senior=u.senior;
+  document.getElementById('login').style.display='none';document.getElementById('app').style.display='block';
+  document.getElementById('upill').textContent=name+(senior?' ★':'');
+  const av=document.getElementById('my-av'),nm=document.getElementById('my-name');
+  if(av)av.textContent=ini(name);if(nm)nm.textContent=name+"'s Inventory";
+  if(!senior){document.getElementById('n-invoice').classList.add('locked');document.getElementById('n-history').classList.add('locked');}
+  else{document.getElementById('n-invoice').classList.remove('locked');document.getElementById('n-history').classList.remove('locked');document.getElementById('n-checklists').classList.remove('locked');}
+  document.getElementById('addwrap').style.display=senior?'block':'none';
+  buildChips();buildInvChips();showTab('products');
+};
+window.doLogout=function(){
+  if(activeSessionId)set(ref(db,`sessions/${activeSessionId}/presence/${cu}`),null);
+  cu=null;senior=false;activeSessionId=null;viewOrg=null;
+  document.getElementById('login').style.display='flex';document.getElementById('app').style.display='none';
+  document.getElementById('lp').value='';document.getElementById('lu').value='';
+  document.getElementById('cart-fab').style.display='none';
+};
+window.showTab=function(t){
+  if((t==='invoice'||t==='history')&&!senior)return;
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.tn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('sec-'+t).classList.add('on');document.getElementById('n-'+t).classList.add('on');
+  window.scrollTo(0,0);
+  if(t==='products')renderProducts();
+  if(t==='team'){viewOrg=null;renderTeam();}
+  if(t==='inv')renderMyInv();
+  if(t==='invoice')initInvoice();
+  if(t==='history')renderHistory();
+  if(t==='checklists')initChecklists();
+  updateBadge();
+};
+function buildChips(){document.getElementById('catchips').innerHTML=['All',...CATS].map(c=>`<span class="chip${(c==='All'&&!activeCat)||c===activeCat?' on':''}" onclick="setCat('${c}')">${EMO[c]||''} ${c}</span>`).join('');}
+function buildInvChips(){const el=document.getElementById('inv-catchips');if(!el)return;el.innerHTML=['All',...CATS].map(c=>`<span class="chip${(c==='All'&&!invCat)||c===invCat?' on':''}" onclick="setInvCat('${c}')">${EMO[c]||''} ${c}</span>`).join('');}
+window.setCat=function(c){activeCat=c==='All'?'':c;buildChips();renderProducts();};
+window.setInvCat=function(c){invCat=c==='All'?'':c;buildInvChips();renderInvGrid();};
+window.setView=function(v){
+  curView=v;
+  document.getElementById('vg').className='vbtn'+(v==='grid'?' on':'');
+  document.getElementById('vl').className='vbtn'+(v==='list'?' on':'');
+  document.getElementById('pgrid').style.display=v==='grid'?'grid':'none';
+  document.getElementById('plist').style.display=v==='list'?'block':'none';
+  renderProducts();
+};
+function filteredProds(){
+  const q=(document.getElementById('psearch').value||'').toLowerCase();
+  return products.filter(p=>{if(activeCat&&p.cat!==activeCat)return false;if(q&&!p.name.toLowerCase().includes(q)&&!(p.vendor||'').toLowerCase().includes(q))return false;return true;});
+}
+function renderProducts(){
+  const list=filteredProds(),out=products.filter(p=>tqty(p.id)===0).length;
+  document.getElementById('lowbanner').innerHTML=out?`<div class="alert awarn">⚠️ <strong>${out} item${out>1?'s':''}</strong> out of stock</div>`:'';
+  if(curView==='grid')renderGrid(list);else renderListV(list);
+}
+window.renderProducts=renderProducts;
+function renderGrid(list){
+  if(!list.length){document.getElementById('pgrid').innerHTML='<div class="empty" style="grid-column:1/-1">No products found.</div>';return;}
+  document.getElementById('pgrid').innerHTML=list.map(p=>{
+    const pr=cp(p.retail),qty=(inventory[cu]||{})[p.id]||0,tq=tqty(p.id);
+    const badge=tq===0?'<span class="bdg bdanger" style="font-size:10px">Out</span>':tq<=LOW?'<span class="bdg bwarn" style="font-size:10px">Low</span>':'';
+    return`<div class="pgcard">${p.img?`<img class="pgimg" src="${esc(p.img)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
+      <div class="pgimgph" style="${p.img?'display:none':''}">${EMO[p.cat]||'📦'}</div>
+      <div class="pgbody"><div class="pgname">${esc(p.name)}</div><div style="margin-bottom:4px">${badge}</div>
+      <div class="pgqctrl"><button class="pgqbtn" onclick="qkQty('${p.id}',-1)">−</button><span class="pgqnum">${qty}</span><button class="pgqbtn" onclick="qkQty('${p.id}',1)">+</button></div></div></div>`;
+  }).join('');
+}
+function renderListV(list){
+  if(!list.length){document.getElementById('plist').innerHTML='<div class="empty">No products found.</div>';return;}
+  document.getElementById('plist').innerHTML=list.map(p=>{
+    const qty=(inventory[cu]||{})[p.id]||0,tq=tqty(p.id);
+    const badge=tq===0?'<span class="bdg bdanger">Out</span>':tq<=LOW?'<span class="bdg bwarn">Low</span>':'<span class="bdg bok">In stock</span>';
+    return`<div class="plrow"><div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;"><div class="plname" style="margin:0">${esc(p.name)}</div></div>
+      <div class="plmeta"><span class="bdg bgray">${esc(p.cat)}</span>${p.consumable?'<span class="bdg" style="background:#EEE8F8;color:#6B4FA0">Consumable</span>':''}${badge}${p.link?`<a href="${esc(p.link)}" target="_blank" style="color:var(--accent);font-weight:600">↗</a>`:''}</div>
+      <div class="plqrow"><span class="plqlbl">My qty:</span><div class="qctrl"><button class="qbtn" onclick="qkQty('${p.id}',-1)">−</button><span class="qnum">${qty}</span><button class="qbtn" onclick="qkQty('${p.id}',1)">+</button></div></div>
+      ${senior?`<div style="display:flex;gap:8px;margin-top:8px"><button class="btn btn-sm" onclick="openEdit('${p.id}')">✏️ Edit</button><button class="btn btn-sm btn-d" onclick="delProd('${p.id}')">🗑</button></div>`:''}
+    </div>`;
+  }).join('');
+}
+window.qkQty=async function(pid,d){
+  const cur=(inventory[cu]||{})[pid]||0,nq=Math.max(0,cur+d);
+  if(!inventory[cu])inventory[cu]={};inventory[cu][pid]=nq;renderProducts();
+  syncUI('saving');await set(ref(db,`inventory/${cu}/${pid}`),nq);syncUI('live');
+};
+function renderTeam(){
+  if(viewOrg){renderOrgDetail(viewOrg);return;}
+  document.getElementById('team-ov').style.display='block';document.getElementById('team-dt').style.display='none';
+  document.getElementById('team-ov').innerHTML=`<div style="padding:10px 1rem 4px"><p style="font-size:13px;color:var(--muted)">Tap any organizer to see their inventory.</p></div>
+    <div class="tgrid">${ORGS.map(org=>{const inv=inventory[org]||{},stocked=products.filter(p=>(inv[p.id]||0)>0).length,low=products.filter(p=>{const q=inv[p.id]||0;return q>0&&q<=LOW;}).length;
+    return`<div class="tcard" onclick="drillOrg('${org}')"><div class="tav">${ini(org)}</div><div class="tname">${org}</div><div class="tstat"><strong>${stocked}</strong>/${products.length} stocked</div>${low?`<div style="margin-top:4px"><span class="bdg bwarn">${low} low</span></div>`:''}</div>`;}).join('')}</div>`;
+}
+window.drillOrg=function(org){viewOrg=org;window.scrollTo(0,0);renderOrgDetail(org);};
+function renderOrgDetail(org){
+  document.getElementById('team-ov').style.display='none';document.getElementById('team-dt').style.display='block';
+  const canEdit=senior||(org===cu);
+  document.getElementById('team-dt').innerHTML=`<div class="tback" onclick="backTeam()">← Back to team</div>
+    <div style="padding:10px 1rem 6px;display:flex;align-items:center;gap:10px"><div class="tav" style="width:40px;height:40px;font-size:13px">${ini(org)}</div><div style="font-size:16px;font-weight:600">${org}'s Inventory</div></div>
+    <div id="team-inv-${org}"></div>`;
+  renderOrgInv(org,`team-inv-${org}`,canEdit);
+}
+window.backTeam=function(){viewOrg=null;renderTeam();};
+function renderMyInv(){renderOrgInv(cu,'myinv',true,window._mySearch||'');}
+function renderOrgInv(org,cid,canEdit,sv=''){
+  const inv=inventory[org]||{},el=document.getElementById(cid);if(!el)return;
+  const allCats=[...new Set(products.map(p=>p.cat))].sort();
+  const stocked=products.filter(p=>(inv[p.id]||0)>0),low=stocked.filter(p=>(inv[p.id]||0)<=lt(p)),out=products.filter(p=>(inv[p.id]||0)===0);
+  const af=sv.startsWith('__f:')?sv.slice(4):(window._cf||null),sq=(!af&&sv&&!sv.startsWith('__f:'))?sv.toLowerCase():'';
+  const stats=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;padding:1rem;">
+    ${[['all',products.length,'All','var(--dark)','var(--sand)'],['stocked',stocked.length,'Stocked','var(--accent)','var(--al)'],['low',low.length,'Low','var(--warn)',low.length?'var(--wl)':'var(--sand)'],['out',out.length,'Out','var(--danger)',out.length?'var(--dl)':'var(--sand)']].map(([k,n,lbl,ac,bg])=>`
+    <div onclick="setInvF('${org}','${cid}',${canEdit},'${k}')" style="background:${af===k?ac:bg};border-radius:var(--r);padding:10px;text-align:center;cursor:pointer;border:2px solid ${af===k?ac:'transparent'}">
+      <div style="font-size:22px;font-weight:700;color:${af===k?'white':ac}">${n}</div>
+      <div style="font-size:11px;font-weight:600;color:${af===k?'white':ac}">${lbl}</div>
+    </div>`).join('')}</div>`;
+  const searchBar=`<div style="padding:0 1rem 10px;display:flex;gap:8px;">
+    <input class="si" type="search" id="isrch-${org}" placeholder="🔍 Search…" value="${sq.replace(/"/g,'&quot;')}" oninput="invSrch('${org}','${cid}',${canEdit},this.value)" style="flex:1">
+    ${af?`<button onclick="clearInvF('${org}','${cid}',${canEdit})" style="padding:8px 12px;border-radius:var(--r);border:1.5px solid var(--border);background:var(--white);font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">✕</button>`:''}
+  </div>`;
+  let fp=null;
+  if(af==='all')fp=products;else if(af==='stocked')fp=stocked;else if(af==='low')fp=low;else if(af==='out')fp=out;
+  else if(sq)fp=products.filter(p=>p.name.toLowerCase().includes(sq)||(p.vendor||'').toLowerCase().includes(sq));
+  if(fp!==null){
+    el.innerHTML=`<div class="inv-sticky-header">${stats}${searchBar}</div><div style="border-top:1px solid var(--border)">${fp.map(p=>{const q=inv[p.id]||0;return`<div class="irow"><div class="iinfo"><div class="iname">${esc(p.name)}</div><div class="ivend">${esc(p.cat)}·${esc(p.vendor||'')}${q===0?' · <span style="color:var(--danger)">Out</span>':q<=lt(p)?' · <span style="color:var(--warn)">Low</span>':''}</div></div>${canEdit?`<div class="qctrl"><button class="qbtn" onclick="chgQ('${org}','${p.id}',-1)">−</button><span class="qnum">${q}</span><button class="qbtn" onclick="chgQ('${org}','${p.id}',1)">+</button></div>`:`<span class="qnum">${q}</span>`}</div>`;}).join('')||'<div class="empty">Nothing here.</div>'}</div>`;
+    return;
+  }
+  el.innerHTML=`<div class="inv-sticky-header">${stats}${searchBar}</div>${allCats.map(cat=>{
+    const items=products.filter(p=>p.cat===cat),cs=items.filter(p=>(inv[p.id]||0)>0).length;
+    const sid=`ic-${org}-${cat.replace(/\W/g,'_')}`,open=window._ics&&window._ics[sid]!==undefined?window._ics[sid]:true;
+    return`<div style="border-top:1px solid var(--border)">
+      <div onclick="togIC('${sid}')" style="display:flex;align-items:center;justify-content:space-between;padding:12px 1rem;cursor:pointer;background:var(--cream);user-select:none;">
+        <div style="display:flex;align-items:center;gap:8px"><span>${EMO[cat]||''}</span><div><div style="font-size:13px;font-weight:700">${esc(cat)}</div><div style="font-size:11px;color:var(--muted)">${cs}/${items.length} stocked</div></div></div>
+        <span id="${sid}-i">${open?'▲':'▼'}</span>
+      </div>
+      <div id="${sid}" style="display:${open?'block':'none'}">${items.map(p=>{const q=inv[p.id]||0;return`<div class="irow"><div class="iinfo"><div class="iname">${esc(p.name)}</div><div class="ivend">${esc(p.vendor||'')}${q===0?' · <span style="color:var(--danger)">Out</span>':q<=lt(p)?' · <span style="color:var(--warn)">Low</span>':''}</div></div>${canEdit?`<div class="qctrl"><button class="qbtn" onclick="chgQ('${org}','${p.id}',-1)">−</button><span class="qnum">${q}</span><button class="qbtn" onclick="chgQ('${org}','${p.id}',1)">+</button></div>`:`<span class="qnum">${q}</span>`}</div>`;}).join('')}</div>
+    </div>`;
+  }).join('')}`;
+}
+window.clearInvF=function(o,c,e){window._cf=null;renderOrgInv(o,c,e,'');};
+window.setInvF=function(o,c,e,f){if(window._cf===f){window._cf=null;renderOrgInv(o,c,e,'');}else{window._cf=f;renderOrgInv(o,c,e,'__f:'+f);}};
+window.invSrch=function(o,c,e,v){window._cf=null;if(c==='myinv')window._mySearch=v;renderOrgInv(o,c,e,v);};
+window.togIC=function(id){const el=document.getElementById(id),ico=document.getElementById(id+'-i');if(!el)return;const h=el.style.display==='none';el.style.display=h?'block':'none';if(ico)ico.textContent=h?'▲':'▼';if(!window._ics)window._ics={};window._ics[id]=h;};
+window.chgQ=async function(org,pid,d){
+  const cur=(inventory[org]||{})[pid]||0,nq=Math.max(0,cur+d);
+  if(!inventory[org])inventory[org]={};inventory[org][pid]=nq;
+  const gs=o=>{if(window._cf)return'__f:'+window._cf;const si=document.getElementById('isrch-'+o);return si&&si.value?si.value:'';};
+  if(org===cu)renderOrgInv(org,'myinv',true,gs(org));
+  if(viewOrg===org){const ce=senior||(org===cu);renderOrgInv(org,'team-inv-'+org,ce,gs(org));}
+  syncUI('saving');await set(ref(db,`inventory/${org}/${pid}`),nq);syncUI('live');
+};
+// ── INVOICE / SESSIONS ──
+function initInvoice(){
+  if(!senior){document.getElementById('inv-locked').innerHTML='<div class="alert awarn">🔒 Senior team members only.</div>';document.getElementById('inv-locked').style.display='block';document.getElementById('inv-content').style.display='none';return;}
+  document.getElementById('inv-locked').style.display='none';document.getElementById('inv-content').style.display='block';
+  renderSessionArea();updateBadge();
+}
+function renderSessionArea(){
+  const el=document.getElementById('inv-session-area');if(!el)return;
+  const open=Object.values(allSessions).filter(s=>!s.archived);
+  if(activeSessionId&&allSessions[activeSessionId]){
+    renderSessionBar();document.getElementById('inv-products-area').style.display='block';renderInvGrid();
+    set(ref(db,`sessions/${activeSessionId}/presence/${cu}`),Date.now());
+  } else {
+    activeSessionId=null;document.getElementById('inv-products-area').style.display='none';
+    el.innerHTML=`<div style="padding:1rem;">
+      <button onclick="openSessModal()" style="width:100%;padding:14px;background:var(--dark);color:white;border:none;border-radius:var(--rlg);font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:${open.length?'14px':'0'}">＋ Start New Invoice Session</button>
+      ${open.length?`<div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Active Sessions</div>
+      ${open.map(s=>{const cart=s.cart||{},n=Object.keys(cart).length,now=Date.now(),editors=Object.entries(s.presence||{}).filter(([_,t])=>now-t<300000).map(([nm])=>nm);
+      return`<div class="sess-card" onclick="joinSession('${s.id}')">
+        <div><div class="sess-card-name">${esc(s.clientName||'Unnamed')}</div><div class="sess-card-meta">${esc(s.project||'')}${s.date?' · '+s.date:''}${editors.length?' · '+editors.join(', ')+' online':''}</div></div>
+        <div style="display:flex;align-items:center;gap:6px;">${n?`<span class="sess-count">${n}</span>`:''}<span style="color:var(--muted);font-size:20px">›</span></div>
+      </div>`;}).join('')}`:'<div class="empty" style="padding:1.5rem 0">No active sessions. Create one above.</div>'}
+    </div>`;
+  }
+}
+function renderSessionBar(){
+  const sess=allSessions[activeSessionId];if(!sess)return;
+  const el=document.getElementById('inv-session-area');if(!el)return;
+  const now=Date.now(),editors=Object.entries(sess.presence||{}).filter(([_,t])=>now-t<300000).map(([n])=>n);
+  // Update save button text if editing existing invoice
+  const saveBtn=document.getElementById('save-inv-btn');
+  if(saveBtn)saveBtn.textContent=sess.editingHistoryId?'💾 Update Invoice':'💾 Save Invoice to History';
+  el.innerHTML=`<div class="sess-bar">
+    <div><div class="sess-bar-name">📋 ${esc(sess.clientName||'Unnamed')}</div><div class="sess-bar-meta">${esc(sess.project||'')}${sess.projectType?' · '+esc(sess.projectType):''}${sess.date?' · '+sess.date:''}</div>
+    <div class="presence-pills">${editors.map(n=>`<span class="presence-pill${n===cu?' me':''}">${n===cu?'You':n}</span>`).join('')}</div></div>
+    <button onclick="leaveSession()" style="background:rgba(255,255,255,.2);border:none;border-radius:999px;padding:5px 14px;color:white;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;">✕ Leave</button>
+  </div>`;
+}
+window.openSessModal=function(){
+  const today=new Date().toISOString().split('T')[0];
+  document.getElementById('sess-modal-body').innerHTML=`
+    <div class="ff"><label class="fl">Client Name *</label><input type="text" class="fi" id="sc-n" placeholder="e.g. Smith Family"></div>
+    <div class="ff"><label class="fl">Client Email</label><input type="email" class="fi" id="sc-e" placeholder="e.g. client@email.com"></div>
+    <div class="ff"><label class="fl">Project / Job</label><input type="text" class="fi" id="sc-p" placeholder="e.g. Kitchen pantry overhaul"></div>
+    <div class="ff"><label class="fl">Project Type</label>
+      <select class="fi" id="sc-t">
+        <option value="">Select type…</option>
+        <option>Kitchen</option>
+        <option>Pantry</option>
+        <option>Bathroom</option>
+        <option>Garage/Attic</option>
+        <option>Storage Closet</option>
+        <option>Moving Solutions</option>
+        <option>Full Home</option>
+        <option>Office</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="ff"><label class="fl">Date</label><input type="date" class="fi" id="sc-d" value="${today}"></div>
+    <button onclick="createSession()" class="btn btn-p btn-full" style="margin-bottom:10px;">Create Session</button>
+    <button onclick="closeSessModal()" class="btn btn-full">Cancel</button>`;
+  document.getElementById('sess-modal-bg').style.display='flex';
+};
+window.closeSessModal=function(){document.getElementById('sess-modal-bg').style.display='none';};
+window.createSession=async function(){
+  const cn=document.getElementById('sc-n').value.trim();if(!cn){alert('Client name required.');return;}
+  const id='sess_'+Date.now().toString(36);
+  const sess={id,clientName:cn,clientEmail:document.getElementById('sc-e').value.trim(),project:document.getElementById('sc-p').value.trim(),projectType:document.getElementById('sc-t').value,date:document.getElementById('sc-d').value,cart:null,presence:{[cu]:Date.now()},createdBy:cu,createdAt:Date.now()};
+  await set(ref(db,'sessions/'+id),sess);
+  activeSessionId=id;localCart={};
+  closeSessModal();renderSessionArea();updateBadge();
+};
+window.joinSession=function(id){
+  activeSessionId=id;
+  localCart=JSON.parse(JSON.stringify((allSessions[id]||{}).cart||{}));
+  set(ref(db,`sessions/${id}/presence/${cu}`),Date.now());
+  renderSessionArea();updateBadge();
+};
+window.leaveSession=function(){
+  if(activeSessionId)set(ref(db,`sessions/${activeSessionId}/presence/${cu}`),null);
+  activeSessionId=null;localCart={};
+  document.getElementById('inv-products-area').style.display='none';
+  renderSessionArea();updateBadge();document.getElementById('cart-fab').style.display='none';
+};
+function renderInvGrid(){
+  if(!activeSessionId)return;
+  const cart=getCart(),q=(document.getElementById('inv-search')||{value:''}).value.toLowerCase();
+  const list=products.filter(p=>{if(invCat&&p.cat!==invCat)return false;if(q&&!p.name.toLowerCase().includes(q)&&!(p.vendor||'').toLowerCase().includes(q))return false;return true;});
+  const el=document.getElementById('inv-pgrid');if(!el)return;
+  el.innerHTML=list.map(p=>{
+    const pr=cp(p.retail),inCart=!!cart[p.id],qty=inCart?(cart[p.id].qty||1):0,tq=tqty(p.id);
+    const stockB=tq===0?'<span class="bdg bdanger" style="font-size:10px;display:block;margin-bottom:3px">Out</span>':tq<=LOW?'<span class="bdg bwarn" style="font-size:10px;display:block;margin-bottom:3px">Low</span>':'';
+    const consB=p.consumable?'<span style="font-size:10px;font-weight:600;color:var(--warn);display:block;margin-bottom:3px">⚠️ Consumable</span>':'';
+    return`<div class="inv-pgcard${inCart?' in-cart':''}${p.consumable?' consumable':''}">
+      ${p.img?`<img class="inv-pgimg" src="${esc(p.img)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
+      <div class="inv-pgimgph" style="${p.img?'display:none':''}">${EMO[p.cat]||'📦'}</div>
+      <div class="inv-pgbody">${stockB}${consB}
+        <div class="inv-pgname">${esc(p.name)}</div>
+        ${inCart?`<div class="inv-qty-ctrl"><button class="inv-qbtn minus" onclick="invQty('${p.id}',-1)">−</button><span class="inv-qnum">${qty}</span><button class="inv-qbtn plus" onclick="invQty('${p.id}',1)">+</button></div>
+        <button class="inv-add-btn added" onclick="removeFromCart('${p.id}')">✕ Remove</button>`
+        :`<button class="inv-add-btn" onclick="addToCart('${p.id}')">＋ Add to Invoice</button>`}
+      </div>
+    </div>`;
+  }).join('');
+  updateBadge();
+}
+window.renderInvGrid=renderInvGrid;
+window.addToCart=async function(pid){
+  if(!activeSessionId)return;
+  const cart={...getCart()},p=products.find(x=>x.id===pid);if(!p)return;
+  // conflict check across other sessions
+  const totalStock=tqty(pid);
+  const otherSessionQty=Object.values(allSessions).reduce((sum,sess)=>{if(sess.id===activeSessionId||sess.archived)return sum;return sum+((sess.cart||{})[pid]?.qty||0);},0);
+  if(totalStock>0&&otherSessionQty>=totalStock)toast(`⚠️ "${p.name}" is in another active invoice — may cause stock conflict!`,'danger');
+  // Preserve existing qty/sourced if already in cart (don't reset)
+  const existing=cart[pid];
+  cart[pid]={qty:existing?Number(existing.qty)||1:1,sourced:existing?existing.sourced:true,lastEditor:cu,addedAt:existing?existing.addedAt:Date.now(),consumableFlag:!!p.consumable};
+  if(p.consumable&&!existing)toast(`📋 "${p.name}" is a consumable — confirm before charging client.`,'warn');
+  await pushCart(cart);
+  renderInvGrid();
+};
+window.removeFromCart=async function(pid){
+  if(!activeSessionId)return;
+  const cart=JSON.parse(JSON.stringify(localCart));
+  delete cart[pid];
+  await pushCart(cart);
+  renderInvGrid();
+};
+window.invQty=async function(pid,d){
+  if(!activeSessionId)return;
+  if(!localCart[pid])return;
+  const cart=JSON.parse(JSON.stringify(localCart));
+  const curQty=Number(cart[pid].qty)||1;
+  const nq=curQty+d;
+  if(nq<=0){delete cart[pid];}else{cart[pid]={...cart[pid],qty:nq,lastEditor:cu};}
+  await pushCart(cart);
+  renderInvGrid();
+  if(document.getElementById('cart-drawer').classList.contains('open'))renderCartDrawer();
+};
+// ── CART DRAWER ──
+window.openCartDrawer=function(){
+  renderCartDrawer();
+  document.getElementById('cart-drawer').classList.add('open');
+  // Don't lock body scroll on iOS - let drawer handle its own scroll
+};
+window.closeCartDrawer=function(){document.getElementById('cart-drawer').classList.remove('open');};
+function renderCartDrawer(){
+  const sess=getSession();
+  const title=document.getElementById('cart-drawer-title');
+  const meta=document.getElementById('cart-session-meta');
+  if(title&&sess)title.textContent=`${sess.clientName||'Invoice'} Cart`;
+  if(meta&&sess)meta.innerHTML=`${esc(sess.project||'')}${sess.date?' · '+sess.date:''}`;
+  const cart=getCart(),keys=Object.keys(cart);
+  const el=document.getElementById('cart-items-wrap');
+  if(!keys.length){
+    el.innerHTML='<div class="empty" style="padding:2rem">No items yet.<br>Browse and tap "Add to Invoice".</div>';
+    document.getElementById('cart-total-wrap').style.display='none';
+    document.getElementById('disc-wrap').style.display='none';return;
+  }
+  el.innerHTML=keys.map(pid=>{
+    const p=products.find(x=>x.id===pid);if(!p)return'';
+    const pr=cp(p.retail),item=cart[pid],qty=item.qty||1,sourced=item.sourced!==false;
+    const unit=sourced?pr.base:pr.retail,lineTotal=unit*qty;
+    return`<div class="cdr-row">
+      <div class="cdr-thumb">${p.img?`<img src="${esc(p.img)}" onerror="this.parentElement.innerHTML='${EMO[p.cat]||'📦'}'">`:EMO[p.cat]||'📦'}</div>
+      <div class="cdr-info">
+        <div class="cdr-name">${esc(p.name)}</div>
+        <div class="cdr-price">${p.retail>0?fmt(unit)+' ea · '+fmt(lineTotal):''}</div>
+        ${item.consumableFlag?`<span class="consumable-warn">⚠️ Consumable — confirm charge</span>`:''}
+        <label class="cdr-sourcing"><input type="checkbox" ${sourced?'checked':''} onchange="toggleSourced('${pid}',this.checked)">
+        <span class="cdr-sourcing-lbl" style="color:${sourced?'var(--accent)':'var(--muted)'}">Sourcing Fee (+25%)</span></label>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
+        <div class="cdr-qctrl"><button class="cdr-qbtn" onclick="invQty('${pid}',-1)">−</button><span class="cdr-qnum">${qty}</span><button class="cdr-qbtn" onclick="invQty('${pid}',1)">+</button></div>
+        <button onclick="removeFromCart('${pid}')" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--danger);font-weight:600;padding:0;font-family:'DM Sans',sans-serif;">Remove</button>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('cart-total-wrap').style.display='block';
+  if(showDisc)document.getElementById('disc-wrap').style.display='block';
+  calcTotal();
+}
+window.toggleSourced=async function(pid,val){
+  if(!activeSessionId)return;const cart={...getCart()};if(!cart[pid])return;
+  cart[pid]={...cart[pid],sourced:val,lastEditor:cu};await pushCart(cart);renderCartDrawer();
+};
+function calcTotal(){
+  const cart=getCart(),keys=Object.keys(cart);
+  let sub=0,src=0;
+  keys.forEach(pid=>{
+    const p=products.find(x=>x.id===pid);if(!p)return;
+    const pr=cp(p.retail),item=cart[pid],qty=item.qty||1,sourced=item.sourced!==false;
+    sub+=pr.retail*qty;if(sourced)src+=pr.src*qty;
+  });
+  const preDis=sub+src;
+  let dis=0;
+  if(showDisc){const dv=parseFloat(document.getElementById('disc-val')?.value)||0;dis=discType==='pct'?preDis*(dv/100):dv;}
+  const afterDis=Math.max(0,preDis-dis);
+  const taxAmt=afterDis*TAX;
+  const total=afterDis+taxAmt;
+  const ic=document.getElementById('cart-item-count');if(ic)ic.textContent=keys.length+' item'+(keys.length>1?'s':'');
+  const sr=document.getElementById('cart-src-row');if(sr)sr.style.display=src>0?'flex':'none';
+  const sa=document.getElementById('cart-src-amt');if(sa)sa.textContent=fmt(src);
+  const dr=document.getElementById('cart-disc-row');if(dr)dr.style.display=(showDisc&&dis>0)?'flex':'none';
+  const da=document.getElementById('cart-disc-amt');if(da)da.textContent='-'+fmt(dis);
+  const tr=document.getElementById('cart-tax-row');if(tr)tr.style.display='flex';
+  const ta=document.getElementById('cart-tax-amt');if(ta)ta.textContent=fmt(taxAmt);
+  const tv=document.getElementById('cart-total-val');if(tv)tv.textContent=fmt(total);
+  window._invTotal=total;window._invDisc=dis;window._invTax=taxAmt;
+}
+window.calcTotal=calcTotal;
+window.toggleDiscount=function(){
+  showDisc=!showDisc;
+  const dw=document.getElementById('disc-wrap');if(dw)dw.style.display=showDisc?'block':'none';
+  const ab=document.getElementById('add-disc-btn');if(ab)ab.textContent=showDisc?'✕ Remove Discount':'＋ Add Discount';
+  if(!showDisc){const dv=document.getElementById('disc-val');if(dv)dv.value='';}
+  calcTotal();
+};
+window.removeDiscount=function(){showDisc=false;const dw=document.getElementById('disc-wrap');if(dw)dw.style.display='none';const ab=document.getElementById('add-disc-btn');if(ab)ab.textContent='＋ Add Discount';const dv=document.getElementById('disc-val');if(dv)dv.value='';calcTotal();};
+window.setDiscType=function(t){discType=t;document.getElementById('disc-pct').className='disc-type-btn'+(t==='pct'?' on':'');document.getElementById('disc-flat').className='disc-type-btn'+(t==='flat'?' on':'');calcTotal();};
+window.saveInvoice=async function(){
+  const sess=getSession();if(!sess)return;
+  const cart=getCart(),keys=Object.keys(cart);if(!keys.length){alert('No items in cart.');return;}
+  const btn=document.getElementById('save-inv-btn');if(btn){btn.textContent='Saving…';btn.disabled=true;}
+  const isEdit=sess.editingHistoryId||null;
+  const rows=keys.map(pid=>{
+    const p=products.find(x=>x.id===pid);if(!p)return null;
+    const pr=cp(p.retail),item=cart[pid],qty=item.qty||1,sourced=item.sourced!==false,unit=sourced?pr.base:pr.retail;
+    return{name:p.name,qty,sourced,retail:pr.retail,src:pr.src,unit,base:unit*qty,hp:p.retail>0,img:p.img||'',consumableFlag:!!item.consumableFlag};
+  }).filter(Boolean);
+  const tB=rows.reduce((s,r)=>s+r.base,0),allP=rows.every(r=>r.hp),discAmt=window._invDisc||0,taxAmt=window._invTax||0,finalTotal=window._invTotal||tB;
+  const job={id:isEdit||'job_'+Date.now(),client:sess.clientName,clientEmail:sess.clientEmail||'',proj:sess.project,projectType:sess.projectType||'',org:cu,date:sess.date,rows,tB,allP,discAmt,taxAmt,finalTotal,sessionId:activeSessionId,savedAt:Date.now(),savedBy:cu};
+  try{
+    await set(ref(db,'history/'+job.id),job);
+    // Fire Zapier webhook
+    try{
+      const lineItems=rows.map(r=>r.name+' x'+r.qty+(r.sourced?' (w/ sourcing fee)':'')+' = '+(r.hp?fmt(r.base):'TBD')).join('\n');
+      const notes='CLIENT: '+job.client+'\nPROJECT: '+(job.proj||'')+'\nORGANIZER: '+(job.org||'')+'\nDATE: '+(job.date||'')+'\n\nPRODUCTS:\n'+lineItems+(taxAmt?'\n\nSales Tax (8.25%): '+fmt(taxAmt):'')+( discAmt?'\nDiscount: -'+fmt(discAmt):'' )+'\n\nTOTAL: '+fmt(finalTotal);
+      // Send to Zapier - simple POST with no-cors and text/plain (same as reqbin direct POST)
+      const zapData=JSON.stringify({
+        client_name:job.client,
+        client_email:job.clientEmail||'',
+        project_name:(job.proj||'Organizing Project')+' — '+(job.org||cu)+' — '+(job.date||new Date().toLocaleDateString()),
+        project_type:job.projectType||'Organizing',
+        organizer:job.org,
+        date:job.date,
+        total:fmt(finalTotal),
+        tax:fmt(taxAmt),
+        discount:discAmt?fmt(discAmt):'',
+        item_count:String(rows.length),
+        saved_by:cu,
+        saved_at:new Date(job.savedAt).toISOString(),
+        notes:notes,
+        line_items:lineItems
+      });
+      fetch(ZAPIER,{method:'POST',mode:'no-cors',body:zapData}).catch(e=>console.log('Zapier:',e));
+      console.log('Zapier fired for',cu);
+    }catch(ze){console.error('Zapier error:',ze);}
+    if(btn){btn.textContent='✓ Saved!';btn.style.background='var(--dark)';}
+    setTimeout
+(async()=>{if(btn){btn.textContent='💾 Save Invoice to History';btn.style.background='var(--accent)';btn.disabled=false;}
+      await set(ref(db,`sessions/${activeSessionId}/archived`),true);
+      closeCartDrawer();leaveSession();showTab('history');},2000);
+  }catch(e){if(btn){btn.textContent='💾 Save Invoice to History';btn.disabled=false;}console.error(e);}
+};
+window.shareInvoice=function(){
+  const sess=getSession();if(!sess)return;
+  const cart=getCart(),keys=Object.keys(cart);if(!keys.length)return;
+  const rows=keys.map(pid=>{
+    const p=products.find(x=>x.id===pid);if(!p)return null;
+    const pr=cp(p.retail),item=cart[pid],qty=item.qty||1,sourced=item.sourced!==false,unit=sourced?pr.base:pr.retail;
+    return{name:p.name,qty,sourced,unit,base:unit*qty,hp:p.retail>0,img:p.img||'',consumableFlag:!!item.consumableFlag};
+  }).filter(Boolean);
+  const total=window._invTotal||rows.reduce((s,r)=>s+r.base,0);
+  openPrint(sess,rows,total,window._invDisc||0,window._invTax||0);
+};
+function openPrint(sess,rows,total,disc,taxAmt){
+  document.getElementById('print-content').innerHTML=buildInvHTML(sess,rows,total,disc,taxAmt||0);
+  document.getElementById('print-overlay').style.display='block';
+  const nsb=document.getElementById('native-share-btn');if(nsb)nsb.style.display=navigator.share?'block':'none';
+  window._printRows=rows;window._printSess=sess;window._printTotal=total;window._printDisc=disc;window._printTax=taxAmt||0;
+  window.scrollTo(0,0);
+}
+function buildInvHTML(sess,rows,total,disc,taxAmt){
+  return`<div style="background:#5C7A5C;color:white;padding:16px;border-radius:10px;margin-bottom:16px;">
+    <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;opacity:.8;margin-bottom:6px;">Invoice</div>
+    <div style="font-size:20px;font-weight:700;">${esc(sess.clientName||'Client')}</div>
+    <div style="font-size:13px;opacity:.85;">${esc(sess.project||'')}${sess.date?' · '+sess.date:''}</div>
+  </div>
+  ${rows.map(r=>`<div style="border:1px solid ${r.consumableFlag?'#F0D5A8':'#EDE8DF'};background:${r.consumableFlag?'#FFFDF5':'white'};border-radius:10px;padding:12px;margin-bottom:8px;">
+    ${r.img?`<img src="${esc(r.img)}" style="width:72px;height:72px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block;">`:''}
+    <div style="font-size:13px;font-weight:600;margin-bottom:3px;">${esc(r.name)}</div>
+    ${r.consumableFlag?'<div style="font-size:11px;color:#C17B2E;font-weight:600;margin-bottom:4px;">⚠️ Consumable — review charge</div>':''}
+    <div style="font-size:11px;font-weight:600;color:${r.sourced?'#5C7A5C':'#8B8070'};margin-bottom:8px;">${r.sourced?'✓ Sourcing fee included':'No sourcing fee'}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+      <div style="background:#E8F0E8;border-radius:6px;padding:7px 8px;"><div style="font-size:10px;color:#5C7A5C;font-weight:600;text-transform:uppercase;">Unit Price</div><div style="font-size:14px;font-weight:700;color:#5C7A5C;">${r.hp?fmt(r.unit):'—'}</div></div>
+      <div style="background:#E8F0E8;border-radius:6px;padding:7px 8px;"><div style="font-size:10px;color:#5C7A5C;font-weight:600;text-transform:uppercase;">Qty × Total</div><div style="font-size:14px;font-weight:700;color:#5C7A5C;">${r.qty} × ${r.hp?fmt(r.unit):''}=${r.hp?fmt(r.base):'—'}</div></div>
+    </div>
+  </div>`).join('')}
+  ${disc>0?`<div style="background:#FDF3E3;border:1px solid #F0D5A8;border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;"><span style="font-size:13px;color:#C17B2E;font-weight:600;">Discount</span><span style="font-size:15px;font-weight:700;color:#C17B2E;">-${fmt(disc)}</span></div>`:''}
+  <div style="background:#F7F4EF;border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;">
+    <span style="font-size:13px;color:#8B8070;font-weight:600;">Sales Tax (8.25%)</span>
+    <span style="font-size:15px;font-weight:600;color:#8B8070;">${fmt(taxAmt||0)}</span>
+  </div>
+  <div style="background:#EDE8DF;border-radius:10px;padding:14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+    <span style="font-size:15px;font-weight:700;">Total (incl. tax)</span>
+    <span style="font-size:26px;font-weight:700;">${fmt(total)}</span>
+  </div>
+  <div style="text-align:center;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#5C7A5C;padding-top:14px;border-top:1px solid #EDE8DF;">OrganizeMe</div>`;
+}
+window.closePrintView=function(){document.getElementById('print-overlay').style.display='none';};
+window.doNativeShare=async function(){
+  if(!window._printRows)return;
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Invoice - ${window._printSess?.clientName||''}</title><style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:-apple-system,sans-serif;background:#fff;padding:16px;color:#2C2416;}</style></head><body>${buildInvHTML(window._printSess,window._printRows,window._printTotal,window._printDisc,window._printTax||0)}</body></html>`;
+  try{
+    const file=new File([html],`Invoice-${(window._printSess?.clientName||'Client').replace(/\s+/g,'-')}.html`,{type:'text/html'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({title:'Invoice',files:[file]});return;}
+    await navigator.share({title:'OrganizeMe Invoice',text:`Invoice for ${window._printSess?.clientName||'Client'} — Total: ${fmt(window._printTotal)}`});
+  }catch(e){if(e.name!=='AbortError')toast('Share failed. Use Print instead.');}
+};
+// ── BARCODE SCANNER (ZXing — works on iOS Safari + Android Chrome) ──
+let zxingReader=null;
+window.openScanner=async function(){
+  const overlay=document.getElementById('scanner-overlay');
+  overlay.style.display='flex';
+  document.getElementById('scanner-result').textContent='Loading scanner…';
+  scanActive=true;
+  try{
+    if(!window.ZXing){
+      await new Promise((res,rej)=>{
+        const s=document.createElement('script');
+        s.src='https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js';
+        s.onload=res;s.onerror=rej;document.head.appendChild(s);
+      });
+    }
+    const hints=new Map();
+    const fmts=[
+      window.ZXing.BarcodeFormat.EAN_13,window.ZXing.BarcodeFormat.EAN_8,
+      window.ZXing.BarcodeFormat.UPC_A,window.ZXing.BarcodeFormat.UPC_E,
+      window.ZXing.BarcodeFormat.CODE_128,window.ZXing.BarcodeFormat.CODE_39,
+      window.ZXing.BarcodeFormat.QR_CODE
+    ];
+    hints.set(window.ZXing.DecodeHintType.POSSIBLE_FORMATS,fmts);
+    zxingReader=new window.ZXing.BrowserMultiFormatReader(hints);
+    document.getElementById('scanner-result').textContent='Point camera at a barcode';
+    await zxingReader.decodeFromVideoDevice(null,'scanner-video',async(result,err)=>{
+      if(!scanActive)return;
+      if(result){
+        const code=result.getText();
+        // If scanning to link a product in edit form, handled by scanToLink
+        if(window._scanForLink)return;
+        closeScanner();
+        // First: check if any product in our DB has this barcode assigned
+        const directMatch=products.find(p=>p.barcode&&p.barcode===code);
+        if(directMatch){
+          const si=document.getElementById('inv-search');
+          if(si){si.value=directMatch.name;renderInvGrid();}
+          toast('✅ Found: '+directMatch.name,'ok');
+          return;
+        }
+        // Second: try UPC Item DB lookup and fuzzy match
+        let matched=false;
+        try{
+          const res=await fetch('https://api.upcitemdb.com/prod/trial/lookup?upc='+code);
+          if(res.ok){
+            const data=await res.json();
+            const itemTitle=(data.items&&data.items[0]&&data.items[0].title)||'';
+            if(itemTitle){
+              const words=itemTitle.toLowerCase().split(/\s+/).filter(w=>w.length>3);
+              let best=null,bestScore=0;
+              products.forEach(p=>{
+                const score=words.filter(w=>p.name.toLowerCase().includes(w)).length;
+                if(score>bestScore){bestScore=score;best=p;}
+              });
+              if(best&&bestScore>=2){
+                const si=document.getElementById('inv-search');
+                if(si){si.value=best.name;renderInvGrid();}
+                toast('✅ Matched: '+best.name,'ok');
+                matched=true;
+              }
+            }
+          }
+        }catch(e){console.log('UPC lookup failed',e);}
+        if(!matched){
+          const si=document.getElementById('inv-search');
+          if(si){si.value='';renderInvGrid();}
+          // Show assign prompt so they can link it right now
+          showAssignBarcode(code);
+        }
+      }
+    });
+  }catch(e){
+    document.getElementById('scanner-result').textContent='Camera unavailable — use search instead.';
+    setTimeout(closeScanner,2500);
+  }
+};
+window.showAssignBarcode=function(code){
+  // Build a searchable product picker modal
+  const existing=document.getElementById('assign-bc-modal');
+  if(existing)existing.remove();
+  const modal=document.createElement('div');
+  modal.id='assign-bc-modal';
+  modal.style.cssText='position:fixed;inset:0;z-index:800;background:rgba(44,36,22,.5);display:flex;align-items:flex-end;justify-content:center;';
+  modal.innerHTML=`
+    <div style="background:white;border-radius:20px 20px 0 0;width:100%;max-width:520px;max-height:80vh;overflow-y:auto;padding:1rem 1.25rem 2rem;">
+      <div style="width:40px;height:4px;background:#DDD8CF;border-radius:999px;margin:0 auto 1rem;"></div>
+      <div style="font-size:16px;font-weight:700;margin-bottom:4px;">Assign Barcode</div>
+      <div style="font-size:13px;color:#8B8070;margin-bottom:12px;">Scanned: <span style="font-family:'DM Mono',monospace;font-weight:600;color:#2C2416;">${code}</span></div>
+      <div style="font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#8B8070;margin-bottom:8px;">Which product is this?</div>
+      <input type="search" id="assign-search" placeholder="Search products…" oninput="filterAssignList('${code}')"
+        style="width:100%;padding:11px 16px;border:1.5px solid #DDD8CF;border-radius:999px;font-size:15px;font-family:'DM Sans',sans-serif;margin-bottom:10px;outline:none;">
+      <div id="assign-list" style="display:flex;flex-direction:column;gap:6px;max-height:45vh;overflow-y:auto;"></div>
+      <button onclick="document.getElementById('assign-bc-modal').remove()" 
+        style="width:100%;padding:13px;background:#F7F4EF;border:1.5px solid #DDD8CF;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:12px;color:#2C2416;">Cancel</button>
+    </div>`;
+  document.body.appendChild(modal);
+  filterAssignList(code);
+  setTimeout(()=>document.getElementById('assign-search')?.focus(),100);
+};
+
+window.filterAssignList=function(code){
+  const q=(document.getElementById('assign-search')?.value||'').toLowerCase();
+  const list=document.getElementById('assign-list');
+  if(!list)return;
+  const filtered=products.filter(p=>!q||p.name.toLowerCase().includes(q)||(p.cat||'').toLowerCase().includes(q));
+  list.innerHTML=filtered.slice(0,30).map(p=>`
+    <button onclick="assignBarcodeToProduct('${code}','${p.id}')"
+      style="width:100%;text-align:left;padding:11px 14px;background:${p.barcode?'#E8F0E8':'white'};border:1.5px solid ${p.barcode?'#5C7A5C':'#DDD8CF'};border-radius:12px;cursor:pointer;font-family:'DM Sans',sans-serif;">
+      <div style="font-size:13px;font-weight:600;color:#2C2416;">${p.name}</div>
+      <div style="font-size:11px;color:#8B8070;margin-top:2px;">${p.cat}${p.barcode?' · ✓ barcode linked':''}</div>
+    </button>`).join('');
+};
+
+window.assignBarcodeToProduct=async function(code,pid){
+  const p=products.find(x=>x.id===pid);
+  if(!p)return;
+  const updated={...p,barcode:code};
+  syncUI('saving');
+  await set(ref(db,'products/'+pid),updated);
+  syncUI('live');
+  document.getElementById('assign-bc-modal')?.remove();
+  // Now search for it
+  const si=document.getElementById('inv-search');
+  if(si){si.value=p.name;renderInvGrid();}
+  toast('✅ Barcode linked to "'+p.name+'"','ok');
+};
+
+window.closeScanner=function(){
+  scanActive=false;
+  if(zxingReader){try{zxingReader.reset();}catch(e){}zxingReader=null;}
+  document.getElementById('scanner-overlay').style.display='none';
+};
+// ── CHECKLISTS ──
+const CHECKLISTS={
+  'pre-move':{
+    id:'pre-move',
+    title:'Pre-Move Checklist',
+    category:'Move Management',
+    desc:'Please take a few minutes to review this list before your scheduled packing day! This checklist serves as a reference guide that we will walk through together with you when we arrive.',
+    sections:[
+      {
+        id:'docs',
+        title:'Important Documents',
+        desc:'Please check off each document you have and note its location. We will ensure all checked items are packed together in one clearly labeled folder or bin that will remain with you during the move.',
+        type:'checklist',
+        items:['Passports','Birth Certificates','Social Security Cards','Marriage/Divorce Certificates',"Driver\'s Licenses",'Vehicle Titles','Insurance Documents'],
+        hasLocation:true
+      },
+      {
+        id:'electronics',
+        title:'Electronics',
+        desc:'Please identify important data before packing.',
+        type:'checklist',
+        items:['Computers','Tablets','Phones','Chargers'],
+        hasLocation:true
+      },
+      {
+        id:'firstbox',
+        title:'Open First Box',
+        desc:"Please identify anything you'll want immediately upon arriving at your new home.",
+        type:'checklist',
+        items:['Coffee maker','Toilet paper','Paper towels','Cookware','Cleaning supplies','Phone chargers','Bedding','Bath towels','Soap','Pet food',"Children\'s comfort items"]
+      ,
+        hasCustomItems:true
+      },
+      {
+        id:'setaside',
+        title:'Items to Set Aside',
+        desc:"Please identify any items you prefer to transport personally. We will mark these items specifically for you with a designated color.",
+        type:'text',
+        placeholder:'List items you want to transport personally…'
+      },
+      {
+        id:'donotpack',
+        title:'Items Do NOT Pack',
+        desc:'Please identify anything that should NOT be packed. We will mark these items specifically for you.',
+        type:'checklist',
+        items:['Cleaning Crew Supplies','Staging Items','Plants/Flowers','Items Staying with the Home','Garage Door Openers','Extra House Keys','Manuals/Warranties','Remote Controls','Paint Colors/Touch-up Paint','Spare Parts'],
+        hasText:false,
+        hasCustomItems:true,
+        hasNotes:true,
+        notesPlaceholder:'Any additional notes…'
+      },
+      {
+        id:'staywithhouse',
+        title:'Items Staying with the Home',
+        desc:'Please identify any items that will remain in the home and should NOT be packed or moved. These will be clearly noted so our team works around them.',
+        type:'checklist',
+        items:['Furniture','Television / TV','Patio Furniture','Curtains / Window Treatments','Light Fixtures','Appliances','Other built-in or fixed items'],
+        hasText:true,
+        textPlaceholder:'List any other items staying with the home…'
+      },
+      {
+        id:'storage',
+        title:'Items Going to Storage',
+        desc:'Please identify any belongings that will be relocated to storage instead of your new home.',
+        type:'text',
+        placeholder:'List items going to storage…',
+        hasLocation:true
+      },
+      {
+        id:'donate',
+        title:'Items Being Donated',
+        desc:"If you've already decided certain items will be donated, please identify them before packing begins.",
+        type:'text',
+        placeholder:'List items being donated…',
+        hasLocation:true,
+        locationLabel:'Donation Location'
+      },
+      {
+        id:'sell',
+        title:'Items Being Sold',
+        desc:'Do you have items to be sold?',
+        type:'yesno',
+        textPlaceholder:'Please provide additional details…'
+      },
+      {
+        id:'fragile',
+        title:'Fragile or High-Value Items',
+        desc:'Please notify our team of any items requiring extra care.',
+        type:'checklist',
+        items:['Valuables','Mirrors','Crystal','China','Musical Instruments','Collectibles','Family Heirlooms','Specialty Furniture','Jewelry','Art/Decor (note QTY)'],
+        hasText:false,
+        hasCustomItems:true,
+        hasNotes:true,
+        notesPlaceholder:'Additional notes about fragile or high-value items…'
+      },
+      {
+        id:'food',
+        title:'Food',
+        desc:'Please let us know your preference. Select all that apply.',
+        type:'checklist',
+        noLocation:true,
+        items:['Pack unprepared pantry items','Donate unopened food','Discard expired food','Pack freezer items','Empty refrigerator','Leave food as is — we will work around it']
+      },
+      {
+        id:'special',
+        title:'Special Instructions',
+        desc:'Please let us know of any special instructions not mentioned above.',
+        type:'text',
+        placeholder:'Any special instructions…'
+      }
+    ],
+    tip:"Before packing begins, we recommend designating a Do Not Pack area. Place all items you'll personally transport — such as important documents, medications, jewelry, passports, chargers, laptop, debt essentials, and sentimental valuables — in this location. Our team will clearly identify and avoid packing anything in this area, giving you peace of mind throughout the entire process.\n\nThis checklist not only helps prevent important items from being misplaced but also allows our team to deliver the white-glove, detail-oriented move management experience OrganizeMe is known for." 
+  }
+};
+
+let clState={}; // {checklistId: {clientName, sections: {sectionId: {checked:[], text:'', yesno:''}}}}
+// ── CLIENT CHECKLIST (shareable link) ──
+function checkClientChecklistMode(){
+  const params=new URLSearchParams(window.location.search);
+  const clId=params.get("checklist");
+  if(clId&&CHECKLISTS[clId]){
+    document.getElementById("loading").style.display="none";
+    document.getElementById("login").style.display="none";
+    document.getElementById("app").style.display="none";
+    document.getElementById("client-checklist").style.display="block";
+    renderClientChecklist(clId);
+    return true;
+  }
+  return false;
+}
+
+window.renderClientChecklist=function(clId){
+  const cl=CHECKLISTS[clId];if(!cl)return;
+  const el=document.getElementById("client-checklist");
+  el.innerHTML="<div style=\"max-width:600px;margin:0 auto;padding:1.5rem 1rem 4rem;\">" +
+    "<div style=\"text-align:center;margin-bottom:1.5rem;\">" +
+      "<div style=\"font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#5C7A5C;margin-bottom:6px;\">OrganizeMe</div>" +
+      "<div style=\"font-size:22px;font-weight:700;color:#2C2416;margin-bottom:4px;\">"+cl.title+"</div>" +
+      "<div style=\"font-size:13px;color:#8B8070;line-height:1.5;\">"+cl.desc+"</div>" +
+    "</div>" +
+    "<div id=\"cl-client-body\"></div>" +
+  "</div>";
+  renderClientBody(clId);
+}
+
+let clientFormData={info:{name:"",email:"",phone:""},sections:{}};
+
+window.renderClientBody=function(clId){
+  const cl=CHECKLISTS[clId];
+  const el=document.getElementById("cl-client-body");
+  if(!el)return;
+  cl.sections.forEach(function(s){
+    if(!clientFormData.sections[s.id])clientFormData.sections[s.id]={checked:[],text:"",yesno:"",locations:{},customItems:[]};
+  });
+  let body="<div style=\"background:white;border-radius:16px;border:1px solid #DDD8CF;padding:1.25rem;margin-bottom:12px;\">" +
+    "<div style=\"font-size:13px;font-weight:700;color:#2C2416;margin-bottom:12px;\">Your Information</div>" +
+    "<div style=\"margin-bottom:10px;\">" +
+      "<label style=\"font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#8B8070;display:block;margin-bottom:4px;\">Full Name *</label>" +
+      "<input type=\"text\" id=\"cl-info-name\" placeholder=\"Your full name\" value=\""+clientFormData.info.name+"\" oninput=\"clientFormData.info.name=this.value\" style=\"width:100%;padding:12px;border:1.5px solid #DDD8CF;border-radius:10px;font-size:15px;background:#F7F4EF;color:#2C2416;\">" +
+    "</div>" +
+    "<div style=\"margin-bottom:10px;\">" +
+      "<label style=\"font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#8B8070;display:block;margin-bottom:4px;\">Email *</label>" +
+      "<input type=\"email\" id=\"cl-info-email\" placeholder=\"your@email.com\" value=\""+clientFormData.info.email+"\" oninput=\"clientFormData.info.email=this.value\" style=\"width:100%;padding:12px;border:1.5px solid #DDD8CF;border-radius:10px;font-size:15px;background:#F7F4EF;color:#2C2416;\">" +
+    "</div>" +
+    "<div>" +
+      "<label style=\"font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#8B8070;display:block;margin-bottom:4px;\">Phone *</label>" +
+      "<input type=\"tel\" id=\"cl-info-phone\" placeholder=\"(000) 000-0000\" value=\""+clientFormData.info.phone+"\" oninput=\"clientFormData.info.phone=this.value\" style=\"width:100%;padding:12px;border:1.5px solid #DDD8CF;border-radius:10px;font-size:15px;background:#F7F4EF;color:#2C2416;\">" +
+    "</div>" +
+  "</div>";
+  cl.sections.forEach(function(s){
+    body+=renderClientSection(s,clientFormData.sections[s.id]||{},clId);
+  });
+  body+="<div style=\"background:#E8F0E8;border-radius:16px;border:1px solid #5C7A5C;padding:16px;margin-bottom:12px;\">" +
+    "<div style=\"font-size:11px;font-weight:700;color:#5C7A5C;margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em;\">🌟 OrganizeMe Concierge Tip</div>" +
+    "<div style=\"font-size:13px;color:#2C2416;line-height:1.7;\">"+cl.tip.replace(/\n\n/g,"<br><br>")+"</div>" +
+  "</div>";
+  body+="<div id=\"cl-submit-area\">" +
+    "<button onclick=\"submitClientChecklist('"+clId+"')\" style=\"width:100%;padding:16px;background:#2C2416;color:white;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px;\">✅ Submit Checklist</button>" +
+    "<div style=\"font-size:12px;color:#8B8070;text-align:center;margin-top:8px;\">Your responses will be shared with your OrganizeMe organizer.</div>" +
+  "</div>";
+  el.innerHTML=body;
+}
+
+window.renderClientSection=function(s,state,clId){
+  const checked=state.checked||[];
+  let html="<div style=\"background:white;border-radius:16px;border:1px solid #DDD8CF;padding:1.25rem;margin-bottom:12px;\">" +
+    "<div style=\"font-size:14px;font-weight:700;color:#2C2416;margin-bottom:4px;\">"+s.title+"</div>" +
+    "<div style=\"font-size:12px;color:#8B8070;margin-bottom:12px;line-height:1.5;\">"+s.desc+"</div>";
+  if(s.type==="checklist"){
+    s.items.forEach(function(item,i){
+      const loc=(state.locations||{})[i]||"";
+      const isChecked=checked.includes(i);
+      html+="<div style=\"border-bottom:1px solid #EDE8DF;padding:10px 0;\">" +
+        "<div style=\"display:flex;align-items:center;gap:10px;\">" +
+          "<input type=\"checkbox\" "+(isChecked?"checked":"")+" onchange=\"clientToggleItem('"+s.id+"',"+i+",this.checked,'"+clId+"')\" style=\"width:20px;height:20px;accent-color:#5C7A5C;flex-shrink:0;cursor:pointer;\">" +
+          "<span style=\"font-size:14px;color:#2C2416;"+(isChecked?"text-decoration:line-through;color:#8B8070;":"")+"\">"+item+"</span>" +
+        "</div>" +
+        (!s.noLocation?"<div style=\"padding-left:30px;margin-top:6px;\">" +
+          "<input type=\"text\" placeholder=\"📍 Where is this in your home? (optional)\" value=\""+loc+"\" oninput=\"clientUpdateLocation('"+s.id+"',"+i+",this.value)\" style=\"width:100%;padding:8px 10px;border:1.5px solid #DDD8CF;border-radius:8px;font-size:13px;background:#F7F4EF;color:#2C2416;\">" +
+        "</div>":"") +
+      "</div>";
+    });
+    if(s.hasCustomItems){
+      const customItems=state.customItems||[];
+      const customChecked=state.customChecked||[];
+      customItems.forEach(function(item,i){
+        const cc=customChecked.includes(i);
+        html+="<div style=\"display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #EDE8DF;\">" +
+          "<input type=\"checkbox\" "+(cc?"checked":"")+" onchange=\"clientToggleCustom('"+s.id+"',"+i+",this.checked,'"+clId+"')\" style=\"width:20px;height:20px;accent-color:#5C7A5C;flex-shrink:0;cursor:pointer;\">" +
+          "<span style=\"font-size:14px;color:#2C2416;flex:1;"+(cc?"text-decoration:line-through;color:#8B8070;":"")+"\">"+item+"</span>" +
+          "<button onclick=\"clientRemoveCustom('"+s.id+"',"+i+",'"+clId+"')\" style=\"background:none;border:none;cursor:pointer;color:#B84040;font-size:16px;padding:0;\">✕</button>" +
+        "</div>";
+      });
+      html+="<div style=\"display:flex;gap:8px;margin-top:10px;\">" +
+        "<input type=\"text\" id=\"client-new-"+s.id+"\" placeholder=\"Add your own item…\" onkeydown=\"if(event.key===\'Enter\')clientAddCustom('"+s.id+"','"+clId+"')\" style=\"flex:1;padding:10px 12px;border:1.5px solid #DDD8CF;border-radius:10px;font-size:14px;background:#F7F4EF;\">" +
+        "<button onclick=\"clientAddCustom('"+s.id+"','"+clId+"')\" style=\"padding:10px 16px;background:#5C7A5C;color:white;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;\">+ Add</button>" +
+      "</div>";
+    }
+  } else if(s.type==="text"){
+    html+="<textarea placeholder=\""+( s.placeholder||"Enter details…")+"\" oninput=\"clientUpdateText('"+s.id+"',this.value)\" style=\"width:100%;padding:12px;border:1.5px solid #DDD8CF;border-radius:10px;font-size:14px;background:#F7F4EF;min-height:80px;resize:vertical;\">"+( state.text||"")+"</textarea>";
+    if(s.hasLocation){
+      html+="<div style=\"margin-top:8px;\">" +
+        "<label style=\"font-size:11px;font-weight:600;color:#8B8070;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:4px;\">📍 "+(s.locationLabel||"Location")+"</label>" +
+        "<input type=\"text\" placeholder=\"Location in your home…\" value=\""+( state.location||"")+"\" oninput=\"clientUpdateLocation('"+s.id+"','loc',this.value)\" style=\"width:100%;padding:10px 12px;border:1.5px solid #DDD8CF;border-radius:10px;font-size:14px;background:#F7F4EF;\">" +
+      "</div>";
+    }
+  } else if(s.type==="yesno"){
+    const isYes=state.yesno==="yes",isNo=state.yesno==="no";
+    html+="<div style=\"display:flex;gap:8px;margin-bottom:10px;\">" +
+      "<button onclick=\"clientUpdateYesNo('"+s.id+"','yes','"+clId+"')\" style=\"flex:1;padding:12px;border-radius:10px;border:1.5px solid "+(isYes?"#5C7A5C":"#DDD8CF")+";background:"+(isYes?"#E8F0E8":"white")+";font-size:15px;font-weight:600;cursor:pointer;color:"+(isYes?"#5C7A5C":"#2C2416")+";\">Yes</button>" +
+      "<button onclick=\"clientUpdateYesNo('"+s.id+"','no','"+clId+"')\" style=\"flex:1;padding:12px;border-radius:10px;border:1.5px solid "+(isNo?"#B84040":"#DDD8CF")+";background:"+(isNo?"#FBE8E8":"white")+";font-size:15px;font-weight:600;cursor:pointer;color:"+(isNo?"#B84040":"#2C2416")+";\">No</button>" +
+    "</div>" +
+    "<textarea placeholder=\""+(s.textPlaceholder||"Additional details…")+"\" oninput=\"clientUpdateText('"+s.id+"',this.value)\" style=\"width:100%;padding:12px;border:1.5px solid #DDD8CF;border-radius:10px;font-size:14px;background:#F7F4EF;min-height:60px;resize:vertical;\">"+( state.text||"")+"</textarea>";
+  }
+  // Photo upload per section
+  html+="<div style=\"margin-top:10px;padding-top:10px;border-top:1px solid #EDE8DF;\">" +
+    "<div style=\"font-size:11px;font-weight:600;color:#8B8070;text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;\">📷 Add Photos (optional)</div>" +
+    "<div id=\"photos-"+s.id+"\" style=\"display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;\"></div>" +
+    "<label style=\"display:inline-flex;align-items:center;gap:6px;padding:9px 14px;background:#F7F4EF;border:1.5px solid #DDD8CF;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;color:#2C2416;\">" +
+      "📷 Add Photo" +
+      "<input type=\"file\" accept=\"image/*\" multiple capture=\"environment\" onchange=\"clientAddPhotos('"+s.id+"',this,'"+clId+"')\" style=\"display:none;\">" +
+    "</label>" +
+  "</div>";
+  html+="</div>";
+  return html;
+}
+
+window.clientToggleItem=function(secId,idx,val,clId){
+  if(!clientFormData.sections[secId])clientFormData.sections[secId]={checked:[],text:"",yesno:"",locations:{},customItems:[]};
+  const checked=clientFormData.sections[secId].checked||[];
+  if(val){if(!checked.includes(idx))checked.push(idx);}
+  else{const i=checked.indexOf(idx);if(i>-1)checked.splice(i,1);}
+  clientFormData.sections[secId].checked=checked;
+  // Update visual without full re-render
+  const itemEl=document.querySelector("[data-item-"+secId+"-"+idx+"]");
+};
+window.clientUpdateLocation=function(secId,idx,val){
+  if(!clientFormData.sections[secId])clientFormData.sections[secId]={checked:[],text:"",yesno:"",locations:{},customItems:[]};
+  if(!clientFormData.sections[secId].locations)clientFormData.sections[secId].locations={};
+  clientFormData.sections[secId].locations[idx]=val;
+};
+window.clientUpdateText=function(secId,val){
+  if(!clientFormData.sections[secId])clientFormData.sections[secId]={checked:[],text:"",yesno:"",locations:{},customItems:[]};
+  clientFormData.sections[secId].text=val;
+};
+window.clientUpdateYesNo=function(secId,val,clId){
+  if(!clientFormData.sections[secId])clientFormData.sections[secId]={checked:[],text:"",yesno:"",locations:{},customItems:[]};
+  clientFormData.sections[secId].yesno=val;
+  renderClientBody(clId);
+};
+window.clientAddCustom=function(secId,clId){
+  const input=document.getElementById("client-new-"+secId);
+  if(!input||!input.value.trim())return;
+  if(!clientFormData.sections[secId].customItems)clientFormData.sections[secId].customItems=[];
+  if(!clientFormData.sections[secId].customChecked)clientFormData.sections[secId].customChecked=[];
+  // Auto-check the item when added
+  clientFormData.sections[secId].customChecked.push(clientFormData.sections[secId].customItems.length);
+  clientFormData.sections[secId].customItems.push(input.value.trim());
+  input.value="";
+  renderClientBody(clId);
+};
+window.clientAddPhotos=function(secId,input,clId){
+  if(!input.files||!input.files.length)return;
+  if(!clientFormData.sections[secId])clientFormData.sections[secId]={checked:[],text:"",yesno:"",locations:{},customItems:[],photos:[]};
+  if(!clientFormData.sections[secId].photos)clientFormData.sections[secId].photos=[];
+  const container=document.getElementById("photos-"+secId);
+  Array.from(input.files).forEach(function(file){
+    if(!file.type.startsWith("image/"))return;
+    const reader=new FileReader();
+    reader.onload=function(e){
+      // Compress to max 800px wide, 70% quality
+      const img=new Image();
+      img.onload=function(){
+        const canvas=document.createElement("canvas");
+        const maxW=800;
+        const scale=img.width>maxW?maxW/img.width:1;
+        canvas.width=img.width*scale;
+        canvas.height=img.height*scale;
+        canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);
+        const compressed=canvas.toDataURL("image/jpeg",0.7);
+        clientFormData.sections[secId].photos.push({data:compressed,name:file.name,section:secId});
+        // Show preview
+        if(container){
+          const preview=document.createElement("div");
+          preview.style.cssText="position:relative;width:72px;height:72px;";
+          const idx=clientFormData.sections[secId].photos.length-1;
+          preview.innerHTML="<img src=\""+compressed+"\" style=\"width:72px;height:72px;object-fit:cover;border-radius:8px;border:1.5px solid #DDD8CF;\">" +
+            "<button onclick=\"clientRemovePhoto('"+secId+"',"+idx+")\" style=\"position:absolute;top:-6px;right:-6px;background:#B84040;color:white;border:none;border-radius:999px;width:20px;height:20px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;\">✕</button>";
+          container.appendChild(preview);
+        }
+      };
+      img.src=e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value=""; // reset so same file can be re-added
+};
+window.clientRemovePhoto=function(secId,idx){
+  if(!clientFormData.sections[secId]||!clientFormData.sections[secId].photos)return;
+  clientFormData.sections[secId].photos.splice(idx,1);
+  // Re-render just the photos area
+  const container=document.getElementById("photos-"+secId);
+  if(container){
+    container.innerHTML="";
+    (clientFormData.sections[secId].photos||[]).forEach(function(p,i){
+      const preview=document.createElement("div");
+      preview.style.cssText="position:relative;width:72px;height:72px;";
+      preview.innerHTML="<img src=\""+p.data+"\" style=\"width:72px;height:72px;object-fit:cover;border-radius:8px;border:1.5px solid #DDD8CF;\">" +
+        "<button onclick=\"clientRemovePhoto('"+secId+"',"+i+")\" style=\"position:absolute;top:-6px;right:-6px;background:#B84040;color:white;border:none;border-radius:999px;width:20px;height:20px;font-size:11px;cursor:pointer;\">✕</button>";
+      container.appendChild(preview);
+    });
+  }
+};
+window.clientToggleCustom=function(secId,idx,val,clId){
+  if(!clientFormData.sections[secId])return;
+  if(!clientFormData.sections[secId].customChecked)clientFormData.sections[secId].customChecked=[];
+  const arr=clientFormData.sections[secId].customChecked;
+  if(val){if(!arr.includes(idx))arr.push(idx);}
+  else{const i=arr.indexOf(idx);if(i>-1)arr.splice(i,1);}
+};
+window.clientRemoveCustom=function(secId,idx,clId){
+  if(!clientFormData.sections[secId]||!clientFormData.sections[secId].customItems)return;
+  clientFormData.sections[secId].customItems.splice(idx,1);
+  renderClientBody(clId);
+};
+
+window.submitClientChecklist=async function(clId){
+  const info=clientFormData.info;
+  if(!info.name.trim()||!info.email.trim()||!info.phone.trim()){
+    alert("Please fill in your name, email, and phone number before submitting.");return;
+  }
+  const btn=document.querySelector("#cl-submit-area button");
+  if(btn){btn.textContent="Submitting…";btn.disabled=true;}
+  try{
+    const responseId="resp_"+Date.now().toString(36);
+    await set(ref(db,"checklist_responses/"+clId+"/"+responseId),{
+      ...clientFormData,clId,submittedAt:Date.now(),status:"submitted"
+    });
+    document.getElementById("cl-client-body").innerHTML=
+      "<div style=\"background:white;border-radius:16px;border:1px solid #DDD8CF;padding:2rem;text-align:center;\">" +
+        "<div style=\"font-size:48px;margin-bottom:12px;\">✅</div>" +
+        "<div style=\"font-size:18px;font-weight:700;color:#2C2416;margin-bottom:8px;\">Thank you, "+info.name.split(" ")[0]+"!</div>" +
+        "<div style=\"font-size:14px;color:#8B8070;line-height:1.6;\">Your checklist has been submitted. Your OrganizeMe organizer will review your responses before your scheduled packing day.</div>" +
+        "<div style=\"margin-top:16px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#5C7A5C;\">OrganizeMe</div>" +
+      "</div>";
+  }catch(e){
+    if(btn){btn.textContent="Submit Checklist";btn.disabled=false;}
+    alert("Something went wrong. Please try again.");
+  }
+};
+
+window.previewChecklist=function(clId){
+  const cl=CHECKLISTS[clId];if(!cl)return;
+  const el=document.getElementById("cl-list");
+  let sectionsHTML="";
+  cl.sections.forEach(function(s){
+    let sContent="";
+    if(s.type==="checklist"){
+      s.items.forEach(function(item){
+        sContent+="<div style=\"display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);\">" +
+          "<div style=\"width:16px;height:16px;border:1.5px solid var(--border);border-radius:4px;flex-shrink:0;background:white;\"></div>" +
+          "<span style=\"font-size:13px;color:var(--dark);\">"+item+"</span>" +
+          "<div style=\"flex:1;\"></div>" +
+          (!s.noLocation?"<span style=\"font-size:11px;color:var(--muted);font-style:italic;\">📍 location</span>":"") +
+        "</div>";
+      });
+    } else if(s.type==="yesno"){
+      sContent="<div style=\"display:flex;gap:8px;\">" +
+        "<div style=\"flex:1;padding:8px;border:1.5px solid var(--border);border-radius:var(--r);text-align:center;font-size:13px;font-weight:600;color:var(--muted);\">Yes</div>" +
+        "<div style=\"flex:1;padding:8px;border:1.5px solid var(--border);border-radius:var(--r);text-align:center;font-size:13px;font-weight:600;color:var(--muted);\">No</div></div>" +
+        "<div style=\"margin-top:8px;background:var(--cream);border:1.5px solid var(--border);border-radius:var(--r);padding:10px 12px;font-size:13px;color:var(--muted);\">Details…</div>";
+    } else {
+      sContent="<div style=\"background:var(--cream);border:1.5px solid var(--border);border-radius:var(--r);padding:10px 12px;font-size:13px;color:var(--muted);\">"+(s.placeholder||"Open text field")+"</div>";
+    }
+    sectionsHTML+="<div style=\"padding:14px 1rem;border-bottom:1px solid var(--border);\">" +
+      "<div style=\"font-size:13px;font-weight:700;color:var(--dark);margin-bottom:4px;\">"+s.title+"</div>" +
+      "<div style=\"font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5;\">"+s.desc+"</div>" +
+      sContent+"</div>";
+  });
+  el.innerHTML=
+    "<div style=\"background:var(--white);border-radius:var(--rlg);border:1px solid var(--border);overflow:hidden;\">" +
+    // Sticky header - back + title + share
+    "<div style=\"padding:12px 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;position:sticky;top:96px;z-index:45;background:var(--white);\">" +
+      "<button onclick=\"renderChecklistList()\" style=\"background:none;border:none;cursor:pointer;font-size:14px;font-weight:600;color:var(--accent);padding:0;flex-shrink:0;\">← Back</button>" +
+      "<div style=\"flex:1;\"><div style=\"font-size:15px;font-weight:700;\">"+cl.title+"</div><div style=\"font-size:12px;color:var(--muted);\">View only</div></div>" +
+      "<div style=\"display:flex;gap:6px;flex-shrink:0;\">" +
+        "<button onclick=\"printChecklist('"+clId+"','')\" style=\"padding:8px 12px;background:var(--cream);color:var(--dark);border:1.5px solid var(--border);border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;\">🖨️ Print</button>" +
+        "<button onclick=\"shareChecklist('"+clId+"')\" style=\"padding:8px 12px;background:var(--accent);color:white;border:none;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;\">📤 Share</button>" +
+      "</div>" +
+    "</div>" +
+    // Description below sticky header
+    "<div style=\"padding:12px 1rem;background:var(--cream);border-bottom:1px solid var(--border);\">" +
+      "<div style=\"font-size:13px;color:var(--muted);line-height:1.5;\">"+cl.desc+"</div>" +
+    "</div>" +
+    sectionsHTML +
+    "<div style=\"padding:1rem;\">" +
+      "<div style=\"background:var(--al);border-radius:var(--r);padding:14px;border:1px solid var(--accent);\">" +
+        "<div style=\"font-size:12px;font-weight:700;color:var(--accent);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;\">🌟 OrganizeMe Concierge Tip</div>" +
+        "<div style=\"font-size:13px;color:var(--dark);line-height:1.6;\">"+cl.tip+"</div>" +
+      "</div>" +
+    "</div>" +
+    "</div>";
+};
+
+window.shareChecklist=function(clId){
+  const baseUrl=window.location.origin+window.location.pathname;
+  const link=baseUrl+"?checklist="+clId;
+  const modal=document.createElement("div");
+  modal.style.cssText="position:fixed;inset:0;z-index:800;background:rgba(44,36,22,.5);display:flex;align-items:flex-end;justify-content:center;";
+  modal.innerHTML="<div style=\"background:white;border-radius:20px 20px 0 0;width:100%;max-width:520px;padding:1.5rem 1.25rem 2rem;\">" +
+    "<div style=\"width:40px;height:4px;background:#DDD8CF;border-radius:999px;margin:0 auto 1.25rem;\"></div>" +
+    "<div style=\"font-size:17px;font-weight:700;margin-bottom:4px;\">Share Checklist</div>" +
+    "<div style=\"font-size:13px;color:#8B8070;margin-bottom:16px;\">Send this link to your client so they can fill it out before packing day.</div>" +
+    "<div style=\"background:#F7F4EF;border-radius:10px;padding:12px;margin-bottom:16px;font-size:13px;word-break:break-all;color:#2C2416;border:1px solid #DDD8CF;\">"+link+"</div>" +
+    "<div style=\"display:flex;flex-direction:column;gap:8px;\">" +
+      "<button onclick=\"shareCLSMS('"+link+"')\" style=\"width:100%;padding:14px;background:#5C7A5C;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;\">💬 Send via Text</button>" +
+      "<button onclick=\"shareCLEmail('"+link+"')\" style=\"width:100%;padding:14px;background:#1a73e8;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;\">✉️ Send via Email</button>" +
+      "<button onclick=\"copyCLLink('"+link+"')\" id=\"copy-cl-btn\" style=\"width:100%;padding:14px;background:#EDE8DF;color:#2C2416;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;\">📋 Copy Link</button>" +
+      "<button onclick=\"this.closest('[style*=fixed]').remove()\" style=\"width:100%;padding:12px;background:none;border:1.5px solid #DDD8CF;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;color:#8B8070;\">Cancel</button>" +
+    "</div>" +
+  "</div>";
+  document.body.appendChild(modal);
+};
+
+window.shareCLSMS=function(link){window.open("sms:?body="+encodeURIComponent("Hi! Please fill out your Pre-Move Checklist before your scheduled packing day: "+link+" — OrganizeMe"));};
+window.shareCLEmail=function(link){window.open("mailto:?subject="+encodeURIComponent("Your Pre-Move Checklist — OrganizeMe")+"&body="+encodeURIComponent("Hi!\n\nPlease fill out your Pre-Move Checklist before your scheduled packing day:\n\n"+link+"\n\nThank you!\n— OrganizeMe"));};
+window.copyCLLink=function(link){navigator.clipboard.writeText(link).then(function(){const btn=document.getElementById("copy-cl-btn");if(btn){btn.textContent="✓ Copied!";setTimeout(function(){btn.textContent="📋 Copy Link";},2000);}});};
+
+window.viewResponses=async function(clId){
+  const el=document.getElementById("cl-list");
+  el.innerHTML="<div style=\"padding:1rem;\">" +
+    "<button onclick=\"renderChecklistList()\" style=\"background:none;border:none;cursor:pointer;font-size:14px;font-weight:600;color:#5C7A5C;padding:0;margin-bottom:14px;display:block;\">← Back</button>" +
+    "<div style=\"font-size:16px;font-weight:700;margin-bottom:4px;\">Client Submissions</div>" +
+    "<div style=\"font-size:13px;color:#8B8070;margin-bottom:12px;\">Responses submitted by clients via the shared link.</div>" +
+    "<div id=\"responses-body\"><div class=\"empty\">Loading…</div></div></div>";
+  try{
+    const snap=await get(ref(db,"checklist_responses/"+clId));
+    const rb=document.getElementById("responses-body");
+    if(!rb)return;
+    if(!snap.exists()){rb.innerHTML="<div class=\"empty\">No responses yet. Share the checklist with a client to get started.</div>";return;}
+    const responses=Object.values(snap.val()).sort(function(a,b){return(b.submittedAt||0)-(a.submittedAt||0);});
+    rb.innerHTML=responses.map(function(r){
+      return "<div style=\"background:white;border-radius:var(--rlg);border:1px solid var(--border);padding:14px;margin-bottom:8px;\">" +
+        "<div style=\"display:flex;justify-content:space-between;align-items:flex-start;\">" +
+          "<div>" +
+            "<div style=\"font-size:14px;font-weight:600;\">"+(r.info&&r.info.name?r.info.name:"Unknown")+"</div>" +
+            "<div style=\"font-size:12px;color:var(--muted);\">"+(r.info&&r.info.email?r.info.email:"")+" · "+(r.info&&r.info.phone?r.info.phone:"")+"</div>" +
+            "<div style=\"font-size:11px;color:var(--muted);margin-top:2px;\">"+(r.submittedAt?new Date(r.submittedAt).toLocaleString():"")+"</div>" +
+          "</div>" +
+          "<span style=\"background:var(--al);color:var(--accent);font-size:11px;font-weight:600;padding:3px 8px;border-radius:999px;\">Submitted</span>" +
+        "</div>" +
+        "<div style=\"margin-top:10px;\">" +
+          "<button onclick=\"viewFullResponse('"+clId+"',"+JSON.stringify(r).replace(/"/g,"&quot;")+")\" class=\"btn btn-a btn-sm\">👁 View Full Response</button>" +
+        "</div>" +
+      "</div>";
+    }).join("");
+  }catch(e){console.error(e);}
+};
+
+window.viewFullResponse=function(clId,r){
+  if(typeof r==="string")try{r=JSON.parse(r);}catch(e){return;}
+  const cl=CHECKLISTS[clId];if(!cl||!r)return;
+  const sections=r.sections||{};
+  let sectHTML="";
+  cl.sections.forEach(function(s){
+    const sec=sections[s.id]||{};
+    const checked=sec.checked||[];
+    let sHTML="<div style=\"margin-bottom:14px;\"><div style=\"font-size:13px;font-weight:700;margin-bottom:6px;\">"+s.title+"</div>";
+    if(s.type==="checklist"){
+      s.items.forEach(function(item,i){
+        const loc=(sec.locations||{})[i]||"";
+        const done=checked.includes(i);
+        sHTML+="<div style=\"padding:5px 0;font-size:13px;color:"+(done?"#5C7A5C":"#8B8070")+";\">"+(done?"☑":"☐")+" "+item+(loc?" <span style=\"font-size:11px;\">· 📍 "+loc+"</span>":"")+"</div>";
+      });
+    } else if(s.type==="text"){
+      sHTML+="<div style=\"font-size:13px;background:#F7F4EF;padding:8px 10px;border-radius:8px;\">"+(sec.text||"—")+"</div>";
+    } else if(s.type==="yesno"){
+      sHTML+="<div style=\"font-size:13px;font-weight:600;color:"+(sec.yesno==="yes"?"#5C7A5C":sec.yesno==="no"?"#B84040":"#8B8070")+";\">"+(sec.yesno==="yes"?"✅ Yes":sec.yesno==="no"?"❌ No":"Not answered")+"</div>";
+      if(sec.text)sHTML+="<div style=\"font-size:13px;margin-top:4px;\">"+(sec.text)+"</div>";
+    }
+    // Show photos for this section
+    if(sec.photos&&sec.photos.length){
+      sHTML+="<div style=\"margin-top:8px;\">";
+      sHTML+="<div style=\"font-size:11px;font-weight:600;color:#8B8070;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;\">📷 Photos ("+sec.photos.length+")</div>";
+      sHTML+="<div style=\"display:flex;flex-wrap:wrap;gap:6px;\">";
+      sec.photos.forEach(function(p){
+        sHTML+="<img src=\""+p.data+"\" style=\"width:80px;height:80px;object-fit:cover;border-radius:8px;border:1.5px solid #DDD8CF;cursor:pointer;\" onclick=\"window.open('"+p.data+"')\">";
+      });
+      sHTML+="</div></div>";
+    }
+    sHTML+="</div><hr style=\"border:none;border-top:1px solid #EDE8DF;margin:8px 0;\">";
+    sectHTML+=sHTML;
+  });
+  const modal=document.createElement("div");
+  modal.style.cssText="position:fixed;inset:0;z-index:800;background:rgba(44,36,22,.5);display:flex;align-items:flex-end;justify-content:center;";
+  modal.innerHTML="<div style=\"background:white;border-radius:20px 20px 0 0;width:100%;max-width:520px;max-height:85vh;overflow-y:auto;padding:1.5rem 1.25rem 2rem;\">" +
+    "<div style=\"display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;\">" +
+      "<div><div style=\"font-size:17px;font-weight:700;\">"+(r.info&&r.info.name?r.info.name:"Response")+"</div>" +
+      "<div style=\"font-size:12px;color:#8B8070;\">"+(r.info&&r.info.email?r.info.email:"")+" · "+(r.info&&r.info.phone?r.info.phone:"")+"</div></div>" +
+      "<button onclick=\"this.closest('[style*=fixed]').remove()\" style=\"background:#EDE8DF;border:none;border-radius:999px;width:32px;height:32px;font-size:16px;cursor:pointer;\">✕</button>" +
+    "</div>" +
+    sectHTML +
+  "</div>";
+  document.body.appendChild(modal);
+};
+
+let activeChecklist=null;
+let activeCLClient=null;
+
+window.initChecklists=function(){
+  if(!senior){
+    document.getElementById('cl-locked').innerHTML='<div class="alert awarn">🔒 Senior team members only.</div>';
+    document.getElementById('cl-locked').style.display='block';
+    document.getElementById('cl-content').style.display='none';return;
+  }
+  document.getElementById('cl-locked').style.display='none';
+  document.getElementById('cl-content').style.display='block';
+  renderChecklistList();
+}
+
+window.renderChecklistList=function(){
+  const el=document.getElementById('cl-list');
+  if(!el)return;
+  activeChecklist=null;activeCLClient=null;
+  const items=Object.values(CHECKLISTS);
+  el.innerHTML=items.map(function(cl){
+    const id=cl.id;
+    return '<div class="cl-card">'+
+      '<div class="cl-card-head">'+
+        '<div><div class="cl-card-title">'+cl.title+'</div>'+
+        '<div class="cl-card-meta">'+cl.category+'</div></div>'+
+      '</div>'+
+      '<div style="padding:0 1rem 14px;display:flex;flex-direction:column;gap:8px;">'+
+        '<div style="display:flex;gap:8px;">'+
+          '<button onclick="previewChecklist(this.dataset.id)" data-id="'+id+'" style="flex:1;padding:10px;background:var(--sand);color:var(--dark);border:1.5px solid var(--border);border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;">👁 Preview</button>'+
+          '<button onclick="shareChecklist(this.dataset.id)" data-id="'+id+'" style="flex:1;padding:10px;background:var(--accent);color:white;border:none;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;">📤 Share with Client</button>'+
+        '</div>'+
+        '<div style="display:flex;gap:8px;">'+
+          '<button onclick="printChecklist(this.dataset.clid,this.dataset.name)" data-clid="'+id+'" data-name="" style="flex:1;padding:10px;background:var(--cream);color:var(--dark);border:1.5px solid var(--border);border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;">🖨️ Print</button>'+
+          '<button onclick="viewResponses(this.dataset.id)" data-id="'+id+'" style="flex:2;padding:10px;background:var(--dark);color:white;border:none;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;">📋 View Submissions</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+};
+
+window.openChecklist=function(id){
+  const cl=CHECKLISTS[id];if(!cl)return;
+  activeChecklist=id;
+  // Ask for client name first
+  const el=document.getElementById('cl-list');
+  el.innerHTML=`
+    <div style="background:var(--white);border-radius:var(--rlg);border:1px solid var(--border);padding:1.25rem;">
+      <button onclick="renderChecklistList()" style="background:none;border:none;cursor:pointer;font-size:14px;font-weight:600;color:var(--accent);padding:0;font-family:'DM Sans',sans-serif;margin-bottom:14px;">← Back</button>
+      <div style="font-size:16px;font-weight:700;margin-bottom:4px;">${cl.title}</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:16px;">${cl.desc}</div>
+      <div style="margin-bottom:10px;">
+        <label style="font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;">Client Name</label>
+        <input type="text" id="cl-client-name" class="fi" placeholder="e.g. Smith Family" style="margin-bottom:10px;">
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="startChecklist('${id}')" class="btn btn-p btn-full">Start Checklist →</button>
+        <button onclick="loadSavedChecklist('${id}')" class="btn btn-full" style="white-space:nowrap;">📂 Load Saved</button>
+      </div>
+    </div>`;
+};
+
+window.startChecklist=function(id){
+  const name=document.getElementById('cl-client-name')?.value.trim();
+  if(!name){alert('Please enter a client name.');return;}
+  activeCLClient=name;
+  // Initialize state
+  if(!clState[id])clState[id]={};
+  if(!clState[id][name]){
+    clState[id][name]={sections:{}};
+    CHECKLISTS[id].sections.forEach(s=>{
+      clState[id][name].sections[s.id]={checked:[],text:'',yesno:''};
+    });
+  }
+  renderChecklistForm(id,name);
+};
+
+window.loadSavedChecklist=async function(id){
+  const name=document.getElementById('cl-client-name')?.value.trim();
+  if(!name){alert('Please enter a client name to load.');return;}
+  activeCLClient=name;
+  // Try load from Firebase
+  try{
+    const snap=await get(ref(db,`checklists/${id}/${name.replace(/[^a-zA-Z0-9]/g,'_')}`));
+    if(snap.exists()){
+      if(!clState[id])clState[id]={};
+      clState[id][name]=snap.val();
+      renderChecklistForm(id,name);
+    } else {
+      alert('No saved checklist found for "'+name+'". Starting fresh.');
+      startChecklist(id);
+    }
+  }catch(e){startChecklist(id);}
+};
+
+window.getProgress=function(id,name){
+  const cl=CHECKLISTS[id];
+  const state=clState[id]?.[name];
+  if(!state)return 0;
+  let total=0,done=0;
+  cl.sections.forEach(s=>{
+    if(s.type==='checklist'){total+=s.items.length;done+=(state.sections[s.id]?.checked||[]).length;}
+    else if(s.type==='yesno'){total+=1;if(state.sections[s.id]?.yesno)done+=1;}
+    else if(s.type==='text'){total+=1;if(state.sections[s.id]?.text?.trim())done+=1;}
+  });
+  return total?Math.round((done/total)*100):0;
+}
+
+window.renderChecklistForm=function(id,name){
+  const cl=CHECKLISTS[id];
+  const state=clState[id][name];
+  const prog=getProgress(id,name);
+  const el=document.getElementById('cl-list');
+  el.innerHTML=`
+    <div style="background:var(--white);border-radius:var(--rlg);border:1px solid var(--border);overflow:hidden;">
+      <div style="padding:12px 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:96px;z-index:45;background:var(--white);border-radius:var(--rlg) var(--rlg) 0 0;">
+        <div>
+          <button onclick="renderChecklistList()" style="background:none;border:none;cursor:pointer;font-size:14px;font-weight:600;color:var(--accent);padding:0;font-family:'DM Sans',sans-serif;">← Back</button>
+          <div style="font-size:15px;font-weight:700;margin-top:4px;">${cl.title}</div>
+          <div style="font-size:12px;color:var(--muted);" id="cl-prog-text">${name} · ${prog}% complete</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="saveCLProgress('${id}','${name}')" class="btn btn-a btn-sm">💾 Save</button>
+          <button onclick="printChecklist('${id}','${name}')" class="btn btn-sm">🖨️ Print</button>
+        </div>
+      </div>
+      <div class="cl-progress"><div class="cl-progress-bar" style="width:${prog}%"></div></div>
+      ${cl.sections.map(s=>renderSection(s,state.sections[s.id]||{},id,name)).join('')}
+      <div style="margin:14px 0;background:#E8F0E8;border-radius:var(--r);padding:16px;border:1px solid var(--accent);">
+        <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;">🌟 OrganizeMe Concierge Tip</div>
+        <div style="font-size:13px;color:var(--dark);line-height:1.6;" id="tip-text-${id}"></div>
+      </div>
+      <div class="cl-actions">
+        <button onclick="saveCLProgress('${id}','${name}')" class="btn btn-a btn-full">💾 Save Progress</button>
+        <button onclick="printChecklist('${id}','${name}')" class="btn btn-full">🖨️ Print / Share</button>
+      </div>
+    </div>`;
+}
+
+window.renderSection=function(s,state,clId,clientName){
+  const checked=state.checked||[];
+  const text=state.text||'';
+  const yesno=state.yesno||'';
+  let html=`<div class="cl-section">
+    <div class="cl-section-title">${s.title}</div>
+    <div class="cl-section-desc">${s.desc}</div>`;
+  if(s.type==='checklist'){
+      shtml+=s.items.map((item,i)=>{
+        const loc=(sec.locations||{})[i]||'';
+        return '<div class="item" style="flex-direction:column;align-items:flex-start;gap:4px;padding:10px 14px;border-bottom:1px solid #EDE8DF;">' +
+          '<div style="display:flex;align-items:center;gap:10px;width:100%;">' +
+            '<div class="box'+(checked.includes(i)?' checked':'')+'">'+(checked.includes(i)?'✓':'')+'</div>' +
+            '<span class="item-label'+(checked.includes(i)?' done':'')+'">'+item+'</span>' +
+          '</div>' +
+          '<div style="padding-left:24px;width:100%;">' +
+            (loc
+              ? '<div style="font-size:11px;color:#5C7A5C;font-weight:600;">📍 '+loc+'</div>'
+              : '<div style="font-size:11px;color:#8B8070;border-bottom:1px solid #CCC;margin-top:2px;padding-bottom:2px;">📍 Location: ___________________________</div>'
+            ) +
+          '</div>' +
+        '</div>';
+      }).join('');
+    if(s.hasText){
+      html+=`<textarea class="cl-text" style="margin-top:10px;" placeholder="${s.textPlaceholder||'Additional notes…'}" onchange="updateCLText('${clId}','${clientName}','${s.id}',this.value)">${text}</textarea>`;
+    }
+    if(s.hasNotes){
+      const notes=clState[clId]?.[clientName]?.sections[s.id]?.notes||'';
+      html+=`<textarea class="cl-text" style="margin-top:10px;" placeholder="${s.notesPlaceholder||'Additional notes…'}" onchange="updateCLNotes('${clId}','${clientName}','${s.id}',this.value)">${notes}</textarea>`;
+    }
+    if(s.hasLocation){
+      html+=`<div style="margin-top:10px;"><label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:4px;">📍 Location</label>
+        <input type="text" class="fi" placeholder="Where are these located?" value="${text}" onchange="updateCLText('${clId}','${clientName}','${s.id}',this.value)"></div>`;
+    }
+    if(s.hasCustomItems){
+      const customItems=(clState[clId]?.[clientName]?.sections[s.id]?.customItems||[]);
+      html+=`<div id="cl-custom-${s.id}" style="margin-top:4px;">`;
+      customItems.forEach((item,i)=>{
+        html+=`<div class="cl-item" style="display:flex;align-items:center;gap:8px;">
+          <input type="checkbox" style="width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;">
+          <span class="cl-item-label" style="flex:1;">${item}</span>
+          <button onclick="removeCLCustomItem('${clId}','${clientName}','${s.id}',${i})" style="background:none;border:none;cursor:pointer;color:var(--danger);font-size:16px;padding:0;flex-shrink:0;">✕</button>
+        </div>`;
+      });
+      html+=`</div>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <input type="text" id="cl-new-${s.id}" class="fi" placeholder="Add your own item…" style="flex:1;padding:10px 12px;" onkeydown="if(event.key==='Enter')addCLCustomItem('${clId}','${clientName}','${s.id}')">
+        <button onclick="addCLCustomItem('${clId}','${clientName}','${s.id}')" style="padding:10px 16px;background:var(--accent);color:white;border:none;border-radius:var(--r);font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;">+ Add</button>
+      </div>`;
+    }
+  } else if(s.type==='text'){
+    html+=`<textarea class="cl-text" placeholder="${s.placeholder||'Enter details…'}" onchange="updateCLText('${clId}','${clientName}','${s.id}',this.value)">${text}</textarea>`;
+    if(s.hasLocation){
+      html+=`<div style="margin-top:8px;"><label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:4px;">📍 ${s.locationLabel||'Location'}</label>
+        <input type="text" class="fi" placeholder="Location…" value="${state.location||''}" onchange="updateCLLocation('${clId}','${clientName}','${s.id}',this.value)"></div>`;
+    }
+  } else if(s.type==='yesno'){
+    html+=`<div style="display:flex;gap:8px;margin-bottom:10px;">
+      <button onclick="updateCLYesNo('${clId}','${clientName}','${s.id}','yes')" style="flex:1;padding:10px;border-radius:var(--r);border:1.5px solid ${yesno==='yes'?'var(--accent)':'var(--border)'};background:${yesno==='yes'?'var(--al)':'var(--white)'};font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:${yesno==='yes'?'var(--accent)':'var(--dark)'};">Yes</button>
+      <button onclick="updateCLYesNo('${clId}','${clientName}','${s.id}','no')" style="flex:1;padding:10px;border-radius:var(--r);border:1.5px solid ${yesno==='no'?'var(--danger)':'var(--border)'};background:${yesno==='no'?'var(--dl)':'var(--white)'};font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:${yesno==='no'?'var(--danger)':'var(--dark)'};">No</button>
+    </div>
+    <textarea class="cl-text" placeholder="${s.textPlaceholder||'Additional details…'}" onchange="updateCLText('${clId}','${clientName}','${s.id}',this.value)">${text}</textarea>`;
+  }
+  html+=`</div>`;
+  return html;
+}
+
+window.toggleCLItem=function(clId,clientName,secId,idx,val){
+  if(!clState[clId]?.[clientName]?.sections[secId])return;
+  const checked=clState[clId][clientName].sections[secId].checked||[];
+  if(val){if(!checked.includes(idx))checked.push(idx);}
+  else{const i=checked.indexOf(idx);if(i>-1)checked.splice(i,1);}
+  clState[clId][clientName].sections[secId].checked=checked;
+  // Update item style
+  const item=document.getElementById(`cli-${secId}-${idx}`);
+  if(item)item.className='cl-item'+(val?' checked':'');
+  // Update progress bar and text live
+  const prog=getProgress(clId,clientName);
+  const bar=document.querySelector('.cl-progress-bar');
+  if(bar)bar.style.width=prog+'%';
+  const progEl=document.getElementById('cl-prog-text');
+  if(progEl)progEl.textContent=clientName+' · '+prog+'% complete';
+  // Set tip text separately to avoid template literal issues
+  const tipEl=document.getElementById('tip-text-'+id);
+  if(tipEl)tipEl.innerHTML=cl.tip.replace(/\n\n/g,'<br><br>');
+};
+
+window.updateCLItemLocation=function(clId,clientName,secId,idx,val){
+  if(!clState[clId]?.[clientName]?.sections[secId])return;
+  if(!clState[clId][clientName].sections[secId].locations)clState[clId][clientName].sections[secId].locations={};
+  clState[clId][clientName].sections[secId].locations[idx]=val;
+};
+window.updateCLText=function(clId,clientName,secId,val){
+  if(!clState[clId]?.[clientName]?.sections[secId])return;
+  clState[clId][clientName].sections[secId].text=val;
+};
+window.updateCLLocation=function(clId,clientName,secId,val){
+  if(!clState[clId]?.[clientName]?.sections[secId])return;
+  clState[clId][clientName].sections[secId].location=val;
+};
+window.updateCLYesNo=function(clId,clientName,secId,val){
+  if(!clState[clId]?.[clientName]?.sections[secId])return;
+  clState[clId][clientName].sections[secId].yesno=val;
+  renderChecklistForm(clId,clientName);
+};
+
+window.updateCLNotes=function(clId,clientName,secId,val){
+  if(!clState[clId]?.[clientName]?.sections[secId])return;
+  clState[clId][clientName].sections[secId].notes=val;
+};
+window.addCLCustomItem=function(clId,clientName,secId){
+  const input=document.getElementById('cl-new-'+secId);
+  if(!input||!input.value.trim())return;
+  if(!clState[clId]?.[clientName]?.sections[secId])return;
+  if(!clState[clId][clientName].sections[secId].customItems)clState[clId][clientName].sections[secId].customItems=[];
+  clState[clId][clientName].sections[secId].customItems.push(input.value.trim());
+  input.value='';
+  renderChecklistForm(clId,clientName);
+};
+window.removeCLCustomItem=function(clId,clientName,secId,idx){
+  if(!clState[clId]?.[clientName]?.sections[secId]?.customItems)return;
+  clState[clId][clientName].sections[secId].customItems.splice(idx,1);
+  renderChecklistForm(clId,clientName);
+};
+window.saveCLProgress=async function(clId,clientName){
+  if(!clState[clId]?.[clientName])return;
+  const key=clientName.replace(/[^a-zA-Z0-9]/g,'_');
+  try{
+    await set(ref(db,`checklists/${clId}/${key}`),{...clState[clId][clientName],savedAt:Date.now(),savedBy:cu,clientName});
+    toast('✅ Checklist saved for '+clientName,'ok');
+  }catch(e){toast('Save failed. Try again.','warn');}
+};
+
+window.printChecklist=function(clId,clientName){
+  if(!clientName){
+    clientName='(Template)';
+    if(!clState[clId])clState[clId]={};
+    if(!clState[clId][clientName])clState[clId][clientName]={sections:{}};
+    const clT=CHECKLISTS[clId];
+    if(clT)clT.sections.forEach(function(s){if(!clState[clId][clientName].sections[s.id])clState[clId][clientName].sections[s.id]={checked:[],text:'',yesno:'',locations:{}};});
+  }
+  const cl=CHECKLISTS[clId];
+  const state=clState[clId]&&clState[clId][clientName];
+  if(!state)return;
+  let sectionsHTML='';
+  cl.sections.forEach(function(s){
+    const sec=state.sections[s.id]||{};
+    const checked=sec.checked||[];
+    let shtml='<div class="section"><div class="section-head">'+s.title+'</div><div class="section-desc">'+s.desc+'</div>';
+    if(s.type==='checklist'){
+      s.items.forEach(function(item,i){
+        const loc=(sec.locations||{})[i]||'';
+        const done=checked.includes(i);
+        shtml+='<div class="cl-item">' +
+          '<div class="cl-item-top">' +
+            '<div class="box'+(done?' checked':'')+'">'+( done?'✓':'')+'</div>' +
+            '<span class="item-label'+(done?' done':'')+'">'+item+'</span>' +
+          '</div>' +
+          (!s.noLocation?'<div class="loc-line"><span class="loc-icon">📍</span>'+(loc?'<span class="loc-filled">'+loc+'</span>':'<span class="loc-blank">Location: _________________________________</span>')+'</div>':'') +
+        '</div>';
+      });
+      if(sec.customItems&&sec.customItems.length){
+        sec.customItems.forEach(function(item){
+          shtml+='<div class="cl-item">' +
+            '<div class="cl-item-top"><div class="box"></div><span class="item-label">'+item+'</span></div>' +
+            '<div class="loc-line"><span class="loc-icon">📍</span><span class="loc-blank">Location: _________________________________</span></div>' +
+          '</div>';
+        });
+      }
+      if(sec.text){shtml+='<div class="text-field"><div class="text-label">'+(s.hasLocation?'Location':'Notes')+'</div>'+sec.text+'</div>';}
+    } else if(s.type==='text'){
+      shtml+='<div class="text-field write-area">'+(sec.text||'')+'<div class="write-lines"><div class="write-line"></div><div class="write-line"></div><div class="write-line"></div></div></div>';
+      if(s.hasLocation){shtml+='<div class="text-field"><div class="text-label">'+(s.locationLabel||'Location')+'</div>'+(sec.location||'')+'<div class="write-line"></div></div>';}
+    } else if(s.type==='yesno'){
+      shtml+='<div class="yesno-row"><div class="yesno-box'+(sec.yesno==='yes'?' checked-box':'')+'">Yes</div><div class="yesno-box'+(sec.yesno==='no'?' checked-box':'')+'">No</div></div>';
+      shtml+='<div class="text-field write-area">'+(sec.text||'')+'<div class="write-lines"><div class="write-line"></div><div class="write-line"></div></div></div>';
+    }
+    shtml+='</div>';
+    sectionsHTML+=shtml;
+  });
+  const html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+cl.title+' — '+clientName+'</title>' +
+  '<style>' +
+  '*{box-sizing:border-box;margin:0;padding:0;}' +
+  'body{font-family:-apple-system,sans-serif;background:#fff;color:#2C2416;padding:24px;font-size:13px;}' +
+  'h1{font-size:20px;font-weight:700;margin-bottom:4px;}' +
+  '.meta{font-size:12px;color:#8B8070;margin-bottom:6px;}' +
+  '.desc{font-size:12px;color:#8B8070;margin-bottom:20px;line-height:1.6;}' +
+  '.section{margin-bottom:20px;border:1px solid #EDE8DF;border-radius:8px;overflow:hidden;break-inside:avoid;}' +
+  '.section-head{background:#F7F4EF;padding:10px 14px;font-size:14px;font-weight:700;}' +
+  '.section-desc{padding:7px 14px 8px;font-size:11px;color:#8B8070;line-height:1.5;border-bottom:1px solid #EDE8DF;}' +
+  '.cl-item{padding:10px 14px;border-top:1px solid #EDE8DF;}' +
+  '.cl-item-top{display:flex;align-items:center;gap:10px;margin-bottom:6px;}' +
+  '.box{width:16px;height:16px;border:1.5px solid #8B8070;border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;}' +
+  '.box.checked{background:#5C7A5C;border-color:#5C7A5C;color:white;}' +
+  '.item-label{font-size:13px;font-weight:500;}' +
+  '.item-label.done{text-decoration:line-through;color:#8B8070;}' +
+  '.loc-line{display:flex;align-items:center;gap:6px;padding-left:26px;font-size:12px;color:#8B8070;min-height:22px;}' +
+  '.loc-icon{flex-shrink:0;}' +
+  '.loc-filled{color:#5C7A5C;font-weight:600;}' +
+  '.loc-blank{color:#aaa;border-bottom:1px solid #ccc;flex:1;padding-bottom:1px;}' +
+  '.yesno-row{display:flex;gap:12px;padding:12px 14px;}' +
+  '.yesno-box{padding:8px 24px;border:1.5px solid #8B8070;border-radius:6px;font-size:13px;font-weight:600;color:#8B8070;}' +
+  '.yesno-box.checked-box{background:#5C7A5C;border-color:#5C7A5C;color:white;}' +
+  '.text-field{padding:10px 14px;border-top:1px solid #EDE8DF;font-size:12px;color:#2C2416;min-height:40px;}' +
+  '.write-area{min-height:60px;}' +
+  '.write-lines{margin-top:8px;}' +
+  '.write-line{border-bottom:1px solid #CCC;margin-bottom:16px;height:1px;}' +
+  '.text-label{font-size:10px;color:#8B8070;text-transform:uppercase;letter-spacing:.04em;font-weight:600;margin-bottom:6px;}' +
+  '.tip{background:#E8F0E8;border-radius:8px;padding:16px;margin-top:20px;border:1px solid #5C7A5C;}' +
+  '.tip-title{font-size:11px;font-weight:700;color:#5C7A5C;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;}' +
+  '.tip-text{font-size:12px;color:#2C2416;line-height:1.7;}' +
+  '.print-btn{display:block;width:100%;padding:14px;background:#2C2416;color:white;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:20px;}' +
+  '@media print{.print-btn{display:none;}}' +
+  '</style></head><body>' +
+  '<button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>' +
+  '<h1>'+cl.title+'</h1>' +
+  '<div class="meta">'+clientName+' · Prepared by '+cu+' · '+new Date().toLocaleDateString()+'</div>' +
+  '<div class="desc">'+cl.desc+'</div>' +
+  sectionsHTML +
+  '<div class="tip"><div class="tip-title">🌟 OrganizeMe Concierge Tip</div><div class="tip-text">'+cl.tip+'</div></div>' +
+  '</body></html>';
+  const w=window.open('','_blank');
+  if(w){w.document.write(html);w.document.close();}
+};
+
+
+async function renderHistory(){
+  const el=document.getElementById('history-list');if(!el)return;
+  el.innerHTML='<div class="empty">Loading…</div>';
+  try{
+    const snap=await get(ref(db,'history'));
+    if(!snap.exists()){el.innerHTML='<div class="empty">No saved invoices yet.</div>';return;}
+    let jobs=Object.values(snap.val()).sort((a,b)=>(b.savedAt||0)-(a.savedAt||0));
+    const q=(document.getElementById('hsearch').value||'').toLowerCase(),orgF=document.getElementById('horg-filter').value;
+    if(q)jobs=jobs.filter(j=>(j.client||'').toLowerCase().includes(q)||(j.proj||'').toLowerCase().includes(q));
+    if(orgF)jobs=jobs.filter(j=>j.org===orgF);
+    if(!jobs.length){el.innerHTML='<div class="empty">No invoices match your search.</div>';return;}
+    el.innerHTML=jobs.map(j=>`
+      <div style="background:var(--white);border-radius:var(--rlg);border:1px solid var(--border);margin:0 1rem 10px;overflow:hidden;">
+        <div style="padding:12px 14px;cursor:pointer;" onclick="togHist('hist-${j.id}')">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+            <div><div style="font-size:15px;font-weight:600">${esc(j.client||'Client')}</div><div style="font-size:12px;color:var(--muted);margin-top:2px">${esc(j.proj||'')}${j.org?' · '+esc(j.org):''}${j.date?' · '+j.date:''}</div></div>
+            <div style="text-align:right;flex-shrink:0;">
+              <div style="font-size:16px;font-weight:700;color:var(--accent)">${j.finalTotal?fmt(j.finalTotal):(j.allP?fmt(j.tB):'—')}</div>
+              ${j.discAmt?`<div style="font-size:11px;color:var(--warn)">-${fmt(j.discAmt)} disc.</div>`:''}
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:8px;">
+            <span style="font-size:11px;color:var(--muted)">${(j.rows||[]).length} item${(j.rows||[]).length!==1?'s':''} · ${j.savedAt?new Date(j.savedAt).toLocaleDateString():''}${j.savedBy?' · by '+j.savedBy:''}</span>
+            <span id="hist-${j.id}-ico" style="color:var(--muted)">▼</span>
+          </div>
+        </div>
+        <div id="hist-${j.id}" style="display:none;border-top:1px solid var(--border);">
+          <div style="padding:10px 14px;">
+            ${(j.rows||[]).map(r=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">
+              ${r.img?`<img src="${esc(r.img)}" style="width:40px;height:40px;border-radius:6px;object-fit:cover;flex-shrink:0;">`:`<div style="width:40px;height:40px;border-radius:6px;background:var(--sand);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">📦</div>`}
+              <div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:500">${esc(r.name)}</div><div style="font-size:11px;color:${r.sourced?'var(--accent)':'var(--muted)'}">${r.sourced?'✓ Sourcing fee':'No sourcing fee'}${r.consumableFlag?' · ⚠️ Consumable':''}</div></div>
+              <div style="text-align:right;flex-shrink:0;"><div style="font-size:13px;font-weight:600">×${r.qty}</div><div style="font-size:12px;color:var(--accent);font-family:'DM Mono',monospace">${r.hp?fmt(r.base):'—'}</div></div>
+            </div>`).join('')}
+            ${j.taxAmt?`<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;color:var(--muted);"><span>Sales Tax (8.25%)</span><span>${fmt(j.taxAmt)}</span></div>`:''}
+            <div style="display:flex;justify-content:space-between;padding:10px 0;font-weight:700;font-size:15px;border-top:1px solid var(--border);"><span>Total (incl. tax)</span><span style="color:var(--accent)">${j.finalTotal?fmt(j.finalTotal):(j.allP?fmt(j.tB):'—')}</span></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+              <button onclick="editInvoice('${j.id}')" class="btn btn-sm" style="background:var(--wl);color:var(--warn);border-color:#F0D5A8;">✏️ Edit</button>
+              <button onclick="reshare('${j.id}')" class="btn btn-a btn-sm">📤 Share again</button>
+              <button onclick="delHistory('${j.id}')" class="btn btn-sm btn-d">🗑 Delete</button>
+            </div>
+          </div>
+        </div>
+      </div>`).join('');
+  }catch(e){el.innerHTML='<div class="empty">Could not load history.</div>';}
+}
+window.renderHistory=renderHistory;
+window.togHist=function(id){const el=document.getElementById(id),ico=document.getElementById(id+'-ico');if(!el)return;const h=el.style.display==='none';el.style.display=h?'block':'none';if(ico)ico.textContent=h?'▲':'▼';};
+window.delHistory=async function(id){if(!confirm('Delete this invoice?'))return;await set(ref(db,'history/'+id),null);renderHistory();};
+window.reshare=async function(id){
+  const snap=await get(ref(db,'history/'+id));if(!snap.exists())return;
+  const j=snap.val();openPrint({clientName:j.client,project:j.proj,date:j.date},j.rows||[],j.finalTotal||j.tB||0,j.discAmt||0,j.taxAmt||0);
+};
+window.openAdd=function(){editId=null;document.getElementById('mtitle').textContent='Add Product';showForm({});openModal();};
+window.openEdit=function(id){editId=id;const p=products.find(x=>x.id===id);document.getElementById('mtitle').textContent='Edit Product';showForm(p||{});openModal();};
+function showForm(p){
+  document.getElementById('mbody').innerHTML=`
+    <div class="ff"><label class="fl">Product name *</label><input type="text" class="fi" id="fn" value="${esc(p.name||'')}" placeholder="Product name"></div>
+    <div class="ff"><label class="fl">Category</label><select class="fi" id="fcat">${CATS.map(c=>`<option${p.cat===c?' selected':''}>${c}</option>`).join('')}</select></div>
+    <div class="ff"><label class="fl">Vendor(s)</label><input type="text" class="fi" id="fv" value="${esc(p.vendor||'')}" placeholder="e.g. Amazon, Target"></div>
+    <div class="ff"><label class="fl">Product link</label><input type="url" class="fi" id="fl2" value="${esc(p.link||'')}" placeholder="https://…"></div>
+    <div class="ff"><label class="fl">Retail cost ($)</label><input type="number" class="fi" id="fr" min="0" step="0.01" value="${p.retail||''}" placeholder="0.00" oninput="updPP()"></div>
+    <div id="pp" style="display:none" class="ppg">
+      <div class="ppc"><div class="ppl">Sourcing Fee (25%)</div><div class="ppv" id="pps">—</div></div>
+      <div class="ppc"><div class="ppl">Client Cost</div><div class="ppv" id="ppc2">—</div></div>
+    </div>
+    <div class="ff"><label class="fl">Product image URL</label><input type="url" class="fi" id="fimg" value="${esc(p.img||'')}" placeholder="Paste image URL (optional)"></div>
+    <div class="ff"><label class="fl">Barcode (UPC)</label>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input type="text" class="fi" id="fbarcode" value="${esc(p.barcode||'')}" placeholder="Scan or type barcode number" style="flex:1;font-family:'DM Mono',monospace;">
+        <button type="button" onclick="scanToLink()" style="width:48px;height:48px;border-radius:var(--r);border:1.5px solid var(--border);background:var(--sand);font-size:20px;cursor:pointer;flex-shrink:0;" title="Scan barcode">📷</button>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px;">Scan the product's barcode once to link it permanently.</div>
+    </div>
+    <div class="ff"><label class="fl">Notes</label><input type="text" class="fi" id="fnotes" value="${esc(p.notes||'')}" placeholder="Optional"></div>
+    <div class="ff"><label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:12px;background:var(--cream);border-radius:var(--r);border:1.5px solid var(--border);">
+      <input type="checkbox" id="fcon" ${p.consumable?'checked':''} style="width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;">
+      <div><div style="font-size:14px;font-weight:600;">Consumable item</div><div style="font-size:12px;color:var(--muted);">Flags for manual charge review when added to invoice</div></div>
+    </label></div>
+    <button class="btn btn-p btn-full" onclick="saveProd()" style="margin-top:4px">Save Product</button>
+    <button class="btn btn-full" onclick="closeModal()" style="margin-top:8px">Cancel</button>`;
+  if(p.retail)updPP();
+}
+window.updPP=function(){const v=document.getElementById('fr').value,pp=document.getElementById('pp');if(!v){pp.style.display='none';return;}pp.style.display='grid';const pr=cp(v);document.getElementById('pps').textContent=fmt(pr.src);document.getElementById('ppc2').textContent=fmt(pr.base);};
+window.saveProd=async function(){
+  const name=document.getElementById('fn').value.trim();if(!name){alert('Product name required.');return;}
+  const d={id:editId||uid(),name,cat:document.getElementById('fcat').value,vendor:document.getElementById('fv').value.trim(),link:document.getElementById('fl2').value.trim(),retail:parseFloat(document.getElementById('fr').value)||0,img:document.getElementById('fimg').value.trim(),notes:document.getElementById('fnotes').value.trim(),consumable:document.getElementById('fcon').checked||false,barcode:document.getElementById('fbarcode').value.trim()};
+  closeModal();syncUI('saving');await set(ref(db,'products/'+d.id),d);syncUI('live');
+};
+window.delProd=async function(id){if(!confirm('Delete this product?'))return;syncUI('saving');await set(ref(db,'products/'+id),null);syncUI('live');};
+function openModal(){document.getElementById('mbg').classList.add('on');}
+window.closeModal=function(){document.getElementById('mbg').classList.remove('on');editId=null;};
+
+(async()=>{
+  if(checkClientChecklistMode())return;
+  try{await initData();listen();syncUI('live');}catch(e){syncUI('offline');console.error(e);}
+  document.getElementById('loading').style.display='none';
+  document.getElementById('login').style.display='flex';
+})();
+</script>
+</body></html>
